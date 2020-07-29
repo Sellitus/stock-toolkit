@@ -1,3 +1,16 @@
+""":"
+
+# Find a suitable python interpreter (adapt for your specific needs)
+for cmd in ~/anaconda3/envs/stock-toolkit/bin/python ; do
+   command -v > /dev/null $cmd && exec $cmd $0 "$@"
+done
+
+echo "Python not found!" >2
+
+exit 2
+
+":"""
+
 from datetime import datetime
 import multiprocessing as mp
 import backtrader as bt
