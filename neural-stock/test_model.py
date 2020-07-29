@@ -24,8 +24,6 @@ parser = argparse.ArgumentParser(description='Test that thing')
 
 parser.add_argument('--ticker', action="store", dest="TICKER", default=None,
                     help="Stock ticker to train with")
-parser.add_argument('--n-steps', action="store", dest="N_STEPS", default=50, type=int,
-                    help="Window size / sequence length. Ex: --n-steps 50")
 parser.add_argument('--lookup-step', action="store", dest="LOOKUP_STEP", default=1, type=int,
                     help="Number of steps in the future to predict. Ex: --lookup-step 1")
 parser.add_argument('--test-size', action="store", dest="TEST_SIZE", default=0.2, type=float,
@@ -46,7 +44,6 @@ if TICKER is not None:
 else:
     ticker = "AMD"
 
-N_STEPS = args.N_STEPS
 LOOKUP_STEP = args.LOOKUP_STEP
 TEST_SIZE = args.TEST_SIZE
 MODEL_NAME = args.MODEL_NAME
@@ -78,12 +75,12 @@ FEATURE_COLUMNS = ["adjclose", "volume", "open", "high", "low",
        'others_dlr', 'others_cr']
 
 
+model = tf.keras.models.load_model(filename_model)
+N_STEPS = model.variables[0].shape[0]
+
 # Now test the model
 data = load_data(ticker, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE,
                 feature_columns=FEATURE_COLUMNS, shuffle=False)
-
-
-model = tf.keras.models.load_model(filename_model)
 
 
 # evaluate the model
@@ -94,7 +91,7 @@ print("Mean Absolute Error:", mean_absolute_error)
 
 
 # predict the future price
-future_price = predict(model, data)
+future_price = predict(model, data, N_STEPS)
 print(f"Future price after {LOOKUP_STEP} days is {future_price:.2f}$")
 
 

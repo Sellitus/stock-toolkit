@@ -24,7 +24,7 @@ try:
 except Exception:
     pass
 
-# try:
-#     shutil.rmtree("data")
-# except Exception:
-#     pass
+try:
+    shutil.rmtree("data")
+except Exception:
+    pass

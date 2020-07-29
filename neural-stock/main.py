@@ -11,19 +11,22 @@ exit 2
 
 ":"""
 
-import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout, Bidirectional
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
 
 import numpy as np
+import pandas as pd
+import tensorflow as tf
+
 import argparse
 import time
 import os
+import pickle
 import random
 import shutil
 
-from .utils import load_data, predict, get_accuracy, plot_graph
+from utils import load_data, predict, get_accuracy, plot_graph
 
 
 
@@ -98,6 +101,8 @@ parser.add_argument('--delete-logs', action="store_true", dest="DELETE_LOGS", de
                     help="Pass to load a model rather than create a new one")
 parser.add_argument('--resume-model', action="store_true", dest="RESUME_MODEL", default=False,
                     help="Pass to load a model rather than create a new one")
+parser.add_argument('--update-data', action="store_true", dest="UPDATE_DATA", default=False,
+                    help="Updates the ticker dataset, even if it already exists.")
 
 parser.add_argument('--n-steps', action="store", dest="N_STEPS", default=50, type=int,
                     help="Window size / sequence length. Ex: --n-steps 50")
@@ -131,6 +136,7 @@ DELETE_LOGS = args.DELETE_LOGS
 # Default: None
 MODEL_NAME = args.MODEL_NAME
 RESUME_MODEL = args.RESUME_MODEL
+UPDATE_DATA = args.UPDATE_DATA
 
 
 # Window size or the sequence length
@@ -208,7 +214,7 @@ if TICKER is not None:
     ticker = TICKER.upper()
 else:
     ticker = "AMD"
-ticker_data_filename = os.path.join("data", f"{ticker}_{date_now}.csv")
+ticker_data_filename = os.path.join("data", f"{ticker}.csv")
 # model name to save, making it as unique as possible based on parameters
 model_name_specs = f"{date_now}_{ticker}-{LOSS}-{OPTIMIZER}-{CELL.__name__}-seq-{N_STEPS}-step-{LOOKUP_STEP}-layers-" \
                    f"{N_HIDDEN_LAYERS}-units-{UNITS}"
@@ -243,11 +249,13 @@ if not os.path.isdir("data"):
 
 
 
-# load the data
-data = load_data(ticker, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE, feature_columns=FEATURE_COLUMNS)
-
-# save the dataframe
-data["df"].to_csv(ticker_data_filename)
+# Load the data from disk if it exists or --update-data is not passed, otherwise pull info from Yahoo Finance
+if os.path.exists(ticker_data_filename) and UPDATE_DATA is False:
+    data = pickle.load(open(ticker_data_filename, "rb"))
+else:
+    data = load_data(ticker, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE, feature_columns=FEATURE_COLUMNS)
+    # Save the dataframe to prevent fetching every run
+    pickle.dump(data, open(ticker_data_filename, "wb"))
 
 
 if RESUME_MODEL is True and os.path.exists(filename_model):
@@ -288,7 +296,6 @@ data = load_data(ticker, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE,
 
 model.load_weights(filename_model)
 
-
 # evaluate the model
 mse, mae = model.evaluate(data["X_test"], data["y_test"], verbose=0)
 # calculate the mean absolute error (inverse scaling)
@@ -297,7 +304,7 @@ print("Mean Absolute Error:", mean_absolute_error)
 
 
 # predict the future price
-future_price = predict(model, data)
+future_price = predict(model, data, N_STEPS)
 print(f"Future price after {LOOKUP_STEP} days is {future_price:.2f}$")
 
 

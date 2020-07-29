@@ -97,7 +97,7 @@ def load_data(ticker, n_steps=50, scale=True, shuffle=True, lookup_step=1,
     return result
 
 
-def predict(model, data, classification=False):
+def predict(model, data, N_STEPS, classification=False):
     # retrieve the last sequence from data
     last_sequence = data["last_sequence"][:N_STEPS]
     # retrieve the column scalers
