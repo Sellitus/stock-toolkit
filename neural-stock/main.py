@@ -82,8 +82,8 @@ def create_model(sequence_length, hidden_neurons=256, input_neurons=None, output
 
 parser = argparse.ArgumentParser(description='Train that thing')
 
-parser.add_argument('--ticker', action="store", dest="TICKER", default=None,
-                    help="Stock ticker to train with")
+parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
+                    help="Stock tickers to train with. Ex: --tickers AMD GOOGL INTC")
 # parser.add_argument('--model-load', action="store_true", dest="arg_model_load", default=None,
 #                     help="Pass to load a model rather than create a new one")
 # parser.add_argument('--model-filename', action="store", dest="arg_model_filename", default=None,
@@ -96,6 +96,8 @@ parser.add_argument('--ticker', action="store", dest="TICKER", default=None,
 parser.add_argument('--model-name', action="store", dest="MODEL_NAME", default=None,
                     help="Pass a model name to either load from or save to (in logs/ and results/ folders). Ex: "
                          "--log-filename main")
+parser.add_argument('--ticker-epochs', action="int", dest="TICKER_EPOCHS", default=100,
+                    help="Number of epochs per ticker passed")
 
 parser.add_argument('--delete-logs', action="store_true", dest="DELETE_LOGS", default=False,
                     help="Pass to load a model rather than create a new one")
@@ -103,6 +105,7 @@ parser.add_argument('--resume-model', action="store_true", dest="RESUME_MODEL", 
                     help="Pass to load a model rather than create a new one")
 parser.add_argument('--update-data', action="store_true", dest="UPDATE_DATA", default=False,
                     help="Updates the ticker dataset, even if it already exists.")
+
 
 parser.add_argument('--n-steps', action="store", dest="N_STEPS", default=50, type=int,
                     help="Window size / sequence length. Ex: --n-steps 50")
@@ -130,7 +133,9 @@ args = parser.parse_args()
 
 
 # Default: None
-TICKER = args.TICKER
+TICKERS = args.TICKERS
+# Default: 100
+TICKER_EPOCHS = args.TICKER_EPOCHS
 # Default: False
 DELETE_LOGS = args.DELETE_LOGS
 # Default: None
@@ -209,14 +214,11 @@ BATCH_SIZE = args.BATCH_SIZE
 EPOCHS = args.EPOCHS
 
 
+tickers = [ticker.upper() for ticker in TICKERS]
+tickers_str = '-'.join(tickers)
 
-if TICKER is not None:
-    ticker = TICKER.upper()
-else:
-    ticker = "AMD"
-ticker_data_filename = os.path.join("data", f"{ticker}.csv")
 # model name to save, making it as unique as possible based on parameters
-model_name_specs = f"{date_now}_{ticker}-{LOSS}-{OPTIMIZER}-{CELL.__name__}-seq-{N_STEPS}-step-{LOOKUP_STEP}-layers-" \
+model_name_specs = f"{tickers_str}_{date_now}-{LOSS}-{OPTIMIZER}-{CELL.__name__}-seq-{N_STEPS}-step-{LOOKUP_STEP}-layers-" \
                    f"{N_HIDDEN_LAYERS}-units-{UNITS}"
 if BIDIRECTIONAL:
     model_name_specs += "-b"
@@ -247,15 +249,18 @@ if not os.path.isdir("logs"):
 if not os.path.isdir("data"):
     os.mkdir("data")
 
-
-
-# Load the data from disk if it exists or --update-data is not passed, otherwise pull info from Yahoo Finance
-if os.path.exists(ticker_data_filename) and UPDATE_DATA is False:
-    data = pickle.load(open(ticker_data_filename, "rb"))
-else:
-    data = load_data(ticker, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE, feature_columns=FEATURE_COLUMNS)
-    # Save the dataframe to prevent fetching every run
-    pickle.dump(data, open(ticker_data_filename, "wb"))
+data = []
+for ticker in tickers:
+    ticker_data_filename = os.path.join("data", f"{ticker}.csv")
+    # Load the data from disk if it exists or --update-data is not passed, otherwise pull info from Yahoo Finance
+    if os.path.exists(ticker_data_filename) and UPDATE_DATA is False:
+        curr_data = pickle.load(open(ticker_data_filename, "rb"))
+        data.append(data)
+    else:
+        curr_data = load_data(ticker, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE, feature_columns=FEATURE_COLUMNS)
+        data.append(curr_data)
+        # Save the dataframe to prevent fetching every run
+        pickle.dump(data, open(ticker_data_filename, "wb"))
 
 
 if RESUME_MODEL is True and os.path.exists(filename_model):
@@ -275,12 +280,20 @@ else:
     tensorboard = TensorBoard(log_dir=os.path.join("logs", model_name_specs))
 
 
-history = model.fit(data["X_train"], data["y_train"],
-                    batch_size=BATCH_SIZE,
-                    epochs=EPOCHS,
-                    validation_data=(data["X_test"], data["y_test"]),
-                    callbacks=[checkpointer, tensorboard],
-                    verbose=1)
+epoch_count = 0
+while epoch_count < EPOCHS:
+    for i in range(len(tickers)):
+        curr_data = data[i]
+        model.fit(curr_data["X_train"], curr_data["y_train"],
+                  batch_size=BATCH_SIZE,
+                  epochs=EPOCHS,
+                  validation_data=(curr_data["X_test"], curr_data["y_test"]),
+                  callbacks=[checkpointer, tensorboard],
+                  verbose=1)
+        epoch_count += TICKER_EPOCHS
+        if epoch_count >= EPOCHS:
+            break
+
 
 # Save model to disk
 if os.path.exists(filename_model):
@@ -290,8 +303,8 @@ model.save(filename_model)
 
 
 # Now test the model
-data = load_data(ticker, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE,
-                feature_columns=FEATURE_COLUMNS, shuffle=False)
+data = load_data(tickers, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE,
+                 feature_columns=FEATURE_COLUMNS, shuffle=False)
 
 
 model.load_weights(filename_model)

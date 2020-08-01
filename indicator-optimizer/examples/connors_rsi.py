@@ -64,7 +64,7 @@ if __name__ == '__main__':
     session = setup_psql_environment.get_session()
 
     query = session.query(SecurityPrice).join(Security). \
-        filter(Security.ticker == 'AAPL'). \
+        filter(Security.tickers == 'AAPL'). \
         filter(SecurityPrice.date >= '2017-01-01'). \
         filter(SecurityPrice.date <= '2017-12-31').statement
     dataframe = pd.read_sql(query, db, index_col='date', parse_dates=['date'])
