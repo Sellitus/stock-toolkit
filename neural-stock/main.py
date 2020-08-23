@@ -96,7 +96,7 @@ parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
 parser.add_argument('--model-name', action="store", dest="MODEL_NAME", default=None,
                     help="Pass a model name to either load from or save to (in logs/ and results/ folders). Ex: "
                          "--log-filename main")
-parser.add_argument('--ticker-epochs', action="int", dest="TICKER_EPOCHS", default=100,
+parser.add_argument('--ticker-epochs', action="store", type=int, dest="TICKER_EPOCHS", default=100,
                     help="Number of epochs per ticker passed")
 
 parser.add_argument('--delete-logs', action="store_true", dest="DELETE_LOGS", default=False,
@@ -254,13 +254,17 @@ for ticker in tickers:
     ticker_data_filename = os.path.join("data", f"{ticker}.csv")
     # Load the data from disk if it exists or --update-data is not passed, otherwise pull info from Yahoo Finance
     if os.path.exists(ticker_data_filename) and UPDATE_DATA is False:
+        print("Loading Ticker History: {}".format(ticker_data_filename))
         curr_data = pickle.load(open(ticker_data_filename, "rb"))
-        data.append(data)
+
+        data.append(curr_data)
     else:
+        print("Downloading Ticker History: {}".format(ticker))
         curr_data = load_data(ticker, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE, feature_columns=FEATURE_COLUMNS)
+
         data.append(curr_data)
         # Save the dataframe to prevent fetching every run
-        pickle.dump(data, open(ticker_data_filename, "wb"))
+        pickle.dump(curr_data, open(ticker_data_filename, "wb"))
 
 
 if RESUME_MODEL is True and os.path.exists(filename_model):
@@ -280,19 +284,29 @@ else:
     tensorboard = TensorBoard(log_dir=os.path.join("logs", model_name_specs))
 
 
-epoch_count = 0
-while epoch_count < EPOCHS:
-    for i in range(len(tickers)):
-        curr_data = data[i]
-        model.fit(curr_data["X_train"], curr_data["y_train"],
-                  batch_size=BATCH_SIZE,
-                  epochs=EPOCHS,
-                  validation_data=(curr_data["X_test"], curr_data["y_test"]),
-                  callbacks=[checkpointer, tensorboard],
-                  verbose=1)
-        epoch_count += TICKER_EPOCHS
-        if epoch_count >= EPOCHS:
-            break
+
+if len(tickers) == 1:
+    model.fit(curr_data["X_train"], curr_data["y_train"],
+              batch_size=BATCH_SIZE,
+              epochs=EPOCHS,
+              validation_data=(curr_data["X_test"], curr_data["y_test"]),
+              callbacks=[checkpointer, tensorboard],
+              verbose=1)
+else:
+    epoch_count = 0
+    while epoch_count < EPOCHS:
+        for i in range(len(tickers)):
+            print('Training with ticker: {}'.format(tickers[i]))
+            curr_data = data[i]
+            model.fit(curr_data["X_train"], curr_data["y_train"],
+                      batch_size=BATCH_SIZE,
+                      epochs=TICKER_EPOCHS,
+                      validation_data=(curr_data["X_test"], curr_data["y_test"]),
+                      callbacks=[checkpointer, tensorboard],
+                      verbose=1)
+            epoch_count += TICKER_EPOCHS
+            if epoch_count >= EPOCHS:
+                break
 
 
 # Save model to disk

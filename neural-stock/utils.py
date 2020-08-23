@@ -2,6 +2,7 @@
 
 
 from collections import deque
+from scipy.stats import zscore
 from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
@@ -16,6 +17,7 @@ import ta
 
 def load_data(ticker, n_steps=50, scale=True, shuffle=True, lookup_step=1,
                 test_size=0.2, feature_columns=('adjclose', 'volume', 'open', 'high', 'low')):
+    df = None
     # see if ticker is already a loaded stock from yahoo finance
     if isinstance(ticker, str):
         # load it from yahoo_fin library
@@ -28,7 +30,7 @@ def load_data(ticker, n_steps=50, scale=True, shuffle=True, lookup_step=1,
     df = ta.utils.dropna(df)
 
     # Add technical indicators to dataset
-    df = ta.add_all_ta_features(df, open="open", high="high", low="low", close="close", volume="volume")
+    df = ta.add_all_ta_features(df, open="open", high="high", low="low", close="adjclose", volume="volume")
 
     # Replace NaN values with 0
     df = df.fillna(0)

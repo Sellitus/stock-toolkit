@@ -5,7 +5,7 @@ conda create --name stock-toolkit python
 conda activate stock-toolkit
 conda install pandas matplotlib
 conda install -c anaconda sqlalchemy
-pip install backtrader requests pandas numpy matplotlib yahoo_fin sklearn beautifulsoup4 nltk lxml requests_html ta
+pip install backtrader requests pandas numpy matplotlib yahoo_fin sklearn beautifulsoup4 nltk lxml requests_html ta get-all-tickers
 
 - For CPU Tensorflow:
 pip install tensorflow

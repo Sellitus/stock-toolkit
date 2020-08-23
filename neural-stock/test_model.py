@@ -11,6 +11,11 @@ exit 2
 
 ":"""
 
+# Force CPU by disabling the GPU
+import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
 
 from utils import load_data, predict, get_accuracy, plot_graph
 
