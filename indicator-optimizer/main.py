@@ -70,7 +70,6 @@ def strategyThread(cerebro, initial_capital, low, high, best_results, best_resul
     final_capital_str = '%.2f' % final_capital
 
     #print('Ending Portfolio Value: ({}, {}) {}'.format(low, high, final_capital_str))
-
     if final_capital > initial_capital:
         print('Found Profitable Settings: ({}, {}) {}'.format(low, high, final_capital_str))
         best_results.append((final_capital, (low, high)))
@@ -99,7 +98,7 @@ def findFrequencySMA(best_results):
 
 if __name__ == '__main__':
     INITIAL_CAPITAL = 1000.0
-    RANGE_LOW_MIN = 10
+    RANGE_LOW_MIN = 5
     RANGE_LOW_MAX = 50
     # RANGE_HIGH_MIN automatically set based on outer loop
     RANGE_HIGH_MAX = 50
@@ -133,22 +132,34 @@ if __name__ == '__main__':
     process_pool.close()
     process_pool.join()
 
+    import pdb
+    pdb.set_trace()
+
     best_results = sorted(best_results, key=lambda x: x[0])
     best_results.reverse()
+
+    print('Final Amount : ( Low SMA / High SMA)')
+    limit = 50
+    for i in range(len(best_results)):
+        if i > limit:
+            break
+        print('%.2f' % best_results[i][0] + ' : ' + str(best_results[i][1]))
+
 
     # Get the frequencies for each setting
     low_freq, high_freq = findFrequencySMA(best_results)
 
-    low_freq = collections.Counter(low_freq).most_common(10)
-    high_freq = collections.Counter(high_freq).most_common(10)
+    low_freq = collections.Counter(low_freq).most_common(50)
+    high_freq = collections.Counter(high_freq).most_common(50)
 
     # Sort by most frequent first
     # low_freq = dict(sorted(low_freq.items(), key=operator.itemgetter(1), reverse=True))
     # high_freq = dict(sorted(high_freq.items(), key=operator.itemgetter(1), reverse=True))
 
     # Find frequencies of profitable settings
-    print('Low: ' + str(low_freq))
-    print('High: ' + str(high_freq))
+    print('(MA Value : Number of Times Profitable)')
+    print('Low MA : ' + str(low_freq))
+    print('High MA: ' + str(high_freq))
 
     # Plot best results
     cerebro = bt.Cerebro()

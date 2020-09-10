@@ -317,7 +317,7 @@ model.save(filename_model)
 
 
 # Now test the model
-data = load_data(tickers, N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE,
+data = load_data(tickers[0], N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SIZE,
                  feature_columns=FEATURE_COLUMNS, shuffle=False)
 
 
