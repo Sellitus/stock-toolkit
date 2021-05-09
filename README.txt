@@ -2,6 +2,7 @@ Setup Guide:
   A) Install Hyper-V VM with GPU Passthrough
   B) Install NVIDIA CUDA
   C) Install all necessary packages for running scripts on the Ubuntu machine
+  D) EXTRA: Disable GPU Passthrough
 
 --- A ---
 
@@ -55,6 +56,17 @@ pip install tensorflow-gpu
 
 - How to Watch Training: 
 tensorboard --logdir="logs"
+
+
+--- D ---
+
+-Disable GPU Passthrough
+
+(Use the same values used for $VM and $Location as in step A3
+
+Remove-VMAssignableDevice -LocationPath $Location -VMName $VM
+Enable-PnpDevice $Location
+Mount-VMHostAssignableDevice -LocationPath $Location
 
 
 
