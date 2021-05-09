@@ -6,7 +6,8 @@ Setup Guide:
 --- A ---
 
 1) Create Ubuntu VM in Hyper-V.
-2) Enable GPU passthrough:
+2) Fully install Ubuntu OS within VM and shut the VM down.
+3) Enable GPU passthrough:
 
 !!! NOTE !!! : Do not do this on a GPU you are using to see the screen, as it will be disabled.
 
