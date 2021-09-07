@@ -30,6 +30,10 @@ from utils import load_data, predict, get_accuracy, plot_graph
 
 
 
+# Disable GPU
+tf.config.experimental.set_visible_devices([], 'GPU')
+
+
 
 # Set seed for consistent results
 seed = 314
@@ -282,45 +286,45 @@ else:
                          bidirectional=BIDIRECTIONAL)
 
 
-if PLOT_GRAPH is False:
-    # some tensorflow callbacks
-    checkpointer = ModelCheckpoint(filename_model, save_weights_only=False, save_best_only=True, verbose=1)
-    if MODEL_NAME is not None:
-        tensorboard = TensorBoard(log_dir=os.path.join("logs", MODEL_NAME))
-    else:
-        tensorboard = TensorBoard(log_dir=os.path.join("logs", model_name_specs))
-
-
-
-    if len(tickers) == 1:
-        model.fit(curr_data["X_train"], curr_data["y_train"],
-                  batch_size=BATCH_SIZE,
-                  epochs=EPOCHS,
-                  validation_data=(curr_data["X_test"], curr_data["y_test"]),
-                  callbacks=[checkpointer, tensorboard],
-                  verbose=1)
-    else:
-        epoch_count = 0
-        while epoch_count < EPOCHS:
-            for i in range(len(tickers)):
-                print('Training with ticker: {}'.format(tickers[i]))
-                curr_data = data[i]
-                model.fit(curr_data["X_train"], curr_data["y_train"],
-                          batch_size=BATCH_SIZE,
-                          epochs=TICKER_EPOCHS,
-                          validation_data=(curr_data["X_test"], curr_data["y_test"]),
-                          callbacks=[checkpointer, tensorboard],
-                          verbose=1)
-                epoch_count += TICKER_EPOCHS
-                if epoch_count >= EPOCHS:
-                    break
-
-
-    # Save model to disk
-    if os.path.exists(filename_model):
-        shutil.move(filename_model, os.path.join("results", MODEL_NAME + date_now + '.h5'))
-
-    model.save(filename_model)
+# if PLOT_GRAPH is False:
+#     # some tensorflow callbacks
+#     checkpointer = ModelCheckpoint(filename_model, save_weights_only=False, save_best_only=True, verbose=1)
+#     if MODEL_NAME is not None:
+#         tensorboard = TensorBoard(log_dir=os.path.join("logs", MODEL_NAME))
+#     else:
+#         tensorboard = TensorBoard(log_dir=os.path.join("logs", model_name_specs))
+#
+#
+#
+#     if len(tickers) == 1:
+#         model.fit(curr_data["X_train"], curr_data["y_train"],
+#                   batch_size=BATCH_SIZE,
+#                   epochs=EPOCHS,
+#                   validation_data=(curr_data["X_test"], curr_data["y_test"]),
+#                   callbacks=[checkpointer, tensorboard],
+#                   verbose=1)
+#     else:
+#         epoch_count = 0
+#         while epoch_count < EPOCHS:
+#             for i in range(len(tickers)):
+#                 print('Training with ticker: {}'.format(tickers[i]))
+#                 curr_data = data[i]
+#                 model.fit(curr_data["X_train"], curr_data["y_train"],
+#                           batch_size=BATCH_SIZE,
+#                           epochs=TICKER_EPOCHS,
+#                           validation_data=(curr_data["X_test"], curr_data["y_test"]),
+#                           callbacks=[checkpointer, tensorboard],
+#                           verbose=1)
+#                 epoch_count += TICKER_EPOCHS
+#                 if epoch_count >= EPOCHS:
+#                     break
+#
+#
+#     # Save model to disk
+#     if os.path.exists(filename_model):
+#         shutil.move(filename_model, os.path.join("results", MODEL_NAME + date_now + '.h5'))
+#
+#     model.save(filename_model)
 
 
 # Now test the model

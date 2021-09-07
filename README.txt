@@ -21,7 +21,7 @@ sudo apt update
 
 - Check the repo URL in /etc/apt/sources.list.d/cuda.list and get newest version for the following command
 
-sudo apt install -y cuda-toolkit-11-2
+sudo apt install -y cuda-toolkit-11-4
 
 
 
@@ -80,10 +80,12 @@ conda install pandas matplotlib
 conda install -c anaconda sqlalchemy
 pip install backtrader requests pandas numpy matplotlib yahoo_fin sklearn beautifulsoup4 nltk lxml requests_html ta get-all-tickers fastquant
 
-- For CPU Tensorflow:
-pip install tensorflow
-- For GPU Tensorflow:
-pip install tensorflow-gpu
+
+- For GPU Tensorflow (extremely fast):
+pip install tensorflow-gpu==2.6 -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
+- For CPU Tensorflow (much slower):
+pip install tensorflow==2.6 -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
+
 
 - How to Watch Training: 
 tensorboard --logdir="logs"
