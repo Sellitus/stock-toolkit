@@ -78,7 +78,7 @@ conda create --name stock-toolkit python
 conda activate stock-toolkit
 conda install pandas matplotlib
 conda install -c anaconda sqlalchemy
-pip install backtrader requests pandas numpy matplotlib yahoo_fin sklearn beautifulsoup4 nltk lxml requests_html ta get-all-tickers fastquant
+pip install backtrader requests pandas numpy matplotlib yahoo_fin sklearn beautifulsoup4 nltk lxml requests_html ta get-all-tickers fastquant keras-buoy
 
 
 - For GPU Tensorflow (extremely fast):
