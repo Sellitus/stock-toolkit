@@ -1,0 +1,22 @@
+This file is for ideas related to the project
+
+1) Create a save file package that includes the logs, data, etc. This will make organization much easier.
+
+2) Change the model to judge fitness based on buy and sell orders. Also incorporate shorting.
+
+3) Think of ideas for creating a prediction graph into the future for a week or 2
+
+4) Create a way to make models 'general purpose' so one model can be trained with many datasets
+    - Look into different methods of normalization processing
+
+5) Research new techniques for predicting the stock and crypto money markets
+
+6) Consider using neural networks to build other neural networks.
+    - The current model only predicts the next day's price, which can be one of the many indicators used
+    to make feed into a bot that makes price action decisions.
+    - Some neural networks can be built using other neural networks. Look into making a network of various
+    neural network models that feeds their output into a final neural network.
+
+7) Refactor and clean up the code. With the previous objectives in mind, think of how the code can be
+refactored to make building out new neural networks easier and faster.
+

@@ -334,11 +334,12 @@ data = load_data(tickers[0], N_STEPS, lookup_step=LOOKUP_STEP, test_size=TEST_SI
 
 model.load_weights(filename_model)
 
-# evaluate the model
-mse, mae = model.evaluate(data["X_test"], data["y_test"], verbose=0)
-# calculate the mean absolute error (inverse scaling)
-mean_absolute_error = data["column_scaler"]["adjclose"].inverse_transform([[mae]])[0][0]
-print("Mean Absolute Error:", mean_absolute_error)
+# FIX THIS AND REENABLE
+# # evaluate the model
+# mse, mae = model.evaluate(data["X_test"], data["y_test"], verbose=0)
+# # calculate the mean absolute error (inverse scaling)
+# mean_absolute_error = data["column_scaler"]["adjclose"].inverse_transform([[mae]])[0][0]
+# print("Mean Absolute Error:", mean_absolute_error)
 
 
 # predict the future price
