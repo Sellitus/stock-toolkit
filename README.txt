@@ -126,7 +126,10 @@ Unknown fit - Validation error low, training error 'high'
 
 
 
+TROUBLESHOOTING:
 
+If Yahoo Finance is having issues, run this with conda activated:
+pip install yahoo_fin --update
 
 
 
