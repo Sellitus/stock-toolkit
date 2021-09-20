@@ -1,7 +1,3 @@
-from TechnicalIndicator import TechnicalIndicator
-
-
-
 class Candidate:
     """
     Member of the population. Contains DNA, which consists of individual technical indicators
