@@ -1,4 +1,5 @@
 
+import numpy as np
 import os
 import pandas as pd
 import pickle
@@ -59,15 +60,15 @@ class TickerData:
         if feature_columns is None:
             feature_columns = self.FEATURE_COLUMNS
 
-        data = []
+        data = {}
         for ticker in tickers:
             ticker_data_filename = os.path.join("data", f"{ticker}.csv")
             # Load the data from disk if it exists, otherwise pull info from Yahoo Finance
             if os.path.exists(ticker_data_filename):
                 print("Loading Ticker History: {}".format(ticker_data_filename))
-                curr_data = pickle.load(open(ticker_data_filename, "rb"))
+                curr_data_df = pickle.load(open(ticker_data_filename, "rb"))
 
-                data.append(curr_data)
+                data[ticker] = curr_data_df
             else:
                 print("Downloading Ticker History: {}".format(ticker))
                 #curr_data = load_data(ticker, feature_columns=FEATURE_COLUMNS)
@@ -87,7 +88,7 @@ class TickerData:
                 # Save the dataframe to prevent fetching every run
                 pickle.dump(curr_data_df, open(ticker_data_filename, "wb"))
 
-                data.append(curr_data_df)
+                data[ticker] = curr_data_df
 
         self.data = data
         return data
