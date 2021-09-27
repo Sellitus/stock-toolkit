@@ -68,7 +68,7 @@ def load_data(ticker, n_steps=50, scale=True, shuffle=True, lookup_step=1,
     # Clean NaN values
     df = ta.utils.dropna(df)
 
-    # Add technical indicators to dataset
+    # Add technical lib to dataset
     df = ta.add_all_ta_features(df, open="open", high="high", low="low", close="adjclose", volume="volume")
 
     # Replace NaN values with 0

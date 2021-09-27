@@ -1,3 +1,5 @@
+
+import os
 import pandas as pd
 import pickle
 import ta
@@ -93,12 +95,12 @@ class TickerData:
     def add_technical_indicators_to_dataset(self, df, feature_columns=('adjclose', 'volume', 'open', 'high', 'low'),
                                             scale=True):
         """
-        Adds all of the technical indicators from the Python ta library with the default settings.
+        Adds all of the technical lib from the Python ta library with the default settings.
         """
         # Clean NaN values
         df = ta.utils.dropna(df)
 
-        # Add technical indicators to dataset
+        # Add technical lib to dataset
         df = ta.add_all_ta_features(df, open="open", high="high", low="low", close="adjclose", volume="volume")
 
         # Replace NaN values with 0

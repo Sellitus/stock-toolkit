@@ -1,22 +1,15 @@
 import argparse
+from concurrent.futures import ThreadPoolExecutor
+
 import numpy as np
 import os
 import random
 import time
 
-from GeneticStrategyBuilder import GeneticStrategyBuilder
+from lib.Candidate import Candidate
+from lib.StrategyTester import StrategyTester
+from threading import Thread
 from TickerData import TickerData
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -51,10 +44,22 @@ if not os.path.isdir("data"):
 # Initialize TickerData, passing a list of tickers to load
 ticker_data = TickerData(tickers=tickers)
 
-# Create the GeneticStrategyBuilder object
-genetic_strategy_builder = GeneticStrategyBuilder(ticker_data=ticker_data)
 
 
+
+
+tester = StrategyTester()
+
+population_size = 10
+results = []
+pool = ThreadPoolExecutor(max_workers=10)
+for _ in range(population_size):
+    # Mock data here for strategy tester
+    m_candidate = Candidate()
+
+    t = pool.submit(tester.test_strategy, results, ticker_data, m_candidate)
+
+pool.shutdown(wait=True)
 
 
 
