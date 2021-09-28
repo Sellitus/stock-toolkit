@@ -96,12 +96,12 @@ class TickerData:
     def add_technical_indicators_to_dataset(self, df, feature_columns=('adjclose', 'volume', 'open', 'high', 'low'),
                                             scale=True):
         """
-        Adds all of the technical lib from the Python ta library with the default settings.
+        Adds all of the technical library from the Python ta library with the default settings.
         """
         # Clean NaN values
         df = ta.utils.dropna(df)
 
-        # Add technical lib to dataset
+        # Add technical library to dataset
         df = ta.add_all_ta_features(df, open="open", high="high", low="low", close="adjclose", volume="volume")
 
         # Replace NaN values with 0

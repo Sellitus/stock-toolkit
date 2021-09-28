@@ -7,8 +7,8 @@ import pdb
 import random
 import time
 
-from lib.Candidate import Candidate
-from lib.StrategyTester import StrategyTester, Result
+from library.Candidate import Candidate
+from library.StrategyTester import StrategyTester, Result
 from TickerData import TickerData
 
 
