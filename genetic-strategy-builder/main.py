@@ -42,7 +42,14 @@ if not os.path.isdir("data"):
 
 
 # Initialize TickerData, passing a list of tickers to load
-ticker_data = TickerData(tickers=tickers)
+try:
+    ticker_data = TickerData(tickers=tickers)
+except:
+    pass
+# Cut down the data to only the timeframe being tested
+num_days_to_train = 1045
+for key in ticker_data.data.keys():
+    ticker_data.data[key]['df'] = ticker_data.data[key]['df'].iloc[-1 * num_days_to_train:-1]
 
 
 
@@ -130,7 +137,7 @@ for _ in range(num_generations):
         new_population.append(Candidate())
 
     # Store the frequencies of the indicators for the most elite population
-    top_tier_elite = round(population_size * 0.04)
+    top_tier_elite = round(population_size * 0.02)
     for i in range(top_tier_elite):
         elite_dna = candidate_average[i].candidate.DNA
         for indicator in elite_dna:
