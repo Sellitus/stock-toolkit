@@ -42,10 +42,7 @@ if not os.path.isdir("data"):
 
 
 # Initialize TickerData, passing a list of tickers to load
-try:
-    ticker_data = TickerData(tickers=tickers)
-except:
-    pass
+ticker_data = TickerData(tickers=tickers)
 # Cut down the data to only the timeframe being tested
 num_days_to_train = 1045
 for key in ticker_data.data.keys():
