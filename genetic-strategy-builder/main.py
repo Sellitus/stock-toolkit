@@ -47,7 +47,6 @@ ticker_data = TickerData(tickers=tickers)
 
 
 
-
 tester = StrategyTester()
 
 population_size = int(100)
@@ -136,7 +135,7 @@ for _ in range(num_generations):
             else:
                 best_performing_indicators[str(indicator)] += 1
 
-    print('Best Earnings: {:.2f}  Buys: {}  Sells: {}  Best DNA: {}'.format(
+    print('Best Earnings: ${:,.2f}  Buys: {}  Sells: {}  Best DNA: {}'.format(
           candidate_average[0].capital, candidate_average[0].buys, candidate_average[0].sells,
           population[0].DNA))
     sorted_best = {k: v for k, v in reversed(sorted(best_performing_indicators.items(), key=lambda item: item[1]))}

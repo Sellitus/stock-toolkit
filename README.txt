@@ -78,8 +78,10 @@ conda create --name stock-toolkit python
 conda activate stock-toolkit
 conda install pandas matplotlib
 conda install -c anaconda sqlalchemy
-pip install backtrader requests pandas numpy matplotlib yahoo_fin sklearn beautifulsoup4 nltk lxml requests_html ta get-all-tickers fastquant keras-buoy
-
+# keras-buoy removed from pip install list
+pip install backtrader requests pandas numpy matplotlib yahoo_fin sklearn beautifulsoup4 nltk lxml requests_html ta get-all-tickers fastquant
+# Update all pip packages in conda env
+pip list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U
 
 - For GPU Tensorflow (extremely fast):
 pip install tensorflow-gpu==2.6 -i http://pypi.douban.com/simple --trusted-host pypi.douban.com
