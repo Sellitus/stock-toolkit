@@ -57,9 +57,9 @@ manager = mp.Manager()
 # Create a pool of size that matches the CPU core count
 process_pool = mp.Pool(mp.cpu_count())
 
-num_generations = 1000
+num_generations = 10000
 
-
+best_candidate = None
 population = []
 for _ in range(population_size):
     # Mock data here for strategy tester
@@ -104,6 +104,10 @@ for _ in range(num_generations):
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
     candidate_average.reverse()
 
+    # Save best candidate
+    if best_candidate is None or best_candidate.capital < candidate_average[0].capital:
+        best_candidate = candidate_average[0]
+
     # Create new population, splicing top performers with the rest of the pop and filling out the rest with a randomized population
     num_elite = round(population_size * 0.2)
     new_population = []
@@ -140,6 +144,7 @@ for _ in range(num_generations):
           population[0].DNA))
     sorted_best = {k: v for k, v in reversed(sorted(best_performing_indicators.items(), key=lambda item: item[1]))}
     print('Best Indicators: {}'.format(sorted_best))
+    print('Best Candidate - Earnings: ${:,.2f}  DNA: {}'.format(best_candidate.capital, best_candidate.candidate.DNA))
     print('')
 
     population = new_population
