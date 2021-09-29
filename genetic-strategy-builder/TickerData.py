@@ -6,6 +6,8 @@ import pickle
 import ta
 
 from sklearn import preprocessing
+from util.TrendIndicators import TrendIndicators as ti
+from util.MomentumIndicators import MomentumIndicators as mi
 from yahoo_fin import stock_info as si
 
 
@@ -43,22 +45,21 @@ class TickerData:
                        'momentum_roc', 'momentum_ppo', 'momentum_ppo_signal',
                        'momentum_ppo_hist', 'others_dr', 'others_dlr', 'others_cr']
 
-    basic_feature_columns = ('adjclose', 'volume', 'open', 'high', 'low')
+    basic_feature_columns = ('adjclose', 'volume', 'open', 'high', 'low', 'close')
 
     def __init__(self, tickers=None):
         self.data = None
+        self.scalers = {}
+        self.indicator_settings = {}
 
         if tickers is not None:
-            self.data = self.load_stock_data_yf(tickers)
+            self.data = self.load_ticker_data_yf(tickers)
 
-    def load_stock_data_yf(self, tickers, feature_columns=None, scale=True):
+    def load_ticker_data_yf(self, tickers):
         """
         Download the stock data from Yahoo Finance if the stock data exists. if it is already downloaded, load and use
         that data
         """
-
-        if feature_columns is None:
-            feature_columns = self.FEATURE_COLUMNS
 
         data = {}
         for ticker in tickers:
@@ -67,8 +68,7 @@ class TickerData:
             if os.path.exists(ticker_data_filename):
                 print("Loading Ticker History: {}".format(ticker_data_filename))
                 curr_data_df = pickle.load(open(ticker_data_filename, "rb"))
-
-                data[ticker] = curr_data_df
+                data[ticker] = curr_data_df.drop(columns='ticker')
             else:
                 print("Downloading Ticker History: {}".format(ticker))
                 #curr_data = load_data(ticker, feature_columns=FEATURE_COLUMNS)
@@ -82,48 +82,104 @@ class TickerData:
                     # already loaded, use it directly
                     curr_data_df = ticker
 
-                curr_data_df = self.add_technical_indicators_to_dataset(curr_data_df, feature_columns=feature_columns,
-                                                                        scale=scale)
-
                 # Save the dataframe to prevent fetching every run
                 pickle.dump(curr_data_df, open(ticker_data_filename, "wb"))
 
-                data[ticker] = curr_data_df
+                data[ticker] = curr_data_df.drop('ticker', 1)
 
         self.data = data
         return data
 
-    def add_technical_indicators_to_dataset(self, df, feature_columns=('adjclose', 'volume', 'open', 'high', 'low'),
+    def add_technical_indicators_to_dataset(self, data=None, feature_columns=('adjclose', 'volume', 'open', 'high',
+                                                                              'low', 'close'),
                                             scale=True):
         """
         Adds all of the technical library from the Python ta library with the default settings.
         """
-        # Clean NaN values
-        df = ta.utils.dropna(df)
+        if data is None:
+            data = self.data
 
-        # Add technical library to dataset
-        df = ta.add_all_ta_features(df, open="open", high="high", low="low", close="adjclose", volume="volume")
+        for ticker in data:
+            df = self.data[ticker]
 
-        # Replace NaN values with 0
-        df = df.fillna(0)
+            # Clean NaN values
+            df = ta.utils.dropna(df)
+            # df = df.replace([0], 0.000000001)
 
-        # this will contain all the elements we want to return from this function
-        result = {}
-        # we will also return the original dataframe itself
-        result['df'] = df.copy()
-        # make sure that the passed feature_columns exist in the dataframe
+            # Add technical library to dataset
+            with np.errstate(divide='ignore'):
+                df = ta.add_all_ta_features(df, open="open", high="high", low="low", close="adjclose", volume="volume",
+                                            fillna=True)
 
-        for col in feature_columns:
-            assert col in df.columns, f"'{col}' does not exist in the dataframe."
-        if scale:
-            column_scaler = {}
-            # scale the data (prices) from 0 to 1
-            for column in feature_columns:
-                scaler = preprocessing.MinMaxScaler()
-                df[column] = scaler.fit_transform(np.expand_dims(df[column].values, axis=1))
-                column_scaler[column] = scaler
+            # Replace NaN values with 0
+            df = df.fillna(0)
 
-            # add the MinMaxScaler instances to the result returned
-            result["column_scaler"] = column_scaler
+            # make sure that the passed feature_columns exist in the dataframe
+            for col in feature_columns:
+                assert col in df.columns, f"'{col}' does not exist in the dataframe."
+            if scale:
+                column_scaler = {}
+                # scale the data (prices) from 0 to 1
+                for column in feature_columns:
+                    scaler = preprocessing.MinMaxScaler()
+                    df[column] = scaler.fit_transform(np.expand_dims(df[column].values, axis=1))
+                    column_scaler[column] = scaler
 
-        return result
+                # add the MinMaxScaler instances to the result returned
+                self.scalers[ticker] = column_scaler
+            self.data[ticker] = df
+
+        return self.data
+
+    def add_individual_indicators_to_dataset(self, data=None, randomize=False,
+                                             feature_columns=('adjclose', 'volume', 'open', 'high', 'low', 'close'),
+                                             scale=True):
+        if data is None:
+            data = self.data
+        if randomize is True:
+            randomize = 0.1
+
+        for ticker in data:
+            df = self.data[ticker]
+
+            # Clean NaN values
+            df = ta.utils.dropna(df)
+            # df = df.replace([0], 0.000000001)
+
+            all_indicators = ti.trend_dna + mi.momentum_dna
+            for indicator in all_indicators:
+                with np.errstate(divide='ignore'):
+                    df = indicator.add_indicator(df, randomize=randomize)
+                    # Save each indicator's settings
+                    self.indicator_settings[str(indicator)] = indicator.get_settings()
+
+            # Replace NaN values with 0
+            df = df.fillna(0)
+
+            # make sure that the passed feature_columns exist in the dataframe
+            for col in feature_columns:
+                assert col in df.columns, f"'{col}' does not exist in the dataframe."
+            if scale:
+                column_scaler = {}
+                # scale the data (prices) from 0 to 1
+                for column in feature_columns:
+                    scaler = preprocessing.MinMaxScaler()
+                    df[column] = scaler.fit_transform(np.expand_dims(df[column].values, axis=1))
+                    column_scaler[column] = scaler
+
+                # add the MinMaxScaler instances to the result returned
+                self.scalers[ticker] = column_scaler
+            self.data[ticker] = df
+
+        return self.data
+
+    def clear_ticker_data(self, data=None, feature_columns=('adjclose', 'volume', 'open', 'high', 'low', 'close')):
+        if data is None:
+            data = self.data
+
+        for ticker in data:
+            df = self.data[ticker]
+
+            df.drop(df.columns.difference(feature_columns), 1, inplace=True)
+
+        return data

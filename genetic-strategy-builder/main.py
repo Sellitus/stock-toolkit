@@ -1,15 +1,22 @@
 import argparse
 
 import multiprocessing as mp
+import traceback
+from pprint import pprint
+
 import numpy as np
 import os
 import pdb
 import random
+import shutil
 import time
+import warnings
 
-from library.Candidate import Candidate
-from library.StrategyTester import StrategyTester, Result
+from util.Candidate import Candidate
+from util.StrategyTester import StrategyTester, Result
 from TickerData import TickerData
+from util.TrendIndicators import TrendIndicators as ti
+from util.MomentumIndicators import MomentumIndicators as mi
 
 
 
@@ -17,11 +24,14 @@ from TickerData import TickerData
 parser = argparse.ArgumentParser(description='Find That Setup')
 parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
                     help="Stock tickers to find trading setups for. Ex: --tickers AMD GOOGL INTC")
+parser.add_argument('-u', dest='UPDATE', required=False, action='store_true',
+                    help="Flag to remove old data files so they will be redownloaded.")
 args = parser.parse_args()
 
 
 # Save arguments from parser
 TICKERS = args.TICKERS
+UPDATE = args.UPDATE
 
 
 # Set randomizer seeds for consistent results between runs
@@ -35,6 +45,9 @@ date_time_start = time.strftime("%Y-%m-%d_%H:%M:%S")
 # Save the tickers to a list all uppercase
 tickers = [ticker.upper() for ticker in TICKERS]
 
+if UPDATE:
+    data_path = os.path.dirname(os.path.realpath(__file__)) + '/data'
+    shutil.rmtree(data_path)
 
 # Create the data/ subfolder if it does not already exist
 if not os.path.isdir("data"):
@@ -43,10 +56,13 @@ if not os.path.isdir("data"):
 
 # Initialize TickerData, passing a list of tickers to load
 ticker_data = TickerData(tickers=tickers)
+# # Add all technical indicators to dataset
+#ticker_data.add_individual_indicators_to_dataset()
+# ticker_data.add_technical_indicators_to_dataset()
 # Cut down the data to only the timeframe being tested
-num_days_to_train = 1045
-for key in ticker_data.data.keys():
-    ticker_data.data[key]['df'] = ticker_data.data[key]['df'].iloc[-1 * num_days_to_train:-1]
+num_days_to_train = 365
+for ticker in ticker_data.data.keys():
+    ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * num_days_to_train:-1]
 
 
 
@@ -70,7 +86,14 @@ for _ in range(population_size):
     population.append(Candidate())
 
 best_performing_indicators = {}
-for _ in range(num_generations):
+for i in range(num_generations):
+    # Add indicators to dataset with 10% randomization around default values
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        ticker_data.clear_ticker_data()
+        ticker_data.add_individual_indicators_to_dataset(randomize=0.2)
+    #pprint('Indicator Settings: ' + str(ticker_data.indicator_settings))
+
     # Create the shared dict and initialize with arrays
     threaded_results = manager.dict()
     for ticker in tickers:
@@ -80,7 +103,8 @@ for _ in range(num_generations):
 
     for i in range(len(population)):
         for ticker in ticker_data.data.keys():
-            result = process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, ticker_data.data[ticker],
+            result = process_pool.apply_async(tester.test_strategy, (threaded_results, ticker,
+                                                                     ticker_data.data[ticker],
                                                                      population[i],))
 
     process_pool.close()
@@ -113,7 +137,7 @@ for _ in range(num_generations):
         best_candidate = candidate_average[0]
 
     # Create new population, splicing top performers with the rest of the pop and filling out the rest with a randomized population
-    num_elite = round(population_size * 0.2)
+    num_elite = round(len(candidate_average) * 0.2)
     new_population = []
     for i in range(num_elite):
         elite = candidate_average[i].candidate
@@ -143,12 +167,18 @@ for _ in range(num_generations):
             else:
                 best_performing_indicators[str(indicator)] += 1
 
-    print('Best Earnings: ${:,.2f}  Buys: {}  Sells: {}  Best DNA: {}'.format(
-          candidate_average[0].capital, candidate_average[0].buys, candidate_average[0].sells,
+    print('Best in Generation {}: ${:,.2f}  Buys: {}  Sells: {}  Best DNA: {}'.format(
+          i + 1, candidate_average[0].capital, candidate_average[0].buys, candidate_average[0].sells,
           population[0].DNA))
     sorted_best = {k: v for k, v in reversed(sorted(best_performing_indicators.items(), key=lambda item: item[1]))}
-    print('Best Indicators: {}'.format(sorted_best))
-    print('Best Candidate - Earnings: ${:,.2f}  DNA: {}'.format(best_candidate.capital, best_candidate.candidate.DNA))
+    print('Most Frequent Indicators: {}'.format(str(sorted_best).replace('\'', '').replace('{', '(').replace('}', ')')))
+    print('-Best Candidate- Earnings: ${:,.2f}  DNA: {}'.format(best_candidate.capital, best_candidate.candidate.DNA))
+    settings_str = ""
+    for dna in best_candidate.candidate.DNA:
+        settings_str += ' [' + str(dna) + '] ' + str(ticker_data.indicator_settings[str(dna)]
+                                                     ).replace('\'', '').replace('{', '(').replace('}', ')')
+    print('-Best Candidate- Settings:' + str(settings_str))
+
     print('')
 
     population = new_population
