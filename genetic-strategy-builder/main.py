@@ -60,7 +60,7 @@ ticker_data = TickerData(tickers=tickers)
 #ticker_data.add_individual_indicators_to_dataset()
 # ticker_data.add_technical_indicators_to_dataset()
 # Cut down the data to only the timeframe being tested
-num_days_to_train = 365
+num_days_to_train = 1046
 for ticker in ticker_data.data.keys():
     ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * num_days_to_train:-1]
 
@@ -136,9 +136,16 @@ for i in range(num_generations):
     if best_candidate is None or best_candidate.capital < candidate_average[0].capital:
         best_candidate = candidate_average[0]
 
+    # Create a list for the new population's candidates
+    new_population = []
+
+    # Save top maximum_elite percentage, passing them directly to the next generation
+    maximum_elite = round(len(candidate_average) * 0.05)
+    for i in range(maximum_elite):
+        new_population.append(candidate_average[i].candidate)
+
     # Create new population, splicing top performers with the rest of the pop and filling out the rest with a randomized population
     num_elite = round(len(candidate_average) * 0.2)
-    new_population = []
     for i in range(num_elite):
         elite = candidate_average[i].candidate
         # Mix an elite with another random member of the elite
@@ -175,8 +182,9 @@ for i in range(num_generations):
     print('-Best Candidate- Earnings: ${:,.2f}  DNA: {}'.format(best_candidate.capital, best_candidate.candidate.DNA))
     settings_str = ""
     for dna in best_candidate.candidate.DNA:
-        settings_str += ' [' + str(dna) + '] ' + str(ticker_data.indicator_settings[str(dna)]
-                                                     ).replace('\'', '').replace('{', '(').replace('}', ')')
+        if str(dna) != 'fillna':
+            settings_str += ' [' + str(dna) + '] ' + str(ticker_data.indicator_settings[str(dna)]
+                                                         ).replace('\'', '').replace('{', '(').replace('}', ')')
     print('-Best Candidate- Settings:' + str(settings_str))
 
     print('')
