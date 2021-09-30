@@ -1,0 +1,4 @@
+Strategies:
+
+Stochastic RSI, KST, MACD, CCI (10k -> 40k)
+MACD, UO, ADX, PPO, MACD, Stochastic RSI, WR (10k -> 55k)

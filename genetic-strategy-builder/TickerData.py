@@ -1,4 +1,5 @@
 
+import multiprocessing as mp
 import numpy as np
 import os
 import pandas as pd
@@ -85,7 +86,7 @@ class TickerData:
                 # Save the dataframe to prevent fetching every run
                 pickle.dump(curr_data_df, open(ticker_data_filename, "wb"))
 
-                data[ticker] = curr_data_df.drop('ticker', 1)
+                data[ticker] = curr_data_df.drop(columns='ticker')
 
         self.data = data
         return data
@@ -146,12 +147,18 @@ class TickerData:
             df = ta.utils.dropna(df)
             # df = df.replace([0], 0.000000001)
 
+            process_pool = mp.Pool(mp.cpu_count())
+
             all_indicators = ti.trend_dna + mi.momentum_dna
             for indicator in all_indicators:
                 with np.errstate(divide='ignore'):
+                    # Append indicator results to dataframe
                     df = indicator.add_indicator(df, randomize=randomize)
                     # Save each indicator's settings
                     self.indicator_settings[str(indicator)] = indicator.get_settings()
+
+            process_pool.close()
+            process_pool.join()
 
             # Replace NaN values with 0
             df = df.fillna(0)

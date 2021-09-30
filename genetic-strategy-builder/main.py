@@ -1,8 +1,6 @@
 import argparse
 
 import multiprocessing as mp
-import traceback
-from pprint import pprint
 
 import numpy as np
 import os
@@ -92,7 +90,7 @@ for i in range(num_generations):
         warnings.simplefilter("ignore")
         ticker_data.clear_ticker_data()
         ticker_data.add_individual_indicators_to_dataset(randomize=0.2)
-    #pprint('Indicator Settings: ' + str(ticker_data.indicator_settings))
+        new_data = ticker_data.data.copy()
 
     # Create the shared dict and initialize with arrays
     threaded_results = manager.dict()
@@ -101,10 +99,14 @@ for i in range(num_generations):
 
     process_pool = mp.Pool(mp.cpu_count())
 
+    mgr = mp.Manager()
+    ns = mgr.Namespace()
+    ns.df = new_data
+
     for i in range(len(population)):
-        for ticker in ticker_data.data.keys():
+        for ticker in new_data.keys():
             result = process_pool.apply_async(tester.test_strategy, (threaded_results, ticker,
-                                                                     ticker_data.data[ticker],
+                                                                     ns.df[ticker],
                                                                      population[i],))
 
     process_pool.close()
@@ -123,7 +125,6 @@ for i in range(num_generations):
     # Create new candidate list with the average capitals
     candidate_average = []
 
-    # NOTE: Fix length mismatch here (should not vary from pop size). min() function is a temp fix
     for i in range(min(len(average_capital), len(threaded_results[tickers[0]]))):
         candidate_average.append(Result(average_capital[i], threaded_results[tickers[0]][i].candidate,
                                         threaded_results[tickers[0]][i].buys, threaded_results[tickers[0]][i].sells))
@@ -152,7 +153,7 @@ for i in range(num_generations):
         random_elite = candidate_average[random.randint(0, num_elite - 1)].candidate
         child = Candidate(dna_to_mix=[elite.DNA.copy(), random_elite.DNA.copy()])
         new_population.append(child)
-    num_extra = round(population_size * 0.1)
+    num_extra = round(len(candidate_average) * 0.1)
     # Made 10% elites with non-elites
     for i in range(num_extra):
         elite = candidate_average[i].candidate
@@ -182,10 +183,13 @@ for i in range(num_generations):
     print('-Best Candidate- Earnings: ${:,.2f}  DNA: {}'.format(best_candidate.capital, best_candidate.candidate.DNA))
     settings_str = ""
     for dna in best_candidate.candidate.DNA:
-        if str(dna) != 'fillna':
-            settings_str += ' [' + str(dna) + '] ' + str(ticker_data.indicator_settings[str(dna)]
-                                                         ).replace('\'', '').replace('{', '(').replace('}', ')')
+        cleaned_settings = ticker_data.indicator_settings[str(dna)].copy()
+        cleaned_settings.pop('fillna')
+        cleaned_settings = str(cleaned_settings).replace('\'', '').replace('{', '(').replace('}', ')')
+        settings_str += ' [' + str(dna) + '] ' + str(cleaned_settings)
     print('-Best Candidate- Settings:' + str(settings_str))
+
+    # Print individual results from each ticker for best candidate
 
     print('')
 
