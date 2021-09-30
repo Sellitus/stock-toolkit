@@ -1,4 +1,5 @@
 import argparse
+import math
 
 import multiprocessing as mp
 
@@ -21,6 +22,13 @@ parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
                     help="Stock tickers to find trading setups for. Ex: --tickers AMD GOOGL INTC")
 parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=1095,
                     help="Units of time to train on. Ex: --period 365")
+parser.add_argument('--capital', dest="CAPITAL", required=False, type=int, default=10000,
+                    help="Initial capital to start the trading algorithm with. Ex: --capital 10000")
+parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", required=False, type=int, default=None,
+                    help="Adds a normalized cap for each result, to prevent outliers from affecting the results negatively. "
+                         "Integer passed is the multiplier for the initial capital / year. So for a value of 20 and"
+                         "initial capital of 10,000, the yearly max would be 200,000"
+                         "Ex: --capital-normalization 20")
 parser.add_argument('--population', dest="POPULATION", required=False, type=int, default=100,
                     help="Number of member of each generation. Ex: --population 100")
 parser.add_argument('--seed', dest="SEED", required=False, type=int, default=None,
@@ -39,7 +47,8 @@ TRAIN_PERIOD = args.TRAIN_PERIOD
 RANDOMIZE = args.RANDOMIZE
 POPULATION = args.POPULATION
 SEED = args.SEED
-
+CAPITAL = args.CAPITAL
+CAPITAL_NORMALIZATION = args.CAPITAL_NORMALIZATION
 
 # Set randomizer seeds for consistent results between runs
 if SEED is not None:
@@ -70,13 +79,20 @@ for ticker in ticker_data.data.keys():
 
 
 MULTITHREAD_PROCESS_MULTIPLIER = 1
-num_generations = 100000
+NUM_GENERATIONS = 100000
+
 
 print('')
 print('------------------------------------------------------------------')
 print('')
 
 tester = StrategyTester()
+
+# Calculate the maximum multiplier per year, to help normalize extreme results
+ceil = None
+if CAPITAL_NORMALIZATION is not None:
+    num_years = TRAIN_PERIOD / 365
+    ceil = (CAPITAL * CAPITAL_NORMALIZATION) * num_years
 
 best_candidate = None
 population = []
@@ -85,7 +101,7 @@ for _ in range(POPULATION):
     population.append(Candidate())
 
 best_performing_indicators = {}
-for i in range(num_generations):
+for i in range(NUM_GENERATIONS):
     print('Adding technical indicators to the data...', end='')
 
     # Add indicators to dataset with 10% randomization around default values
@@ -110,14 +126,10 @@ for i in range(num_generations):
 
     process_pool = mp.Pool(mp.cpu_count() * MULTITHREAD_PROCESS_MULTIPLIER)
 
-    ns = manager.Namespace()
-    ns.df = new_data
-
-    #tester.test_strategy(threaded_results, 'AMD', new_data['AMD'], population[0])
-
     for j in range(len(population)):
         for ticker in new_data.keys():
-            process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, new_data[ticker], population[j],))
+            process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, new_data[ticker], population[j],
+                                                            CAPITAL,))
 
     process_pool.close()
     process_pool.join()
@@ -130,6 +142,12 @@ for i in range(num_generations):
     for ticker in tickers:
         ticker_results = threaded_results[ticker]
         for j in range(len(ticker_results)):
+            capital = ticker_results[j].capital
+
+            if CAPITAL_NORMALIZATION is not None:
+                if capital > ceil:
+                    capital = ceil
+
             average_capital[j] += ticker_results[j].capital
 
     for j in range(len(average_capital)):
