@@ -13,8 +13,6 @@ import warnings
 from util.Candidate import Candidate
 from util.StrategyTester import StrategyTester, Result
 from TickerData import TickerData
-from util.TrendIndicators import TrendIndicators as ti
-from util.MomentumIndicators import MomentumIndicators as mi
 
 
 
@@ -22,6 +20,8 @@ from util.MomentumIndicators import MomentumIndicators as mi
 parser = argparse.ArgumentParser(description='Find That Setup')
 parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
                     help="Stock tickers to find trading setups for. Ex: --tickers AMD GOOGL INTC")
+parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=1095,
+                    help="Units of time to train on. Ex: --period 365")
 parser.add_argument('-u', dest='UPDATE', required=False, action='store_true',
                     help="Flag to remove old data files so they will be redownloaded.")
 args = parser.parse_args()
@@ -30,6 +30,7 @@ args = parser.parse_args()
 # Save arguments from parser
 TICKERS = args.TICKERS
 UPDATE = args.UPDATE
+TRAIN_PERIOD = args.TRAIN_PERIOD
 
 
 # Set randomizer seeds for consistent results between runs
@@ -58,24 +59,19 @@ ticker_data = TickerData(tickers=tickers)
 #ticker_data.add_individual_indicators_to_dataset()
 # ticker_data.add_technical_indicators_to_dataset()
 # Cut down the data to only the timeframe being tested
-num_days_to_train = 1046
 for ticker in ticker_data.data.keys():
-    ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * num_days_to_train:-1]
+    ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * TRAIN_PERIOD:-1]
 
 
+MULTITHREAD_PROCESS_MULTIPLIER = 10
+population_size = int(100)
+num_generations = 10000
 
+print('')
+print('------------------------------------------------------------------')
+print('')
 
 tester = StrategyTester()
-
-population_size = int(100)
-
-
-manager = mp.Manager()
-
-# Create a pool of size that matches the CPU core count
-process_pool = mp.Pool(mp.cpu_count())
-
-num_generations = 10000
 
 best_candidate = None
 population = []
@@ -85,6 +81,8 @@ for _ in range(population_size):
 
 best_performing_indicators = {}
 for i in range(num_generations):
+    print('Adding technical indicators to the data...', end='')
+
     # Add indicators to dataset with 10% randomization around default values
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -92,25 +90,29 @@ for i in range(num_generations):
         ticker_data.add_individual_indicators_to_dataset(randomize=0.2)
         new_data = ticker_data.data.copy()
 
+    print('DONE')
+    print('Testing every member of the population against each ticker passed...', end='')
+
     # Create the shared dict and initialize with arrays
+    manager = mp.Manager()
     threaded_results = manager.dict()
     for ticker in tickers:
         threaded_results[ticker] = []
 
-    process_pool = mp.Pool(mp.cpu_count())
+    process_pool = mp.Pool(mp.cpu_count() * MULTITHREAD_PROCESS_MULTIPLIER)
 
-    mgr = mp.Manager()
-    ns = mgr.Namespace()
+    ns = manager.Namespace()
     ns.df = new_data
 
     for j in range(len(population)):
         for ticker in new_data.keys():
-            result = process_pool.apply_async(tester.test_strategy, (threaded_results, ticker,
-                                                                     ns.df[ticker],
-                                                                     population[j],))
+            process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, ns, population[j],))
 
     process_pool.close()
     process_pool.join()
+
+    print('DONE')
+    print('Sorting the candidates by performance and calculating results...', end='')
 
     # Calculate average capital gain from each candidate for each ticker passed
     average_capital = [0] * population_size
@@ -175,6 +177,9 @@ for i in range(num_generations):
             else:
                 best_performing_indicators[str(indicator)] += 1
 
+    print('DONE')
+    print('')
+
     print('Best in Generation {}: ${:,.2f}  Buys: {}  Sells: {}  Best DNA: {}'.format(
           i + 1, candidate_average[0].capital, candidate_average[0].buys, candidate_average[0].sells,
           population[0].DNA))
@@ -191,6 +196,8 @@ for i in range(num_generations):
 
     # Print individual results from each ticker for best candidate
 
+    print('')
+    print('------------------------------------------------------------------')
     print('')
 
     population = new_population

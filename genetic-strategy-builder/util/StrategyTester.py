@@ -1,5 +1,6 @@
 
 import math
+import multiprocessing as mp
 
 
 class Result:
@@ -12,6 +13,9 @@ class Result:
 class StrategyTester():
 
     def test_strategy(self, threaded_results, ticker, data, candidate, initial_capital=10000):
+        if isinstance(type(data), type(mp.managers.Namespace)):
+            data = data.df[ticker]
+
         buy_position = False
 
         capital = initial_capital
@@ -19,6 +23,8 @@ class StrategyTester():
 
         buys = 0
         sells = 0
+
+        price = 0
 
         for idx, row in data.iterrows():
             # Calculate votes of all signals
@@ -42,7 +48,7 @@ class StrategyTester():
                 buys += 1
                 # Conduct the buy transaction
                 if price == 0:
-                    price = 0.00000000000001
+                    price = 0.00000000000000000001
                 purchase_amount = math.floor(capital / price)
                 capital -= purchase_amount * price
                 buy_position = True
@@ -75,8 +81,8 @@ class StrategyTester():
             sells += 1
             # Conduct the sale transaction
             capital += purchase_amount * price
-            # purchase_amount = 0
-            # buy_position = False
+            purchase_amount = 0
+            buy_position = False
 
         threaded_results[ticker] += [Result(capital, candidate, buys, sells)]
         return capital

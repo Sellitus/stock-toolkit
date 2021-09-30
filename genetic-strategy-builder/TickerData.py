@@ -93,7 +93,7 @@ class TickerData:
 
     def add_technical_indicators_to_dataset(self, data=None, feature_columns=('adjclose', 'volume', 'open', 'high',
                                                                               'low', 'close'),
-                                            scale=True):
+                                            scale=False):
         """
         Adds all of the technical library from the Python ta library with the default settings.
         """
@@ -134,7 +134,7 @@ class TickerData:
 
     def add_individual_indicators_to_dataset(self, data=None, randomize=False,
                                              feature_columns=('adjclose', 'volume', 'open', 'high', 'low', 'close'),
-                                             scale=True):
+                                             scale=False):
         if data is None:
             data = self.data
         if randomize is True:
