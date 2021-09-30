@@ -21,6 +21,10 @@ parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
                     help="Stock tickers to find trading setups for. Ex: --tickers AMD GOOGL INTC")
 parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=1095,
                     help="Units of time to train on. Ex: --period 365")
+parser.add_argument('--population', dest="POPULATION", required=False, type=int, default=100,
+                    help="Number of member of each generation. Ex: --population 100")
+parser.add_argument('--seed', dest="SEED", required=False, type=int, default=None,
+                    help="Seed to use for random number generator for consistent results. Ex: --seed 314")
 parser.add_argument('--randomize', dest="RANDOMIZE", required=False, type=float, default=0.2,
                     help="Percentage to randomize indicator settings. Ex: --randomize 0.25")
 parser.add_argument('-u', dest='UPDATE', required=False, action='store_true',
@@ -33,12 +37,14 @@ TICKERS = args.TICKERS
 UPDATE = args.UPDATE
 TRAIN_PERIOD = args.TRAIN_PERIOD
 RANDOMIZE = args.RANDOMIZE
+POPULATION = args.POPULATION
+SEED = args.SEED
 
 
 # Set randomizer seeds for consistent results between runs
-seed = 314
-np.random.seed(seed)
-random.seed(seed)
+if SEED is not None:
+    np.random.seed(SEED)
+    random.seed(SEED)
 
 # Grab the current date
 date_time_start = time.strftime("%Y-%m-%d_%H:%M:%S")
@@ -64,7 +70,6 @@ for ticker in ticker_data.data.keys():
 
 
 MULTITHREAD_PROCESS_MULTIPLIER = 1
-population_size = int(100)
 num_generations = 100000
 
 print('')
@@ -75,7 +80,7 @@ tester = StrategyTester()
 
 best_candidate = None
 population = []
-for _ in range(population_size):
+for _ in range(POPULATION):
     # Mock data here for strategy tester
     population.append(Candidate())
 
@@ -121,7 +126,7 @@ for i in range(num_generations):
     print('Sorting the candidates by performance and calculating results...', end='')
 
     # Calculate average capital gain from each candidate for each ticker passed
-    average_capital = [0] * population_size
+    average_capital = [0] * POPULATION
     for ticker in tickers:
         ticker_results = threaded_results[ticker]
         for j in range(len(ticker_results)):
@@ -170,11 +175,11 @@ for i in range(num_generations):
         child = Candidate(dna_to_mix=[elite.DNA.copy(), random_non_elite.DNA.copy()])
         new_population.append(child)
     # Fill out the rest of the population with random candidates
-    while len(new_population) < population_size:
+    while len(new_population) < POPULATION:
         new_population.append(Candidate())
 
     # Store the frequencies of the indicators for the most elite population
-    top_tier_elite = round(population_size * 0.02)
+    top_tier_elite = round(POPULATION * 0.02)
     for j in range(top_tier_elite):
         elite_dna = candidate_average[j].candidate.DNA
         for indicator in elite_dna:
