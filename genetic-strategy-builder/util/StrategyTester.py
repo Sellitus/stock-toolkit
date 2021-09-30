@@ -50,7 +50,8 @@ class StrategyTester():
                 # If you can't purchase anymore...the game is over
                 # NOTE: (change later to stick around and see if the price gets within buying range)
                 if purchase_amount < 1:
-                    return 'BANKRUPT'
+                    break
+                    # return 'BANKRUPT'
 
                 #print('BUY p: {} c: {}'.format(price, capital))
 
@@ -63,9 +64,19 @@ class StrategyTester():
                 buy_position = False
 
                 if capital < price:
-                    return 'BANKRUPT'
+                    break
+                    # return 'BANKRUPT'
 
                 #print('SELL p: {} c: {}'.format(price, capital))
+
+        # If it ends with stock purchased, sell the stock
+        if purchase_amount > 0:
+            # Log the sale
+            sells += 1
+            # Conduct the sale transaction
+            capital += purchase_amount * price
+            # purchase_amount = 0
+            # buy_position = False
 
         threaded_results[ticker] += [Result(capital, candidate, buys, sells)]
         return capital

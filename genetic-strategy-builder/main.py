@@ -103,11 +103,11 @@ for i in range(num_generations):
     ns = mgr.Namespace()
     ns.df = new_data
 
-    for i in range(len(population)):
+    for j in range(len(population)):
         for ticker in new_data.keys():
             result = process_pool.apply_async(tester.test_strategy, (threaded_results, ticker,
                                                                      ns.df[ticker],
-                                                                     population[i],))
+                                                                     population[j],))
 
     process_pool.close()
     process_pool.join()
@@ -116,18 +116,18 @@ for i in range(num_generations):
     average_capital = [0] * population_size
     for ticker in tickers:
         ticker_results = threaded_results[ticker]
-        for i in range(len(ticker_results)):
-            average_capital[i] += ticker_results[i].capital
+        for j in range(len(ticker_results)):
+            average_capital[j] += ticker_results[j].capital
 
-    for i in range(len(average_capital)):
-        average_capital[i] = average_capital[i] / len(tickers)
+    for j in range(len(average_capital)):
+        average_capital[j] = average_capital[j] / len(tickers)
 
     # Create new candidate list with the average capitals
     candidate_average = []
 
-    for i in range(min(len(average_capital), len(threaded_results[tickers[0]]))):
-        candidate_average.append(Result(average_capital[i], threaded_results[tickers[0]][i].candidate,
-                                        threaded_results[tickers[0]][i].buys, threaded_results[tickers[0]][i].sells))
+    for j in range(min(len(average_capital), len(threaded_results[tickers[0]]))):
+        candidate_average.append(Result(average_capital[j], threaded_results[tickers[0]][j].candidate,
+                                        threaded_results[tickers[0]][j].buys, threaded_results[tickers[0]][j].sells))
 
     # Sort candidate_average
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
@@ -142,21 +142,21 @@ for i in range(num_generations):
 
     # Save top maximum_elite percentage, passing them directly to the next generation
     maximum_elite = round(len(candidate_average) * 0.05)
-    for i in range(maximum_elite):
-        new_population.append(candidate_average[i].candidate)
+    for j in range(maximum_elite):
+        new_population.append(candidate_average[j].candidate)
 
     # Create new population, splicing top performers with the rest of the pop and filling out the rest with a randomized population
     num_elite = round(len(candidate_average) * 0.2)
-    for i in range(num_elite):
-        elite = candidate_average[i].candidate
+    for j in range(num_elite):
+        elite = candidate_average[j].candidate
         # Mix an elite with another random member of the elite
         random_elite = candidate_average[random.randint(0, num_elite - 1)].candidate
         child = Candidate(dna_to_mix=[elite.DNA.copy(), random_elite.DNA.copy()])
         new_population.append(child)
     num_extra = round(len(candidate_average) * 0.1)
     # Made 10% elites with non-elites
-    for i in range(num_extra):
-        elite = candidate_average[i].candidate
+    for j in range(num_extra):
+        elite = candidate_average[j].candidate
         # Mix an elite with another random member of the elite
         random_non_elite = candidate_average[random.randint(num_elite + 1, len(candidate_average) - 1)].candidate
         child = Candidate(dna_to_mix=[elite.DNA.copy(), random_non_elite.DNA.copy()])
@@ -167,8 +167,8 @@ for i in range(num_generations):
 
     # Store the frequencies of the indicators for the most elite population
     top_tier_elite = round(population_size * 0.02)
-    for i in range(top_tier_elite):
-        elite_dna = candidate_average[i].candidate.DNA
+    for j in range(top_tier_elite):
+        elite_dna = candidate_average[j].candidate.DNA
         for indicator in elite_dna:
             if str(indicator) not in best_performing_indicators:
                 best_performing_indicators[str(indicator)] = 1

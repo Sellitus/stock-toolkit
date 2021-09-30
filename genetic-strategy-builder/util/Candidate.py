@@ -18,7 +18,7 @@ class Candidate:
             self.splice_together_dna(dna_to_mix)
 
     def set_dna(self, dna):
-        self.DNA = dna
+        self.DNA = list(set(dna))
 
     def get_dna(self):
         return self.DNA
@@ -32,7 +32,7 @@ class Candidate:
         for _ in range(num_strategies):
             new_dna.append(all_dna[random.randint(0, len(all_dna) - 1)])
 
-        self.DNA = new_dna
+        self.DNA = list(set(new_dna))
         return self.DNA
 
     def splice_together_dna(self, dna_to_mix):
@@ -58,7 +58,7 @@ class Candidate:
                 spliced_dna.append(dna_mutable[i][idx])
                 dna_mutable[i].pop(idx)
 
-        self.DNA = spliced_dna
+        self.DNA = list(set(spliced_dna))
         return self.DNA
 
 
