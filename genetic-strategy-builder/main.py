@@ -63,7 +63,7 @@ for ticker in ticker_data.data.keys():
     ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * TRAIN_PERIOD:-1]
 
 
-MULTITHREAD_PROCESS_MULTIPLIER = 10
+MULTITHREAD_PROCESS_MULTIPLIER = 1
 population_size = int(100)
 num_generations = 10000
 
