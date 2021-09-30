@@ -95,6 +95,7 @@ if CAPITAL_NORMALIZATION is not None:
     ceil = (CAPITAL * CAPITAL_NORMALIZATION) * num_years
 
 best_candidate = None
+best_settings_str = ""
 population = []
 for _ in range(POPULATION):
     # Mock data here for strategy tester
@@ -167,6 +168,13 @@ for i in range(NUM_GENERATIONS):
     # Save best candidate
     if best_candidate is None or best_candidate.capital < candidate_average[0].capital:
         best_candidate = candidate_average[0]
+        best_settings_str = ""
+        for dna in best_candidate.candidate.DNA:
+            cleaned_settings = ticker_data.indicator_settings[str(dna)].copy()
+            if 'fillna' in cleaned_settings:
+                cleaned_settings.pop('fillna')
+            cleaned_settings = str(cleaned_settings).replace('\'', '').replace('{', '(').replace('}', ')')
+            best_settings_str += ' [' + str(dna) + '] ' + str(cleaned_settings)
 
     # Create a list for the new population's candidates
     new_population = []
@@ -209,20 +217,47 @@ for i in range(NUM_GENERATIONS):
     print('DONE')
     print('')
 
-    print('Best in Generation {}: ${:,.2f}  Buys: {}  Sells: {}  Best DNA: {}'.format(
-          i + 1, candidate_average[0].capital, candidate_average[0].buys, candidate_average[0].sells,
-          population[0].DNA))
-    sorted_best = {k: v for k, v in reversed(sorted(best_performing_indicators.items(), key=lambda item: item[1]))}
-    print('Most Frequent Indicators: {}'.format(str(sorted_best).replace('\'', '').replace('{', '(').replace('}', ')')))
-    print('-Best Candidate- Earnings: ${:,.2f}  DNA: {}'.format(best_candidate.capital, best_candidate.candidate.DNA))
-    settings_str = ""
-    for dna in best_candidate.candidate.DNA:
+    # Output Section
+
+    # Calculate top and low tier elite
+    top_elite_print = []
+    low_elite_print = []
+    plebs = []
+    for j in range(5):
+        top_elite_print.append('${:,.2f}'.format(candidate_average[j].capital))
+    for j in range(5):
+        idx = num_elite - j
+        low_elite_print.append('${:,.2f}'.format(candidate_average[idx].capital))
+    for j in range(5):
+        idx = round(len(candidate_average) * 0.5) - j
+        plebs.append('${:,.2f}'.format(candidate_average[idx].capital))
+
+
+    # Sort the indicators by their frequency
+    sorted_best_ind = {k: v for k, v in reversed(sorted(best_performing_indicators.items(), key=lambda item: item[1]))}
+
+    # Calculate output for the current settings
+    curr_settings_str = ""
+    for dna in candidate_average[0].candidate.DNA:
         cleaned_settings = ticker_data.indicator_settings[str(dna)].copy()
         if 'fillna' in cleaned_settings:
             cleaned_settings.pop('fillna')
         cleaned_settings = str(cleaned_settings).replace('\'', '').replace('{', '(').replace('}', ')')
-        settings_str += ' [' + str(dna) + '] ' + str(cleaned_settings)
-    print('-Best Candidate- Settings:' + str(settings_str))
+        curr_settings_str += ' [' + str(dna) + '] ' + str(cleaned_settings)
+
+    # Finally print the stuff I've been calculating forever
+    print('Best in Generation {}: ${:,.2f}  Buys: {}  Sells: {}  Best DNA: {}'.format(
+          i + 1, candidate_average[0].capital, candidate_average[0].buys, candidate_average[0].sells,
+          population[0].DNA))
+    print('-This Generation- Settings:' + str(curr_settings_str))
+    print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
+    print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
+    print('-This Generation- Plebs: {}'.format(plebs))
+    print('======================')
+    print('Most Frequent Indicators: {}'.format(str(sorted_best_ind).replace('\'', '').replace('{', '(').replace('}', ')')))
+    print('======================')
+    print('-Best Candidate- Earnings: ${:,.2f}  DNA: {}'.format(best_candidate.capital, best_candidate.candidate.DNA))
+    print('-Best Candidate- Settings:' + str(best_settings_str))
 
     # Print individual results from each ticker for best candidate
 
