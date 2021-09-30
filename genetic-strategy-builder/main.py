@@ -60,7 +60,7 @@ ticker_data = TickerData(tickers=tickers)
 # ticker_data.add_technical_indicators_to_dataset()
 # Cut down the data to only the timeframe being tested
 for ticker in ticker_data.data.keys():
-    ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * TRAIN_PERIOD:-1]
+    ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * TRAIN_PERIOD + 500:-1]
 
 
 MULTITHREAD_PROCESS_MULTIPLIER = 1
@@ -89,6 +89,9 @@ for i in range(num_generations):
         ticker_data.clear_ticker_data()
         ticker_data.add_individual_indicators_to_dataset(randomize=0.2)
         new_data = ticker_data.data.copy()
+        # Trim data
+        for ticker in new_data.keys():
+            new_data[ticker] = new_data[ticker][-1 * TRAIN_PERIOD:-1]
 
     print('DONE')
     print('Testing every member of the population against each ticker passed...', end='')
@@ -104,9 +107,11 @@ for i in range(num_generations):
     ns = manager.Namespace()
     ns.df = new_data
 
+    #tester.test_strategy(threaded_results, 'AMD', new_data['AMD'], population[0])
+
     for j in range(len(population)):
         for ticker in new_data.keys():
-            process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, ns, population[j],))
+            process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, new_data[ticker], population[j],))
 
     process_pool.close()
     process_pool.join()

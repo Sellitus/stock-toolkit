@@ -13,9 +13,6 @@ class Result:
 class StrategyTester():
 
     def test_strategy(self, threaded_results, ticker, data, candidate, initial_capital=10000):
-        if isinstance(type(data), type(mp.managers.Namespace)):
-            data = data.df[ticker]
-
         buy_position = False
 
         capital = initial_capital
