@@ -21,6 +21,8 @@ parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
                     help="Stock tickers to find trading setups for. Ex: --tickers AMD GOOGL INTC")
 parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=1095,
                     help="Units of time to train on. Ex: --period 365")
+parser.add_argument('--randomize', dest="RANDOMIZE", required=False, type=float, default=0.2,
+                    help="Percentage to randomize indicator settings. Ex: --randomize 0.25")
 parser.add_argument('-u', dest='UPDATE', required=False, action='store_true',
                     help="Flag to remove old data files so they will be redownloaded.")
 args = parser.parse_args()
@@ -30,6 +32,7 @@ args = parser.parse_args()
 TICKERS = args.TICKERS
 UPDATE = args.UPDATE
 TRAIN_PERIOD = args.TRAIN_PERIOD
+RANDOMIZE = args.RANDOMIZE
 
 
 # Set randomizer seeds for consistent results between runs
@@ -54,18 +57,15 @@ if not os.path.isdir("data"):
 
 # Initialize TickerData, passing a list of tickers to load
 ticker_data = TickerData(tickers=tickers)
-ticker_data2 = TickerData(tickers=tickers)
 
 # Cut down the data to only the timeframe being tested
 for ticker in ticker_data.data.keys():
     ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * (TRAIN_PERIOD + 500):-1]
-for ticker in ticker_data2.data.keys():
-    ticker_data2.data[ticker] = ticker_data2.data[ticker].iloc[-1 * (TRAIN_PERIOD + 500):-1]
 
 
 MULTITHREAD_PROCESS_MULTIPLIER = 1
 population_size = int(100)
-num_generations = 10000
+num_generations = 100000
 
 print('')
 print('------------------------------------------------------------------')
@@ -87,9 +87,9 @@ for i in range(num_generations):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         ticker_data.clear_ticker_data()
-        ticker_data.add_individual_indicators_to_dataset(randomize=0.25)
+        ticker_data.add_individual_indicators_to_dataset(randomize=RANDOMIZE)
+
         new_data = ticker_data.data.copy()
-        # new_data2 = ticker_data2.data.copy()
         # Trim data
         for ticker in new_data.keys():
             new_data[ticker] = new_data[ticker][-1 * TRAIN_PERIOD:-1]
