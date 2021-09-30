@@ -64,7 +64,9 @@ class TickerData:
 
         data = {}
         for ticker in tickers:
-            ticker_data_filename = os.path.join("data", f"{ticker}.csv")
+            ticker_data_filename = os.path.join(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))
+                                                                 ), 'data'), f"{ticker}.csv")
+            #ticker_data_filename = os.path.join("../../data", f"{ticker}.csv")
             # Load the data from disk if it exists, otherwise pull info from Yahoo Finance
             if os.path.exists(ticker_data_filename):
                 print("Loading Ticker History: {}".format(ticker_data_filename))
@@ -147,8 +149,6 @@ class TickerData:
             df = ta.utils.dropna(df)
             # df = df.replace([0], 0.000000001)
 
-            process_pool = mp.Pool(mp.cpu_count())
-
             all_indicators = ti.trend_dna + mi.momentum_dna
             for indicator in all_indicators:
                 with np.errstate(divide='ignore'):
@@ -156,9 +156,6 @@ class TickerData:
                     df = indicator.add_indicator(df, randomize=randomize)
                     # Save each indicator's settings
                     self.indicator_settings[str(indicator)] = indicator.get_settings()
-
-            process_pool.close()
-            process_pool.join()
 
             # Replace NaN values with 0
             df = df.fillna(0)

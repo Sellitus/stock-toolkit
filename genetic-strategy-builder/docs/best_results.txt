@@ -1,0 +1,12 @@
+Strategies:
+
+Stochastic RSI, KST, MACD, CCI (10k -> 40k)
+MACD, UO, ADX, PPO, MACD, Stochastic RSI, WR (10k -> 55k
+
+
+
+python3 main.py --tickers QCOM TEAM NVDA TSLA SPY QQQ
+Best in Generation 344: $57,982.24  Buys: 1  Sells: 1  Best DNA: [MA, ADX, WR]
+Most Frequent Indicators: (WR: 1168, ADX: 219, CCI: 151, Parabolic SAR: 139, MA: 132, UO: 126, AO: 88, STC: 87, Vortex: 83, Ichimoku: 62, PPO: 53, TSI: 51, KAMA: 51, ROC: 51, KST: 45, TRIX: 40, Stochastic RSI: 36, MACD: 34, DPO: 32, RSI: 26, Stochastic Osc: 22)
+-Best Candidate- Earnings: $91,973.55  DNA: [KST, ROC, MACD, CCI, ADX, Stochastic RSI, Vortex]
+-Best Candidate- Settings: [KST] (roc4: 33, nsig: 9, window2: 9, window3: 12, roc1: 11, roc3: 22, window4: 17, roc2: 13, window1: 7) [ROC] (window: 9) [MACD] (window_slow: 29, window_fast: 10, window_sign: 6) [CCI] (constant: -1, window: 22) [ADX] (window: 16) [Stochastic RSI] (window: 11, smooth2: 4, smooth1: 4) [Vortex] (window: 11))

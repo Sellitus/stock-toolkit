@@ -4,7 +4,6 @@ import multiprocessing as mp
 
 import numpy as np
 import os
-import pdb
 import random
 import shutil
 import time
@@ -12,7 +11,7 @@ import warnings
 
 from util.Candidate import Candidate
 from util.StrategyTester import StrategyTester, Result
-from TickerData import TickerData
+from util.TickerData import TickerData
 
 
 
@@ -87,7 +86,7 @@ for i in range(num_generations):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         ticker_data.clear_ticker_data()
-        ticker_data.add_individual_indicators_to_dataset(randomize=0.2)
+        ticker_data.add_individual_indicators_to_dataset(randomize=0.25)
         new_data = ticker_data.data.copy()
         # Trim data
         for ticker in new_data.keys():
