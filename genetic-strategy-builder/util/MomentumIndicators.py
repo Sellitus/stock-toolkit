@@ -47,8 +47,9 @@ class MomentumIndicators:
                                                        window1=self.strategy_settings['window1'],
                                                        window2=self.strategy_settings['window2'],
                                                        fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.awesome_oscillator())
-            df.columns = [*df.columns[:-1], 'momentum_ao']
+
+            df[f"momentum_ao"] = self.strategy.awesome_oscillator()
+            self.clear_settings()
             return df
 
         def signal(self, row, buy_type='STANDARD'):
@@ -108,8 +109,9 @@ class MomentumIndicators:
                                           pow1=self.strategy_settings['pow1'],
                                           pow2=self.strategy_settings['pow2'],
                                           fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.kama())
-            df.columns = [*df.columns[:-1], 'momentum_kama']
+
+            df[f"momentum_kama"] = self.strategy.kama()
+            self.clear_settings()
             return df
 
         def signal(self, row, buy_type='STANDARD'):
@@ -175,12 +177,11 @@ class MomentumIndicators:
                                                       window_fast=window_fast,
                                                       window_sign=window_sign,
                                                       fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.ppo())
-            df.columns = [*df.columns[:-1], 'momentum_ppo']
-            df = df.join(self.strategy.ppo_signal())
-            df.columns = [*df.columns[:-1], 'momentum_ppo_signal']
-            df = df.join(self.strategy.ppo_hist())
-            df.columns = [*df.columns[:-1], 'momentum_ppo_hist']
+
+            df[f"momentum_ppo"] = self.strategy.ppo()
+            df[f"momentum_ppo_signal"] = self.strategy.ppo_signal()
+            df[f"momentum_ppo_hist"] = self.strategy.ppo_hist()
+            self.clear_settings()
             return df
 
         def signal(self, row, buy_type='STANDARD'):
@@ -246,12 +247,11 @@ class MomentumIndicators:
                                                        window_fast=self.strategy_settings['window_fast'],
                                                        window_sign=self.strategy_settings['window_sign'],
                                                        fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.pvo())
-            df.columns = [*df.columns[:-1], 'momentum_pvo']
-            df = df.join(self.strategy.pvo_signal())
-            df.columns = [*df.columns[:-1], 'momentum_pvo_signal']
-            df = df.join(self.strategy.pvo_hist())
-            df.columns = [*df.columns[:-1], 'momentum_pvo_hist']
+
+            df[f"momentum_pvo"] = self.strategy.pvo()
+            df[f"momentum_pvo_signal"] = self.strategy.pvo_signal()
+            df[f"momentum_pvo_hist"] = self.strategy.pvo_hist()
+            self.clear_settings()
             return df
 
         def signal(self, row, buy_type='STANDARD'):
@@ -290,8 +290,9 @@ class MomentumIndicators:
 
             self.strategy = ROCIndicator(close=self.strategy_settings['close'], window=self.strategy_settings['window'],
                                          fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.roc())
-            df.columns = [*df.columns[:-1], 'momentum_roc']
+
+            df[f"momentum_roc"] = self.strategy.roc()
+            self.clear_settings()
             return df
 
         def signal(self, row, buy_type='STANDARD'):
@@ -344,8 +345,9 @@ class MomentumIndicators:
 
             self.strategy = RSIIndicator(close=self.strategy_settings['close'], window=self.strategy_settings['window'],
                                          fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.rsi())
-            df.columns = [*df.columns[:-1], 'momentum_rsi']
+
+            df[f"momentum_rsi"] = self.strategy.rsi()
+            self.clear_settings()
             return df
 
         def signal(self, row, buy_type='STANDARD'):
@@ -407,11 +409,12 @@ class MomentumIndicators:
                                                  high=self.strategy_settings['high'],
                                                  low=self.strategy_settings['low'],
                                                  window=self.strategy_settings['window'],
-                                                 smooth_window=self.strategy_settings['smooth_window'], fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.stoch())
-            df.columns = [*df.columns[:-1], 'momentum_stoch']
-            df = df.join(self.strategy.stoch_signal())
-            df.columns = [*df.columns[:-1], 'momentum_stoch_signal']
+                                                 smooth_window=self.strategy_settings['smooth_window'],
+                                                 fillna=self.strategy_settings['fillna'])
+
+            df[f"momentum_stoch"] = self.strategy.stoch()
+            df[f"momentum_stoch_signal"] = self.strategy.stoch_signal()
+            self.clear_settings()
             return df
 
         def signal(self, row, buy_type='STANDARD'):
@@ -437,7 +440,7 @@ class MomentumIndicators:
         def __init__(self):
             super().__init__()
             super().set_name('Stochastic RSI Indicator')
-            
+
 
         def __str__(self):
             return 'Stochastic RSI'
@@ -473,12 +476,11 @@ class MomentumIndicators:
                                               smooth1=self.strategy_settings['smooth1'],
                                               smooth2=self.strategy_settings['smooth2'],
                                               fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.stochrsi())
-            df.columns = [*df.columns[:-1], 'momentum_stoch_rsi']
-            df = df.join(self.strategy.stochrsi_d())
-            df.columns = [*df.columns[:-1], 'momentum_stoch_rsi_d']
-            df = df.join(self.strategy.stochrsi_k())
-            df.columns = [*df.columns[:-1], 'momentum_stoch_rsi_k']
+
+            df[f"momentum_stoch_rsi"] = self.strategy.stochrsi()
+            df[f"momentum_stoch_rsi_d"] = self.strategy.stochrsi_d()
+            df[f"momentum_stoch_rsi_k"] = self.strategy.stochrsi_k()
+            self.clear_settings()
             return df
 
         def signal(self, row, buy_type='STANDARD'):
@@ -535,9 +537,11 @@ class MomentumIndicators:
 
             self.strategy = TSIIndicator(close=self.strategy_settings['close'],
                                          window_slow=self.strategy_settings['window_slow'],
-                                         window_fast=self.strategy_settings['window_fast'], fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.tsi())
-            df.columns = [*df.columns[:-1], 'momentum_tsi']
+                                         window_fast=self.strategy_settings['window_fast'],
+                                         fillna=self.strategy_settings['fillna'])
+
+            df[f"momentum_tsi"] = self.strategy.tsi()
+            self.clear_settings()
             return df
 
         def signal(self, row, buy_type='STANDARD'):
@@ -562,7 +566,7 @@ class MomentumIndicators:
         def __init__(self):
             super().__init__()
             super().set_name('Ultimate Oscillator')
-            
+
             self.last_action = None
 
         def __str__(self):
@@ -614,8 +618,9 @@ class MomentumIndicators:
                                                weight2=self.strategy_settings['weight2'],
                                                weight3=self.strategy_settings['weight3'],
                                                fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.ultimate_oscillator())
-            df.columns = [*df.columns[:-1], 'momentum_uo']
+
+            df[f"momentum_uo"] = self.strategy.ultimate_oscillator()
+            self.clear_settings()
             return df
 
         def signal(self, row, buy_type='STANDARD'):
@@ -645,7 +650,7 @@ class MomentumIndicators:
         def __init__(self):
             super().__init__()
             super().set_name('Williams Indicator')
-            
+
             self.last_action = None
 
         def __str__(self):
@@ -676,10 +681,12 @@ class MomentumIndicators:
             self.set_settings(lbp=lbp, fillna=fillna, randomize=randomize)
 
             self.strategy = WilliamsRIndicator(close=self.strategy_settings['close'],
-                                               high=self.strategy_settings['high'], low=self.strategy_settings['close'],
+                                               high=self.strategy_settings['high'],
+                                               low=self.strategy_settings['close'],
                                                lbp=lbp, fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.williams_r())
-            df.columns = [*df.columns[:-1], 'momentum_wr']
+
+            df[f"momentum_wr"] = self.strategy.williams_r()
+            self.clear_settings()
             return df
 
         def signal(self, row, buy_type='STANDARD'):

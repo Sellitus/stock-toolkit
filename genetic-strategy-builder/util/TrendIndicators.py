@@ -41,10 +41,12 @@ class TrendIndicators:
 
             self.set_settings(window=window, fillna=fillna, randomize=randomize)
 
-            self.strategy = SMAIndicator(close=self.strategy_settings['close'], window=self.strategy_settings['window'],
+            self.strategy = SMAIndicator(close=self.strategy_settings['close'],
+                                         window=self.strategy_settings['window'],
                                          fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.sma_indicator())
-            df.columns = [*df.columns[:-1], 'trend_sma_fast']
+
+            df[f"trend_sma_fast"] = self.strategy.sma_indicator()
+            self.clear_settings()
             return df
 
         def signal(self, row, buy_type='STANDARD', neutral_percentage=1):
@@ -129,8 +131,9 @@ class TrendIndicators:
                                  window_fast=self.strategy_settings['window_fast'],
                                  window_sign=self.strategy_settings['window_sign'],
                                  fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.macd())
-            df.columns = [*df.columns[:-1], 'trend_macd']
+
+            df[f"trend_macd"] = self.strategy.macd()
+            self.clear_settings()
             return df
 
         def signal(self, row):
@@ -193,8 +196,9 @@ class TrendIndicators:
                                          low=self.strategy_settings['low'],
                                          window=self.strategy_settings['window'],
                                          fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.adx())
-            df.columns = [*df.columns[:-1], 'trend_adx']
+
+            df[f"trend_adx"] = self.strategy.adx()
+            self.clear_settings()
             return df
 
         def signal(self, row):
@@ -245,13 +249,13 @@ class TrendIndicators:
             self.strategy = VortexIndicator(close=self.strategy_settings['close'],
                                             high=self.strategy_settings['high'],
                                             low=self.strategy_settings['low'],
-                                            window=self.strategy_settings['window'], fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.vortex_indicator_pos())
-            df.columns = [*df.columns[:-1], 'trend_vortex_ind_pos']
-            df = df.join(self.strategy.vortex_indicator_neg())
-            df.columns = [*df.columns[:-1], 'trend_vortex_ind_neg']
-            df = df.join(self.strategy.vortex_indicator_diff())
-            df.columns = [*df.columns[:-1], 'trend_vortex_ind_diff']
+                                            window=self.strategy_settings['window'],
+                                            fillna=self.strategy_settings['fillna'])
+
+            df[f"trend_vortex_ind_pos"] = self.strategy.vortex_indicator_pos()
+            df[f"trend_vortex_ind_neg"] = self.strategy.vortex_indicator_neg()
+            df[f"trend_vortex_ind_diff"] = self.strategy.vortex_indicator_neg()
+            self.clear_settings()
             return df
 
         def signal(self, row):
@@ -300,8 +304,9 @@ class TrendIndicators:
             self.strategy = TRIXIndicator(close=self.strategy_settings['close'],
                                           window=self.strategy_settings['window'],
                                           fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.trix())
-            df.columns = [*df.columns[:-1], 'trend_trix']
+
+            df[f"trend_trix"] = self.strategy.trix()
+            self.clear_settings()
             return df
 
         def signal(self, row):
@@ -354,9 +359,11 @@ class TrendIndicators:
             self.strategy = MassIndex(high=self.strategy_settings['high'],
                                       low=self.strategy_settings['low'],
                                       window_fast=self.strategy_settings['window_fast'],
-                                      window_slow=self.strategy_settings['window_slow'], fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.mass_index())
-            df.columns = [*df.columns[:-1], 'trend_mass_index']
+                                      window_slow=self.strategy_settings['window_slow'],
+                                      fillna=self.strategy_settings['fillna'])
+
+            df[f"trend_mass_index"] = self.strategy.mass_index()
+            self.clear_settings()
             return df
 
         def signal(self):
@@ -409,8 +416,8 @@ class TrendIndicators:
                                          constant=self.strategy_settings['constant'],
                                          fillna=self.strategy_settings['fillna'])
 
-            df = df.join(self.strategy.cci())
-            df.columns = [*df.columns[:-1], 'trend_cci']
+            df[f"trend_cci"] = self.strategy.cci()
+            self.clear_settings()
             return df
 
         def signal(self, row, bottom=-100, top=100, action_range=25):
@@ -470,8 +477,8 @@ class TrendIndicators:
             self.strategy = DPOIndicator(close=self.strategy_settings['close'], window=self.strategy_settings['window'],
                                          fillna=self.strategy_settings['fillna'])
 
-            df = df.join(self.strategy.dpo())
-            df.columns = [*df.columns[:-1], 'trend_dpo']
+            df[f"trend_dpo"] = self.strategy.dpo()
+            self.clear_settings()
             return df
 
         def signal(self, row):
@@ -544,14 +551,13 @@ class TrendIndicators:
                                          window2=self.strategy_settings['window2'],
                                          window3=self.strategy_settings['window3'],
                                          window4=self.strategy_settings['window4'],
-                                         nsig=self.strategy_settings['nsig'], fillna=self.strategy_settings['fillna'])
+                                         nsig=self.strategy_settings['nsig'],
+                                         fillna=self.strategy_settings['fillna'])
 
-            df = df.join(self.strategy.kst())
-            df.columns = [*df.columns[:-1], 'trend_kst']
-            df = df.join(self.strategy.kst_sig())
-            df.columns = [*df.columns[:-1], 'trend_kst_sig']
-            df = df.join(self.strategy.kst_diff())
-            df.columns = [*df.columns[:-1], 'trend_kst_diff']
+            df[f"trend_kst"] = self.strategy.kst()
+            df[f"trend_kst_sig"] = self.strategy.kst_sig()
+            df[f"trend_kst_diff"] = self.strategy.kst_diff()
+            self.clear_settings()
             return df
 
         def signal(self, row):
@@ -611,16 +617,14 @@ class TrendIndicators:
                                               window1=self.strategy_settings['window1'],
                                               window2=self.strategy_settings['window2'],
                                               window3=self.strategy_settings['window3'],
-                                              visual=self.strategy_settings['visual'], fillna=self.strategy_settings['fillna'])
+                                              visual=self.strategy_settings['visual'],
+                                              fillna=self.strategy_settings['fillna'])
 
-            df = df.join(self.strategy.ichimoku_a())
-            df.columns = [*df.columns[:-1], 'trend_ichimoku_a']
-            df = df.join(self.strategy.ichimoku_b())
-            df.columns = [*df.columns[:-1], 'trend_ichimoku_b']
-            df = df.join(self.strategy.ichimoku_base_line())
-            df.columns = [*df.columns[:-1], 'trend_ichimoku_base_line']
-            df = df.join(self.strategy.ichimoku_conversion_line())
-            df.columns = [*df.columns[:-1], 'trend_ichimoku_conversion_line']
+            df[f"trend_ichimoku_a"] = self.strategy.ichimoku_a()
+            df[f"trend_ichimoku_b"] = self.strategy.ichimoku_b()
+            df[f"trend_ichimoku_base_line"] = self.strategy.ichimoku_base_line()
+            df[f"trend_ichimoku_conversion_line"] = self.strategy.ichimoku_conversion_line()
+            self.clear_settings()
             return df
 
         def signal(self, row):
@@ -674,18 +678,15 @@ class TrendIndicators:
                                           high=self.strategy_settings['high'],
                                           low=self.strategy_settings['low'],
                                           step=self.strategy_settings['step'],
-                                          max_step=self.strategy_settings['max_step'], fillna=self.strategy_settings['fillna'])
+                                          max_step=self.strategy_settings['max_step'],
+                                          fillna=self.strategy_settings['fillna'])
 
-            df = df.join(self.strategy.psar())
-            df.columns = [*df.columns[:-1], 'trend_psar']
-            df = df.join(self.strategy.psar_up())
-            df.columns = [*df.columns[:-1], 'trend_psar_up']
-            df = df.join(self.strategy.psar_down())
-            df.columns = [*df.columns[:-1], 'trend_psar_down']
-            df = df.join(self.strategy.psar_up_indicator())
-            df.columns = [*df.columns[:-1], 'trend_psar_up_indicator']
-            df = df.join(self.strategy.psar_down_indicator())
-            df.columns = [*df.columns[:-1], 'trend_psar_down_indicator']
+            df[f"trend_psar"] = self.strategy.psar()
+            df[f"trend_psar_up"] = self.strategy.psar_up()
+            df[f"trend_psar_down"] = self.strategy.psar_down()
+            df[f"trend_psar_up_indicator"] = self.strategy.psar_up_indicator()
+            df[f"trend_psar_down_indicator"] = self.strategy.psar_down_indicator()
+            self.clear_settings()
             return df
 
         def signal(self, row):
@@ -749,9 +750,11 @@ class TrendIndicators:
                                          window_slow=self.strategy_settings['window_slow'],
                                          cycle=self.strategy_settings['cycle'],
                                          smooth1=self.strategy_settings['smooth1'],
-                                         smooth2=self.strategy_settings['smooth2'], fillna=self.strategy_settings['fillna'])
-            df = df.join(self.strategy.stc())
-            df.columns = [*df.columns[:-1], 'trend_stc']
+                                         smooth2=self.strategy_settings['smooth2'],
+                                         fillna=self.strategy_settings['fillna'])
+
+            df[f"trend_stc"] = self.strategy.stc()
+            self.clear_settings()
             return df
 
         def signal(self, row, bottom=25, top=75, action_range=10):

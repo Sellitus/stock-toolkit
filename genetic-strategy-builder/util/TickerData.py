@@ -94,8 +94,7 @@ class TickerData:
         return data
 
     def add_technical_indicators_to_dataset(self, data=None, feature_columns=('adjclose', 'volume', 'open', 'high',
-                                                                              'low', 'close'),
-                                            scale=False):
+                                                                              'low', 'close'), scale=False):
         """
         Adds all of the technical library from the Python ta library with the default settings.
         """
@@ -113,6 +112,11 @@ class TickerData:
             with np.errstate(divide='ignore'):
                 df = ta.add_all_ta_features(df, open="open", high="high", low="low", close="adjclose", volume="volume",
                                             fillna=True)
+
+            all_indicators = ti.trend_dna + mi.momentum_dna
+            for indicator in all_indicators:
+                # Save each indicator's settings
+                self.indicator_settings[str(indicator)] = indicator.get_settings()
 
             # Replace NaN values with 0
             df = df.fillna(0)
@@ -139,14 +143,16 @@ class TickerData:
                                              scale=False):
         if data is None:
             data = self.data
+        else:
+            self.data = data
         if randomize is True:
             randomize = 0.1
 
         for ticker in data:
-            df = self.data[ticker]
+            df = data[ticker]
 
             # Clean NaN values
-            df = ta.utils.dropna(df)
+            #df = ta.utils.dropna(df)
             # df = df.replace([0], 0.000000001)
 
             all_indicators = ti.trend_dna + mi.momentum_dna

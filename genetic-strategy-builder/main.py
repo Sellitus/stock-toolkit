@@ -54,12 +54,13 @@ if not os.path.isdir("data"):
 
 # Initialize TickerData, passing a list of tickers to load
 ticker_data = TickerData(tickers=tickers)
-# # Add all technical indicators to dataset
-#ticker_data.add_individual_indicators_to_dataset()
-# ticker_data.add_technical_indicators_to_dataset()
+ticker_data2 = TickerData(tickers=tickers)
+
 # Cut down the data to only the timeframe being tested
 for ticker in ticker_data.data.keys():
-    ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * TRAIN_PERIOD + 500:-1]
+    ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * (TRAIN_PERIOD + 500):-1]
+for ticker in ticker_data2.data.keys():
+    ticker_data2.data[ticker] = ticker_data2.data[ticker].iloc[-1 * (TRAIN_PERIOD + 500):-1]
 
 
 MULTITHREAD_PROCESS_MULTIPLIER = 1
@@ -88,6 +89,7 @@ for i in range(num_generations):
         ticker_data.clear_ticker_data()
         ticker_data.add_individual_indicators_to_dataset(randomize=0.25)
         new_data = ticker_data.data.copy()
+        # new_data2 = ticker_data2.data.copy()
         # Trim data
         for ticker in new_data.keys():
             new_data[ticker] = new_data[ticker][-1 * TRAIN_PERIOD:-1]
@@ -193,7 +195,8 @@ for i in range(num_generations):
     settings_str = ""
     for dna in best_candidate.candidate.DNA:
         cleaned_settings = ticker_data.indicator_settings[str(dna)].copy()
-        cleaned_settings.pop('fillna')
+        if 'fillna' in cleaned_settings:
+            cleaned_settings.pop('fillna')
         cleaned_settings = str(cleaned_settings).replace('\'', '').replace('{', '(').replace('}', ')')
         settings_str += ' [' + str(dna) + '] ' + str(cleaned_settings)
     print('-Best Candidate- Settings:' + str(settings_str))

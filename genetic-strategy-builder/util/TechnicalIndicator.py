@@ -10,19 +10,40 @@ class TechnicalIndicator(ABC):
     buy_sell = ['BUY', 'SELL', 'NEUTRAL', 'ACTION', 'INACTION']
 
     def __init__(self, df=None):
-        self.df = None
+        self.df = {}
         if df is not None:
             self.df = df
+        else:
+            self.df['open'] = None
+            self.df['high'] = None
+            self.df['low'] = None
+            self.df['close'] = None
+            self.df['adjclose'] = None
+            self.df['volume'] = None
         self.name = None
         self.strategy = None
         self.strategy_settings = {}
         # Data and indicator dataframes
         self.indicator_df = None
+        self.results = {}
 
         self.randomize_default = 0.1
 
+        self.set_settings()
+
     def set_name(self, name):
         self.name = name
+
+    def clear_settings(self):
+        # Fixes performance issues by removing dataframes from memory for this object
+        self.strategy_settings['open'] = None
+        self.strategy_settings['high'] = None
+        self.strategy_settings['low'] = None
+        self.strategy_settings['close'] = None
+        self.strategy_settings['adjclose'] = None
+        self.strategy_settings['volume'] = None
+        self.strategy = None
+        self.df = {}
 
     def get_name(self):
         return self.name
