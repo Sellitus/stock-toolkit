@@ -24,11 +24,13 @@ parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, d
                     help="Units of time to train on. Ex: --period 365")
 parser.add_argument('--capital', dest="CAPITAL", required=False, type=int, default=10000,
                     help="Initial capital to start the trading algorithm with. Ex: --capital 10000")
-parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", required=False, type=int, default=None,
-                    help="Adds a normalized cap for each result, to prevent outliers from affecting the results negatively. "
-                         "Integer passed is the multiplier for the initial capital / year. So for a value of 20 and"
-                         "initial capital of 10,000, the yearly max would be 200,000"
+parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", required=False, type=int, default=20,
+                    help="Set to <=0 to disable. Sets a normalized cap for each result, to prevent outliers from "
+                         "affecting the results negatively. Integer passed is the multiplier for the initial capital "
+                         "/ year. So for a value of 20 and initial capital of 10,000, the yearly max would be 200,000."
                          "Ex: --capital-normalization 20")
+parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=int, default=5,
+                    help="Min trades that should be executed. Values below this are removed. Ex: --min-trades 5")
 parser.add_argument('--population', dest="POPULATION", required=False, type=int, default=100,
                     help="Number of member of each generation. Ex: --population 100")
 parser.add_argument('--seed', dest="SEED", required=False, type=int, default=None,
@@ -48,7 +50,10 @@ RANDOMIZE = args.RANDOMIZE
 POPULATION = args.POPULATION
 SEED = args.SEED
 CAPITAL = args.CAPITAL
+MIN_TRADES = args.MIN_TRADES
 CAPITAL_NORMALIZATION = args.CAPITAL_NORMALIZATION
+if CAPITAL_NORMALIZATION <= 0:
+    CAPITAL_NORMALIZATION = None
 
 # Set randomizer seeds for consistent results between runs
 if SEED is not None:
@@ -94,8 +99,11 @@ if CAPITAL_NORMALIZATION is not None:
     num_years = TRAIN_PERIOD / 365
     ceil = (CAPITAL * CAPITAL_NORMALIZATION) * num_years
 
+
 best_candidate = None
 best_settings_str = ""
+best_buys = 0
+best_sells = 0
 population = []
 for _ in range(POPULATION):
     # Mock data here for strategy tester
@@ -140,6 +148,8 @@ for i in range(NUM_GENERATIONS):
 
     # Calculate average capital gain from each candidate for each ticker passed
     average_capital = [0] * POPULATION
+    average_buys = [0] * POPULATION
+    average_sells = [0] * POPULATION
     for ticker in tickers:
         ticker_results = threaded_results[ticker]
         for j in range(len(ticker_results)):
@@ -150,24 +160,37 @@ for i in range(NUM_GENERATIONS):
                     capital = ceil
 
             average_capital[j] += ticker_results[j].capital
+            average_buys[j] += ticker_results[j].buys
+            average_sells[j] += ticker_results[j].sells
 
     for j in range(len(average_capital)):
         average_capital[j] = average_capital[j] / len(tickers)
+        average_buys[j] = round(average_buys[j] / len(tickers))
+        average_sells[j] = round(average_sells[j] / len(tickers))
 
     # Create new candidate list with the average capitals
     candidate_average = []
 
     for j in range(min(len(average_capital), len(threaded_results[tickers[0]]))):
         candidate_average.append(Result(average_capital[j], threaded_results[tickers[0]][j].candidate,
-                                        threaded_results[tickers[0]][j].buys, threaded_results[tickers[0]][j].sells))
+                                 average_buys[j], average_sells[j]))
 
     # Sort candidate_average
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
     candidate_average.reverse()
 
+    # Filter out candidates if they don't have enough buys
+    new_candidate_average = []
+    for candidate in candidate_average:
+        if candidate.buys >= MIN_TRADES:
+            new_candidate_average.append(candidate)
+    candidate_average = new_candidate_average
+
     # Save best candidate
     if best_candidate is None or best_candidate.capital < candidate_average[0].capital:
         best_candidate = candidate_average[0]
+        best_buys = candidate_average[0].buys
+        best_sells = candidate_average[0].sells
         best_settings_str = ""
         for dna in best_candidate.candidate.DNA:
             cleaned_settings = ticker_data.indicator_settings[str(dna)].copy()
@@ -246,7 +269,7 @@ for i in range(NUM_GENERATIONS):
         curr_settings_str += ' [' + str(dna) + '] ' + str(cleaned_settings)
 
     # Finally print the stuff I've been calculating forever
-    print('Best in Generation {}: ${:,.2f}  Buys: {}  Sells: {}  Best DNA: {}'.format(
+    print('Best in Generation {}: ${:,.2f}  Buys: {}  Sells: {}  DNA: {}'.format(
           i + 1, candidate_average[0].capital, candidate_average[0].buys, candidate_average[0].sells,
           population[0].DNA))
     print('-This Generation- Settings:' + str(curr_settings_str))
@@ -254,9 +277,12 @@ for i in range(NUM_GENERATIONS):
     print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
     print('-This Generation- Plebs: {}'.format(plebs))
     print('======================')
-    print('Most Frequent Indicators: {}'.format(str(sorted_best_ind).replace('\'', '').replace('{', '(').replace('}', ')')))
+    print('Most Frequent Elite Indicators: {}'.format(str(sorted_best_ind
+                                                          ).replace('\'', '').replace('{', '(').replace('}', ')')))
     print('======================')
-    print('-Best Candidate- Earnings: ${:,.2f}  DNA: {}'.format(best_candidate.capital, best_candidate.candidate.DNA))
+    print('-Best Candidate- Earnings: ${:,.2f}  Buys: {}  Sells: {}  DNA: {}'.format(best_candidate.capital,
+                                                                                     best_buys, best_sells,
+                                                                                     best_candidate.candidate.DNA))
     print('-Best Candidate- Settings:' + str(best_settings_str))
 
     # Print individual results from each ticker for best candidate
