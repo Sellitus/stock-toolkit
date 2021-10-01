@@ -89,7 +89,7 @@ for ticker in ticker_data.data.keys():
 
 MULTITHREAD_PROCESS_MULTIPLIER = 1
 NUM_GENERATIONS = 100000
-drop_threshold = 0.25
+DROP_THRESHOLD = 1.00
 
 
 print('')
@@ -195,7 +195,7 @@ for i in range(NUM_GENERATIONS):
             if candidate_average[j].buys >= MIN_TRADES:
                 filtered_candidate_average.append(candidate_average[j])
         for j in reversed(range(1, num_top)):
-            if ((1 - drop_threshold) * candidate_average[j - 1].capital) > candidate_average[j].capital:
+            if candidate_average[j - 1].capital > (candidate_average[j].capital * (1 + DROP_THRESHOLD)):
                 filtered_candidate_average = candidate_average[j:]
                 break
         # if len(filtered_candidate_average) > 10:
