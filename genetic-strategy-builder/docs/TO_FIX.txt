@@ -2,5 +2,5 @@
 
 2) Candidates are still duplicating DNA type, throwing off the balance
 
-
+3) Performance regression after refactoring to allow indicators to carry over individual settings. Might be due to using many dataframe copies in each thread. Look into this further and fix.
 
