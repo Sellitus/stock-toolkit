@@ -42,7 +42,7 @@ class StrategyTester():
             price = row['close']
             if buy_position is False and purchase_amount == 0 and buy > sell:
                 # Log the buy
-                #buys.append(row.copy())
+                buys.append(row.name)
                 # Conduct the buy transaction
                 if price == 0:
                     price = 0.00000000000000000001
@@ -60,7 +60,7 @@ class StrategyTester():
 
             elif buy_position is True and purchase_amount > 0 and sell > buy:
                 # Log the sale
-                #sells.append(row.copy())
+                sells.append(row.name)
                 # Conduct the sale transaction
                 capital += purchase_amount * price
                 purchase_amount = 0
@@ -75,7 +75,7 @@ class StrategyTester():
         # If it ends with stock purchased, sell the stock
         if purchase_amount > 0:
             # Log the sale
-            #sells.append(data[-1:].copy())
+            sells.append(data[-1:].copy())
             # Conduct the sale transaction
             capital += purchase_amount * price
             purchase_amount = 0

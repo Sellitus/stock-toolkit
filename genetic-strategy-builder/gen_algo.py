@@ -1,8 +1,7 @@
 import argparse
 import math
-
+import matplotlib.pyplot as plt
 import multiprocessing as mp
-
 import numpy as np
 import os
 import random
@@ -115,6 +114,7 @@ for _ in range(POPULATION):
     # Mock data here for strategy tester
     population.append(Candidate())
 
+plt.ion()
 best_performing_indicators = {}
 for i in range(NUM_GENERATIONS):
     print('Adding technical indicators to the data...', end='')
@@ -140,6 +140,8 @@ for i in range(NUM_GENERATIONS):
         threaded_results[ticker] = []
 
     process_pool = mp.Pool(mp.cpu_count() * MULTITHREAD_PROCESS_MULTIPLIER)
+
+    # tester.test_strategy(threaded_results, 'AMD', new_data['AMD'], population[0], CAPITAL)
 
     for j in range(len(population)):
         for ticker in new_data.keys():
@@ -168,7 +170,7 @@ for i in range(NUM_GENERATIONS):
             average_capital[j] += ticker_results[j].capital
             average_buys[j] += len(ticker_results[j].buys)
             average_sells[j] += len(ticker_results[j].sells)
-    
+
     for j in range(len(average_capital)):
         average_capital[j] = average_capital[j] / len(tickers)
         average_buys[j] = round(average_buys[j] / len(tickers))
@@ -196,8 +198,8 @@ for i in range(NUM_GENERATIONS):
             if ((1 - drop_threshold) * candidate_average[j - 1].capital) > candidate_average[j].capital:
                 filtered_candidate_average = candidate_average[j:]
                 break
-        if len(filtered_candidate_average) > 50:
-            candidate_average = filtered_candidate_average
+        # if len(filtered_candidate_average) > 10:
+        #     candidate_average = filtered_candidate_average
 
     # Save best candidate
     if best_candidate is None or best_candidate.capital < candidate_average[0].capital:
@@ -254,6 +256,21 @@ for i in range(NUM_GENERATIONS):
     print('')
 
     # Output Section
+    new_data['AMD']['adjclose'].plot()
+
+    plt.xlabel("date")
+    plt.ylabel("$ price")
+    plt.title("AMD Stock Price")
+    plt.plot(candidate_average[0].buys, label="Buys")
+    plt.plot(new_data['AMD'].index, new_data['AMD']['close'])
+    plt.plot(new_data['AMD']['trend_sma_fast'], 'g--', label="SMA Fast")
+    plt.plot(new_data['AMD']['close'], label="close")
+    plt.legend()
+    plt.draw()
+    plt.pause(0.0001)
+    plt.clf()
+
+
 
     # Calculate top and low tier elite
     top_elite_print = []
