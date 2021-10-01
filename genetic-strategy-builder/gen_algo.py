@@ -62,7 +62,7 @@ if CAPITAL_NORMALIZATION <= 0:
 
 MULTITHREAD_PROCESS_MULTIPLIER = 1
 NUM_GENERATIONS = 100000
-DROP_THRESHOLD = 1.00
+DROP_THRESHOLD = 0.2
 
 
 print('')
@@ -189,10 +189,12 @@ for i in range(NUM_GENERATIONS):
                 filtered_candidate_average.append(candidate_average[j])
         for j in reversed(range(1, num_top)):
             if candidate_average[j - 1].capital > (candidate_average[j].capital * (1 + DROP_THRESHOLD)):
-                filtered_candidate_average = candidate_average[j:]
+                filtered_candidate_average = filtered_candidate_average[j:]
                 break
         if len(filtered_candidate_average) < 10:
             candidate_average = filtered_candidate_average[:int(POPULATION * 0.2)]
+        else:
+            candidate_average = filtered_candidate_average
 
     # Save best candidate
     if best_candidate is None or best_candidate.capital < candidate_average[0].capital:
