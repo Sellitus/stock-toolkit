@@ -651,7 +651,7 @@ class TrendIndicators:
         def __repr__(self):
             return 'Parabolic SAR'
 
-        def set_settings(self, step=20, max_step=0.2, fillna=False, randomize=False):
+        def set_settings(self, step=0.02, max_step=0.2, fillna=False, randomize=False):
             if randomize is True:
                 randomize = self.randomize_default
             # Cut randomize in half for determining range
@@ -661,12 +661,12 @@ class TrendIndicators:
             self.strategy_settings['high'] = self.df['high']
             self.strategy_settings['low'] = self.df['low']
             self.strategy_settings['step'] = step if randomize is False else random.randint(
-                math.floor(step - (step * randomize)) - 1, math.ceil(step + (step * randomize)))
+                int(100 * (step - (step * randomize))), int(100 * (step + (step * randomize)))) / 100.0
             self.strategy_settings['max_step'] = max_step if randomize is False else random.randint(
-                math.floor(max_step - (max_step * randomize)) - 1, math.ceil(max_step + (max_step * randomize)))
+                int(100 * (max_step - (max_step * randomize))), int(100 * (max_step + (max_step * randomize)))) / 100.0
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, step=20, max_step=0.2, fillna=False, randomize=False):
+        def add_indicator(self, df=None, step=0.02, max_step=0.2, fillna=False, randomize=False):
             if df is None:
                 df = self.df
             else:
