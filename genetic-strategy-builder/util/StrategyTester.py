@@ -1,6 +1,6 @@
 
 import math
-import multiprocessing as mp
+import warnings
 
 
 class Result:
@@ -12,7 +12,8 @@ class Result:
 
 class StrategyTester():
 
-    def test_strategy(self, threaded_results, ticker, data, candidate, initial_capital=10000):
+    def test_strategy(self, threaded_results, ticker, data, candidate, train_period, randomize=False,
+                      initial_capital=10000):
         buy_position = False
 
         capital = initial_capital
@@ -22,6 +23,14 @@ class StrategyTester():
         sells = []
 
         price = 0
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            # Add the candidate's DNA to the dataset
+            for strategy in candidate.DNA:
+                strategy.add_indicator(data)
+
+        # Trim data
+        data = data[-1 * train_period:-1]
 
         for idx, row in data.iterrows():
             # Calculate votes of all signals

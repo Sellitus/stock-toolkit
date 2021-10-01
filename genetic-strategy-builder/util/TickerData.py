@@ -190,6 +190,7 @@ class TickerData:
         for ticker in data:
             df = self.data[ticker]
 
-            df.drop(df.columns.difference(feature_columns), 1, inplace=True)
+            # Drop all columns
+            df.drop(labels=df.columns.difference(feature_columns))
 
         return data

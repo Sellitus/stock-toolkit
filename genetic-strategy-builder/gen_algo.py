@@ -1,5 +1,6 @@
 import argparse
-import math
+import collections
+import copy
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 import numpy as np
@@ -7,7 +8,6 @@ import os
 import random
 import shutil
 import time
-import warnings
 
 from util.Candidate import Candidate
 from util.StrategyTester import StrategyTester, Result
@@ -59,6 +59,18 @@ FILTER_OUTLIERS = args.FILTER_OUTLIERS
 if CAPITAL_NORMALIZATION <= 0:
     CAPITAL_NORMALIZATION = None
 
+
+MULTITHREAD_PROCESS_MULTIPLIER = 1
+NUM_GENERATIONS = 100000
+DROP_THRESHOLD = 1.00
+
+
+print('')
+print('------------------------------------------------------------------')
+print('')
+
+print('Initialization and setup...')
+
 # Set randomizer seeds for consistent results between runs
 if SEED is not None:
     np.random.seed(SEED)
@@ -78,23 +90,12 @@ if UPDATE:
 if not os.path.isdir("data"):
     os.mkdir("data")
 
-
 # Initialize TickerData, passing a list of tickers to load
 ticker_data = TickerData(tickers=tickers)
 
 # Cut down the data to only the timeframe being tested
 for ticker in ticker_data.data.keys():
     ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * (TRAIN_PERIOD + 500):-1]
-
-
-MULTITHREAD_PROCESS_MULTIPLIER = 1
-NUM_GENERATIONS = 100000
-DROP_THRESHOLD = 1.00
-
-
-print('')
-print('------------------------------------------------------------------')
-print('')
 
 tester = StrategyTester()
 
@@ -103,7 +104,6 @@ ceil = None
 if CAPITAL_NORMALIZATION is not None:
     num_years = TRAIN_PERIOD / 365
     ceil = (CAPITAL * CAPITAL_NORMALIZATION) * num_years
-
 
 best_candidate = None
 best_settings_str = ""
@@ -116,22 +116,15 @@ for _ in range(POPULATION):
 
 plt.ion()
 best_performing_indicators = {}
+
+print('DONE\n')
+
 for i in range(NUM_GENERATIONS):
-    print('Adding technical indicators to the data...', end='')
 
-    # Add indicators to dataset with 10% randomization around default values
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        ticker_data.clear_ticker_data()
-        ticker_data.add_individual_indicators_to_dataset(randomize=RANDOMIZE)
-
-        new_data = ticker_data.data.copy()
-        # Trim data
-        for ticker in new_data.keys():
-            new_data[ticker] = new_data[ticker][-1 * TRAIN_PERIOD:-1]
-
-    print('DONE')
     print('Testing every member of the population against each ticker passed...', end='')
+
+    ticker_data.clear_ticker_data()
+    new_data = ticker_data.data.copy()
 
     # Create the shared dict and initialize with arrays
     manager = mp.Manager()
@@ -141,12 +134,12 @@ for i in range(NUM_GENERATIONS):
 
     process_pool = mp.Pool(mp.cpu_count() * MULTITHREAD_PROCESS_MULTIPLIER)
 
-    # tester.test_strategy(threaded_results, 'AMD', new_data['AMD'], population[0], CAPITAL)
+    #tester.test_strategy(threaded_results, 'AMD', new_data['AMD'], population[0], TRAIN_PERIOD, RANDOMIZE, CAPITAL)
 
     for j in range(len(population)):
-        for ticker in new_data.keys():
+        for ticker in tickers:
             process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, new_data[ticker], population[j],
-                                                            CAPITAL,))
+                                                            TRAIN_PERIOD, RANDOMIZE, CAPITAL,))
 
     process_pool.close()
     process_pool.join()
@@ -198,8 +191,8 @@ for i in range(NUM_GENERATIONS):
             if candidate_average[j - 1].capital > (candidate_average[j].capital * (1 + DROP_THRESHOLD)):
                 filtered_candidate_average = candidate_average[j:]
                 break
-        # if len(filtered_candidate_average) > 10:
-        #     candidate_average = filtered_candidate_average
+        if len(filtered_candidate_average) < 10:
+            candidate_average = filtered_candidate_average[:int(POPULATION * 0.2)]
 
     # Save best candidate
     if best_candidate is None or best_candidate.capital < candidate_average[0].capital:
@@ -207,12 +200,14 @@ for i in range(NUM_GENERATIONS):
         best_buys = candidate_average[0].buys
         best_sells = candidate_average[0].sells
         best_settings_str = ""
-        for dna in best_candidate.candidate.DNA:
-            cleaned_settings = ticker_data.indicator_settings[str(dna)].copy()
+        for j in range(len(best_candidate.candidate.DNA)):
+            cleaned_settings = copy.deepcopy(best_candidate.candidate.DNA[j].get_settings())
             if 'fillna' in cleaned_settings:
                 cleaned_settings.pop('fillna')
-            cleaned_settings = str(cleaned_settings).replace('\'', '').replace('{', '(').replace('}', ')')
-            best_settings_str += ' [' + str(dna) + '] ' + str(cleaned_settings)
+            cleaned_settings = str(collections.OrderedDict(sorted(cleaned_settings.items()))
+                                   ).replace('OrderedDict(', '').replace('\'', '').replace('{', '(').replace('}', ')'
+                                   ).replace('[', '').replace(']', '')[:-1]
+            best_settings_str += ' -[' + str(best_candidate.candidate.DNA[j]) + ']- ' + str(cleaned_settings)
 
     # Create a list for the new population's candidates
     new_population = []
@@ -256,29 +251,28 @@ for i in range(NUM_GENERATIONS):
     print('')
 
     # Output Section
-    new_data[tickers[0]]['adjclose'].plot()
 
-    plt.xlabel("date")
-    plt.ylabel("$ price")
-    plt.title("{} Stock Price".format(tickers[0]))
-    #plt.plot(candidate_average[0].buys, label="Buys")
-    # import pdb; pdb.set_trace()
-    # new_data[tickers[0]]['buys'] = False
-    # new_data[tickers[0]]['sells'] = False
-    # for idx, row in new_data[tickers[0]].iterrows():
-    #     if row.name in candidate_average[0].buys:
-    #         row.buys = True
-    #     if row.name in candidate_average[0].sells:
-    #         row.sells = True
-
-    #plt.plot(buy, color='g', linestyle='None', marker='*')
-    #plt.plot(sell, color='r', linestyle='None', marker='*')
-    plt.plot(new_data[tickers[0]]['trend_sma_fast'], 'g--', label="SMA Fast")
-    plt.plot(new_data[tickers[0]]['close'], label="close")
-    plt.legend()
-    plt.draw()
-    plt.pause(0.0001)
-    plt.clf()
+    # plt.xlabel("date")
+    # plt.ylabel("$ price")
+    # plt.title("{} Stock Price".format(tickers[0]))
+    # #plt.plot(candidate_average[0].buys, label="Buys")
+    # # import pdb; pdb.set_trace()
+    # # new_data[tickers[0]]['buys'] = False
+    # # new_data[tickers[0]]['sells'] = False
+    # # for idx, row in new_data[tickers[0]].iterrows():
+    # #     if row.name in candidate_average[0].buys:
+    # #         row.buys = True
+    # #     if row.name in candidate_average[0].sells:
+    # #         row.sells = True
+    #
+    # #plt.plot(buy, color='g', linestyle='None', marker='*')
+    # #plt.plot(sell, color='r', linestyle='None', marker='*')
+    # plt.plot(new_data[tickers[0]]['trend_sma_fast'], 'g--', label="SMA Fast")
+    # plt.plot(new_data[tickers[0]]['close'], label="close")
+    # plt.legend()
+    # plt.draw()
+    # plt.pause(0.0001)
+    # plt.clf()
 
 
 
@@ -301,12 +295,14 @@ for i in range(NUM_GENERATIONS):
 
     # Calculate output for the current settings
     curr_settings_str = ""
-    for dna in candidate_average[0].candidate.DNA:
-        cleaned_settings = ticker_data.indicator_settings[str(dna)].copy()
+    for j in range(len(candidate_average[0].candidate.DNA)):
+        cleaned_settings = copy.deepcopy(candidate_average[0].candidate.DNA[j].get_settings())
         if 'fillna' in cleaned_settings:
             cleaned_settings.pop('fillna')
-        cleaned_settings = str(cleaned_settings).replace('\'', '').replace('{', '(').replace('}', ')')
-        curr_settings_str += ' [' + str(dna) + '] ' + str(cleaned_settings)
+        cleaned_settings = str(collections.OrderedDict(sorted(cleaned_settings.items()))
+                               ).replace('OrderedDict(', '').replace('\'', '').replace('{', '(').replace('}', ')'
+                               ).replace('[', '').replace(']', '')[:-1]
+        curr_settings_str += ' -[' + str(candidate_average[0].candidate.DNA[j]) + ']- ' + str(cleaned_settings)
 
     # Finally print the stuff I've been calculating forever
     print('Best in Generation {}: ${:,.2f}  Buys: {}  Sells: {}  DNA: {}'.format(

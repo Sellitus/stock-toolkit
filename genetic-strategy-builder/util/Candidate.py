@@ -1,3 +1,5 @@
+
+import copy
 import random
 
 from .TrendIndicators import TrendIndicators as ti
@@ -23,14 +25,15 @@ class Candidate:
     def get_dna(self):
         return self.DNA
 
-    def generate_random_dna(self, minimum=3, maximum=10):
+    def generate_random_dna(self, minimum=3, maximum=10, randomize=False):
         num_strategies = random.randrange(minimum, maximum)
 
         all_dna = ti.trend_dna + mi.momentum_dna
 
         new_dna = []
         for _ in range(num_strategies):
-            new_dna.append(all_dna[random.randint(0, len(all_dna) - 1)])
+            new_dna.append(copy.deepcopy(all_dna[random.randint(0, len(all_dna) - 1)]))
+            new_dna[-1].set_settings(randomize=randomize)
 
         self.DNA = list(set(new_dna))
         return self.DNA

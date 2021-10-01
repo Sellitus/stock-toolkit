@@ -28,20 +28,15 @@ class TrendIndicators:
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
-            self.strategy_settings['close'] = self.df['close']
             self.strategy_settings['window'] = window if randomize is False else random.randint(
                 math.floor(window - (window * randomize)) - 1, math.ceil(window + (window * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, window=20, fillna=False, randomize=False):
-            if df is None:
-                df = self.df
-            else:
-                self.df = df
-
+        def add_indicator(self, df, window=20, fillna=False, randomize=False):
+            
             self.set_settings(window=window, fillna=fillna, randomize=randomize)
 
-            self.strategy = SMAIndicator(close=self.strategy_settings['close'],
+            self.strategy = SMAIndicator(close=df['close'],
                                          window=self.strategy_settings['window'],
                                          fillna=self.strategy_settings['fillna'])
 
@@ -104,8 +99,7 @@ class TrendIndicators:
                 randomize = self.randomize_default
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
-
-            self.strategy_settings['close'] = self.df['close']
+            
             self.strategy_settings['window_slow'] = window_slow if randomize is False else random.randint(
                 math.floor(window_slow - (window_slow * randomize)) - 1,
                 math.ceil(window_slow + (window_slow * randomize)))
@@ -117,16 +111,12 @@ class TrendIndicators:
                 math.ceil(window_sign + (window_sign * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, window_slow=26, window_fast=12, window_sign=9, fillna=False, randomize=False):
-            if df is None:
-                df = self.df
-            else:
-                self.df = df
-
+        def add_indicator(self, df, window_slow=26, window_fast=12, window_sign=9, fillna=False, randomize=False):
+            
             self.set_settings(window_slow=window_slow, window_fast=window_fast, window_sign=window_sign, fillna=fillna,
                               randomize=randomize)
 
-            self.strategy = MACD(close=self.strategy_settings['close'],
+            self.strategy = MACD(close=df['close'],
                                  window_slow=self.strategy_settings['window_slow'],
                                  window_fast=self.strategy_settings['window_fast'],
                                  window_sign=self.strategy_settings['window_sign'],
@@ -176,14 +166,13 @@ class TrendIndicators:
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
-            self.strategy_settings['close'] = self.df['close']
-            self.strategy_settings['high'] = self.df['high']
-            self.strategy_settings['low'] = self.df['low']
+            
+            
             self.strategy_settings['window'] = window if randomize is False else random.randint(
                 math.floor(window - (window * randomize)) - 1, math.ceil(window + (window * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, window=14, fillna=False, randomize=False):
+        def add_indicator(self, df, window=14, fillna=False, randomize=False):
             if df is None:
                 df = self.df
             else:
@@ -191,9 +180,9 @@ class TrendIndicators:
 
             self.set_settings(window=window, fillna=fillna, randomize=randomize)
 
-            self.strategy = ADXIndicator(close=self.strategy_settings['close'],
-                                         high=self.strategy_settings['high'],
-                                         low=self.strategy_settings['low'],
+            self.strategy = ADXIndicator(close=df['close'],
+                                         high=df['high'],
+                                         low=df['low'],
                                          window=self.strategy_settings['window'],
                                          fillna=self.strategy_settings['fillna'])
 
@@ -231,14 +220,14 @@ class TrendIndicators:
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
-            self.strategy_settings['close'] = self.df['close']
-            self.strategy_settings['high'] = self.df['high']
-            self.strategy_settings['low'] = self.df['low']
+            
+            
+            
             self.strategy_settings['window'] = window if randomize is False else random.randint(
                 math.floor(window - (window * randomize)) - 1, math.ceil(window + (window * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, window=14, fillna=False, randomize=False):
+        def add_indicator(self, df, window=14, fillna=False, randomize=False):
             if df is None:
                 df = self.df
             else:
@@ -246,9 +235,9 @@ class TrendIndicators:
 
             self.set_settings(window=window, fillna=fillna, randomize=randomize)
 
-            self.strategy = VortexIndicator(close=self.strategy_settings['close'],
-                                            high=self.strategy_settings['high'],
-                                            low=self.strategy_settings['low'],
+            self.strategy = VortexIndicator(close=df['close'],
+                                            high=df['high'],
+                                            low=df['low'],
                                             window=self.strategy_settings['window'],
                                             fillna=self.strategy_settings['fillna'])
 
@@ -288,12 +277,12 @@ class TrendIndicators:
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
-            self.strategy_settings['close'] = self.df['close']
+            
             self.strategy_settings['window'] = window if randomize is False else random.randint(
                 math.floor(window - (window * randomize)) - 1, math.ceil(window + (window * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, window=15, fillna=False, randomize=False):
+        def add_indicator(self, df, window=15, fillna=False, randomize=False):
             if df is None:
                 df = self.df
             else:
@@ -301,7 +290,7 @@ class TrendIndicators:
 
             self.set_settings(window=window, fillna=fillna, randomize=randomize)
 
-            self.strategy = TRIXIndicator(close=self.strategy_settings['close'],
+            self.strategy = TRIXIndicator(close=df['close'],
                                           window=self.strategy_settings['window'],
                                           fillna=self.strategy_settings['fillna'])
 
@@ -338,8 +327,8 @@ class TrendIndicators:
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
-            self.strategy_settings['high'] = self.df['high']
-            self.strategy_settings['low'] = self.df['low']
+            
+            
             self.strategy_settings['window_slow'] = window_slow if randomize is False else random.randint(
                 math.floor(window_slow - (window_slow * randomize)) - 1,
                 math.ceil(window_slow + (window_slow * randomize)))
@@ -348,7 +337,7 @@ class TrendIndicators:
                 math.ceil(window_fast + (window_fast * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, window_fast=9, window_slow=25, fillna=False, randomize=False):
+        def add_indicator(self, df, window_fast=9, window_slow=25, fillna=False, randomize=False):
             if df is None:
                 df = self.df
             else:
@@ -356,8 +345,8 @@ class TrendIndicators:
 
             self.set_settings(window_fast=window_fast, window_slow=window_slow, fillna=fillna, randomize=randomize)
 
-            self.strategy = MassIndex(high=self.strategy_settings['high'],
-                                      low=self.strategy_settings['low'],
+            self.strategy = MassIndex(high=df['high'],
+                                      low=df['low'],
                                       window_fast=self.strategy_settings['window_fast'],
                                       window_slow=self.strategy_settings['window_slow'],
                                       fillna=self.strategy_settings['fillna'])
@@ -392,16 +381,16 @@ class TrendIndicators:
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
-            self.strategy_settings['close'] = self.df['close']
-            self.strategy_settings['high'] = self.df['high']
-            self.strategy_settings['low'] = self.df['low']
+            
+            
+            
             self.strategy_settings['window'] = window if randomize is False else random.randint(
                 math.floor(window - (window * randomize)) - 1, math.ceil(window + (window * randomize)))
             self.strategy_settings['constant'] = constant if randomize is False else random.randint(
                 math.floor(constant - (constant * randomize)) - 1, math.ceil(constant + (constant * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, window=20, constant=0.015, fillna=False, randomize=False):
+        def add_indicator(self, df, window=20, constant=0.015, fillna=False, randomize=False):
             if df is None:
                 df = self.df
             else:
@@ -409,9 +398,9 @@ class TrendIndicators:
 
             self.set_settings(window=window, constant=constant, fillna=fillna, randomize=randomize)
 
-            self.strategy = CCIIndicator(close=self.strategy_settings['close'],
-                                         high=self.strategy_settings['high'],
-                                         low=self.strategy_settings['low'],
+            self.strategy = CCIIndicator(close=df['close'],
+                                         high=df['high'],
+                                         low=df['low'],
                                          window=self.strategy_settings['window'],
                                          constant=self.strategy_settings['constant'],
                                          fillna=self.strategy_settings['fillna'])
@@ -461,12 +450,12 @@ class TrendIndicators:
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
-            self.strategy_settings['close'] = self.df['close']
+            
             self.strategy_settings['window'] = window if randomize is False else random.randint(
                 math.floor(window - (window * randomize)) - 1, math.ceil(window + (window * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, window=20, fillna=False, randomize=False):
+        def add_indicator(self, df, window=20, fillna=False, randomize=False):
             if df is None:
                 df = self.df
             else:
@@ -474,7 +463,7 @@ class TrendIndicators:
 
             self.set_settings(window=window, fillna=fillna, randomize=randomize)
 
-            self.strategy = DPOIndicator(close=self.strategy_settings['close'], window=self.strategy_settings['window'],
+            self.strategy = DPOIndicator(close=df['close'], window=self.strategy_settings['window'],
                                          fillna=self.strategy_settings['fillna'])
 
             df[f"trend_dpo"] = self.strategy.dpo()
@@ -511,7 +500,7 @@ class TrendIndicators:
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
-            self.strategy_settings['close'] = self.df['close']
+            
             self.strategy_settings['window1'] = window1 if randomize is False else random.randint(
                 math.floor(window1 - (window1 * randomize)) - 1, math.ceil(window1 + (window1 * randomize)))
             self.strategy_settings['window2'] = window2 if randomize is False else random.randint(
@@ -532,7 +521,7 @@ class TrendIndicators:
                 math.floor(nsig - (nsig * randomize)) - 1, math.ceil(nsig + (nsig * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, roc1=10, roc2=15, roc3=20, roc4=30, window1=10, window2=10, window3=10, window4=15,
+        def add_indicator(self, df, roc1=10, roc2=15, roc3=20, roc4=30, window1=10, window2=10, window3=10, window4=15,
                           nsig=9, fillna=False, randomize=False):
             if df is None:
                 df = self.df
@@ -542,7 +531,7 @@ class TrendIndicators:
             self.set_settings(roc1=roc1, roc2=roc2, roc3=roc3, roc4=roc4, window1=window1, window2=window2,
                               window3=window3, window4=window4, nsig=nsig, fillna=fillna, randomize=randomize)
 
-            self.strategy = KSTIndicator(close=self.strategy_settings['close'],
+            self.strategy = KSTIndicator(close=df['close'],
                                          roc1=self.strategy_settings['roc1'],
                                          roc2=self.strategy_settings['roc2'],
                                          roc3=self.strategy_settings['roc3'],
@@ -591,8 +580,8 @@ class TrendIndicators:
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
-            self.strategy_settings['high'] = self.df['high']
-            self.strategy_settings['low'] = self.df['low']
+            
+            
             self.strategy_settings['window1'] = window1 if randomize is False else random.randint(
                 math.floor(window1 - (window1 * randomize)) - 1, math.ceil(window1 + (window1 * randomize)))
             self.strategy_settings['window2'] = window2 if randomize is False else random.randint(
@@ -603,7 +592,7 @@ class TrendIndicators:
                 math.floor(visual - (visual * randomize)) - 1, math.ceil(visual + (visual * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, window1=9, window2=26, window3=52, visual=False, fillna=False, randomize=False):
+        def add_indicator(self, df, window1=9, window2=26, window3=52, visual=False, fillna=False, randomize=False):
             if df is None:
                 df = self.df
             else:
@@ -612,8 +601,8 @@ class TrendIndicators:
             self.set_settings(window1=window1, window2=window2, window3=window3, visual=visual, fillna=fillna,
                               randomize=randomize)
 
-            self.strategy = IchimokuIndicator(high=self.strategy_settings['high'],
-                                              low=self.strategy_settings['low'],
+            self.strategy = IchimokuIndicator(high=df['high'],
+                                              low=df['low'],
                                               window1=self.strategy_settings['window1'],
                                               window2=self.strategy_settings['window2'],
                                               window3=self.strategy_settings['window3'],
@@ -656,27 +645,20 @@ class TrendIndicators:
                 randomize = self.randomize_default
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
-
-            self.strategy_settings['close'] = self.df['close']
-            self.strategy_settings['high'] = self.df['high']
-            self.strategy_settings['low'] = self.df['low']
+            
             self.strategy_settings['step'] = step if randomize is False else random.randint(
                 int(100 * (step - (step * randomize))), int(100 * (step + (step * randomize)))) / 100.0
             self.strategy_settings['max_step'] = max_step if randomize is False else random.randint(
                 int(100 * (max_step - (max_step * randomize))), int(100 * (max_step + (max_step * randomize)))) / 100.0
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, step=0.02, max_step=0.2, fillna=False, randomize=False):
-            if df is None:
-                df = self.df
-            else:
-                self.df = df
+        def add_indicator(self, df, step=0.02, max_step=0.2, fillna=False, randomize=False):
 
             self.set_settings(step=step, max_step=max_step, fillna=fillna, randomize=randomize)
 
-            self.strategy = PSARIndicator(close=self.strategy_settings['close'],
-                                          high=self.strategy_settings['high'],
-                                          low=self.strategy_settings['low'],
+            self.strategy = PSARIndicator(close=df['close'],
+                                          high=df['high'],
+                                          low=df['low'],
                                           step=self.strategy_settings['step'],
                                           max_step=self.strategy_settings['max_step'],
                                           fillna=self.strategy_settings['fillna'])
@@ -720,7 +702,6 @@ class TrendIndicators:
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
-            self.strategy_settings['close'] = self.df['close']
             self.strategy_settings['cycle'] = cycle if randomize is False else random.randint(
                 math.floor(cycle - (cycle * randomize)) - 1, math.ceil(cycle + (cycle * randomize)))
             self.strategy_settings['window_slow'] = window_slow if randomize is False else random.randint(
@@ -735,17 +716,13 @@ class TrendIndicators:
                 math.floor(smooth2 - (smooth2 * randomize)) - 1, math.ceil(smooth2 + (smooth2 * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df=None, window_fast=23, window_slow=50, cycle=10, smooth1=3, smooth2=3, fillna=False,
+        def add_indicator(self, df, window_fast=23, window_slow=50, cycle=10, smooth1=3, smooth2=3, fillna=False,
                           randomize=False):
-            if df is None:
-                df = self.df
-            else:
-                self.df = df
 
             self.set_settings(window_fast=window_fast, window_slow=window_slow, cycle=cycle, smooth1=smooth1,
                               smooth2=smooth2, fillna=fillna, randomize=randomize)
 
-            self.strategy = STCIndicator(close=self.strategy_settings['close'],
+            self.strategy = STCIndicator(close=df['close'],
                                          window_fast=self.strategy_settings['window_fast'],
                                          window_slow=self.strategy_settings['window_slow'],
                                          cycle=self.strategy_settings['cycle'],
