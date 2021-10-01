@@ -1,0 +1,1 @@
+Candidates are not being linked up to their results properly, when the candidate_average is done. Look into and correct this.
