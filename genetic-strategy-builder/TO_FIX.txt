@@ -1,1 +1,6 @@
-Candidates are not being linked up to their results properly, when the candidate_average is done. Look into and correct this.
+1) Candidates are not being linked up to their results properly, when the candidate_average is done. Look into and correct this.
+
+2) Candidates are still duplicating DNA type, throwing off the balance
+
+
+

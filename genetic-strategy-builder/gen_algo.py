@@ -121,7 +121,7 @@ print('DONE\n')
 
 for i in range(NUM_GENERATIONS):
 
-    print('Testing every member of the population against each ticker passed...', end='')
+    print('Adding indicator data and testing every member of the population against each ticker passed...', end='')
 
     ticker_data.clear_ticker_data()
     new_data = ticker_data.data.copy()
@@ -212,10 +212,10 @@ for i in range(NUM_GENERATIONS):
     # Create a list for the new population's candidates
     new_population = []
 
-    # Save top maximum_elite percentage, passing them directly to the next generation
-    maximum_elite = round(len(candidate_average) * 0.05)
-    for j in range(maximum_elite):
-        new_population.append(candidate_average[j].candidate)
+    # # Save top maximum_elite percentage, passing them directly to the next generation
+    # maximum_elite = round(len(candidate_average) * 0.05)
+    # for j in range(maximum_elite):
+    #     new_population.append(candidate_average[j].candidate)
 
     # Create new population, splicing top performers with the rest of the pop and filling out the rest with a randomized population
     num_elite = round(len(candidate_average) * 0.2)
