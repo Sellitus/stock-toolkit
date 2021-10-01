@@ -29,7 +29,7 @@ parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", req
                          "affecting the results negatively. Integer passed is the multiplier for the initial capital "
                          "/ year. So for a value of 20 and initial capital of 10,000, the yearly max would be 200,000."
                          "Ex: --capital-normalization 20")
-parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=int, default=5,
+parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=int, default=3,
                     help="Min trades that should be executed. Values below this are removed. Ex: --min-trades 5")
 parser.add_argument('--population', dest="POPULATION", required=False, type=int, default=100,
                     help="Number of member of each generation. Ex: --population 100")
@@ -37,6 +37,10 @@ parser.add_argument('--seed', dest="SEED", required=False, type=int, default=Non
                     help="Seed to use for random number generator for consistent results. Ex: --seed 314")
 parser.add_argument('--randomize', dest="RANDOMIZE", required=False, type=float, default=0.2,
                     help="Percentage to randomize indicator settings. Ex: --randomize 0.25")
+parser.add_argument('-no-filter', dest="FILTER_OUTLIERS", required=False, action='store_false', default=True,
+                    help="Prevents filtering out of outliers from candidate list each generation. Filters for a "
+                         "minimum number of trades and filters out top results that are a certain percentage away from "
+                         "the norm. Ex: -filter")
 parser.add_argument('-u', dest='UPDATE', required=False, action='store_true',
                     help="Flag to remove old data files so they will be redownloaded.")
 args = parser.parse_args()
@@ -52,6 +56,7 @@ SEED = args.SEED
 CAPITAL = args.CAPITAL
 MIN_TRADES = args.MIN_TRADES
 CAPITAL_NORMALIZATION = args.CAPITAL_NORMALIZATION
+FILTER_OUTLIERS = args.FILTER_OUTLIERS
 if CAPITAL_NORMALIZATION <= 0:
     CAPITAL_NORMALIZATION = None
 
@@ -85,6 +90,7 @@ for ticker in ticker_data.data.keys():
 
 MULTITHREAD_PROCESS_MULTIPLIER = 1
 NUM_GENERATIONS = 100000
+drop_threshold = 0.25
 
 
 print('')
@@ -179,12 +185,18 @@ for i in range(NUM_GENERATIONS):
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
     candidate_average.reverse()
 
-    # Filter out candidates if they don't have enough buys
-    new_candidate_average = []
-    for candidate in candidate_average:
-        if candidate.buys >= MIN_TRADES:
-            new_candidate_average.append(candidate)
-    candidate_average = new_candidate_average
+    # Filter out candidates if they don't have enough buys or they are certain percentage more than previous ones
+    if FILTER_OUTLIERS:
+        filtered_candidate_average = []
+        num_top = 5
+        for j in range(len(candidate_average) - 1):
+            if candidate_average[j].buys >= MIN_TRADES:
+                filtered_candidate_average.append(candidate_average[j])
+        for j in reversed(range(1, num_top)):
+            if ((1 - drop_threshold) * candidate_average[j - 1].capital) > candidate_average[j].capital:
+                filtered_candidate_average = filtered_candidate_average[j:]
+                break
+        candidate_average = filtered_candidate_average
 
     # Save best candidate
     if best_candidate is None or best_candidate.capital < candidate_average[0].capital:
