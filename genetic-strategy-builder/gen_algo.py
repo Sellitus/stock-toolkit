@@ -166,9 +166,9 @@ for i in range(NUM_GENERATIONS):
                     capital = ceil
 
             average_capital[j] += ticker_results[j].capital
-            average_buys[j] += ticker_results[j].buys
-            average_sells[j] += ticker_results[j].sells
-
+            average_buys[j] += len(ticker_results[j].buys)
+            average_sells[j] += len(ticker_results[j].sells)
+    
     for j in range(len(average_capital)):
         average_capital[j] = average_capital[j] / len(tickers)
         average_buys[j] = round(average_buys[j] / len(tickers))
@@ -194,9 +194,10 @@ for i in range(NUM_GENERATIONS):
                 filtered_candidate_average.append(candidate_average[j])
         for j in reversed(range(1, num_top)):
             if ((1 - drop_threshold) * candidate_average[j - 1].capital) > candidate_average[j].capital:
-                filtered_candidate_average = filtered_candidate_average[j:]
+                filtered_candidate_average = candidate_average[j:]
                 break
-        candidate_average = filtered_candidate_average
+        if len(filtered_candidate_average) > 50:
+            candidate_average = filtered_candidate_average
 
     # Save best candidate
     if best_candidate is None or best_candidate.capital < candidate_average[0].capital:
