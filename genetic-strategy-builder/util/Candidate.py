@@ -13,9 +13,9 @@ class Candidate:
 
     DNA = []
 
-    def __init__(self, dna_to_mix=None):
+    def __init__(self, dna_to_mix=None, randomize=False):
         if dna_to_mix is None:
-            self.generate_random_dna()
+            self.generate_random_dna(randomize=randomize)
         else:
             self.splice_together_dna(dna_to_mix)
 

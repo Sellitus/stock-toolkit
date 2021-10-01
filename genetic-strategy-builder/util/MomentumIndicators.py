@@ -26,17 +26,13 @@ class MomentumIndicators:
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
-            
-            
             self.strategy_settings['window1'] = window1 if randomize is False else random.randint(
                 math.floor(window1 - (window1 * randomize)) - 1, math.ceil(window1 + (window1 * randomize)))
             self.strategy_settings['window2'] = window2 if randomize is False else random.randint(
                 math.floor(window2 - (window2 * randomize)) - 1, math.ceil(window2 + (window2 * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df, window1=5, window2=34, fillna=False, randomize=False):
-            
-            self.set_settings(window1=window1, window2=window2, fillna=fillna, randomize=randomize)
+        def add_indicator(self, df):
 
             self.strategy = AwesomeOscillatorIndicator(high=df['high'],
                                                        low=df['low'],
@@ -91,9 +87,7 @@ class MomentumIndicators:
                 math.floor(pow2 - (pow2 * randomize)) - 1, math.ceil(pow2 + (pow2 * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df, window=10, pow1=2, pow2=30, fillna=False, randomize=False):
-
-            self.set_settings(window=window, pow1=pow1, pow2=pow2, fillna=fillna, randomize=randomize)
+        def add_indicator(self, df):
 
             self.strategy = KAMAIndicator(close=df['close'],
                                           window=self.strategy_settings['window'],
@@ -153,15 +147,12 @@ class MomentumIndicators:
                 math.ceil(window_sign + (window_sign * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df, window_slow=26, window_fast=12, window_sign=9, fillna=False, randomize=False):
-
-            self.set_settings(window_slow=window_slow, window_fast=window_fast, window_sign=window_sign,
-                              fillna=fillna, randomize=randomize)
+        def add_indicator(self, df):
 
             self.strategy = PercentagePriceOscillator(close=df['close'],
-                                                      window_slow=window_slow,
-                                                      window_fast=window_fast,
-                                                      window_sign=window_sign,
+                                                      window_slow=self.strategy_settings['window_slow'],
+                                                      window_fast=self.strategy_settings['window_fast'],
+                                                      window_sign=self.strategy_settings['window_sign'],
                                                       fillna=self.strategy_settings['fillna'])
 
             df[f"momentum_ppo"] = self.strategy.ppo()
@@ -218,10 +209,7 @@ class MomentumIndicators:
                 math.ceil(window_sign + (window_sign * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df, window_slow=26, window_fast=12, window_sign=9, fillna=False, randomize=False):
-            
-            self.set_settings(window_slow=window_slow, window_fast=window_fast, window_sign=window_sign, fillna=fillna,
-                              randomize=randomize)
+        def add_indicator(self, df):
 
             self.strategy = PercentageVolumeOscillator(volume=self.strategy_settings['volume'],
                                                        window_slow=self.strategy_settings['window_slow'],
@@ -261,9 +249,7 @@ class MomentumIndicators:
                 math.floor(window - (window * randomize)) - 1, math.ceil(window + (window * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df, window=12, fillna=False, randomize=False):
-
-            self.set_settings(window=window, fillna=fillna, randomize=randomize)
+        def add_indicator(self, df):
 
             self.strategy = ROCIndicator(close=df['close'], window=self.strategy_settings['window'],
                                          fillna=self.strategy_settings['fillna'])
@@ -311,8 +297,7 @@ class MomentumIndicators:
                 math.floor(window - (window * randomize)) - 1, math.ceil(window + (window * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df, window=14, fillna=False, randomize=False):
-            self.set_settings(window=window, fillna=fillna, randomize=randomize)
+        def add_indicator(self, df):
 
             self.strategy = RSIIndicator(close=df['close'], 
                                          window=self.strategy_settings['window'],
@@ -366,9 +351,7 @@ class MomentumIndicators:
                 math.ceil(smooth_window + (smooth_window * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df, window=14, smooth_window=3, fillna=False, randomize=False):
-
-            self.set_settings(window=window, smooth_window=smooth_window, fillna=fillna, randomize=randomize)
+        def add_indicator(self, df):
 
             self.strategy = StochasticOscillator(close=df['close'],
                                                  high=df['high'],
@@ -427,9 +410,7 @@ class MomentumIndicators:
                 math.floor(smooth2 - (smooth2 * randomize)) - 1, math.ceil(smooth2 + (smooth2 * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df, window=14, smooth1=3, smooth2=3, fillna=False, randomize=False):
-
-            self.set_settings(window=window, smooth1=smooth1, smooth2=smooth2, fillna=fillna, randomize=randomize)
+        def add_indicator(self, df):
 
             self.strategy = StochRSIIndicator(close=df['close'],
                                               window=self.strategy_settings['window'],
@@ -486,9 +467,7 @@ class MomentumIndicators:
                 math.ceil(window_fast + (window_fast * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df, window_slow=25, window_fast=13, fillna=False, randomize=False):
-
-            self.set_settings(window_slow=window_slow, window_fast=window_fast, fillna=fillna, randomize=randomize)
+        def add_indicator(self, df):
 
             self.strategy = TSIIndicator(close=df['close'],
                                          window_slow=self.strategy_settings['window_slow'],
@@ -551,11 +530,7 @@ class MomentumIndicators:
                 math.floor(weight3 - (weight3 * randomize)) - 1, math.ceil(weight3 + (weight3 * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df, window1=7, window2=14, window3=28, weight1=4.0, weight2=2.0, weight3=1.0,
-                          fillna=False, randomize=False):
-
-            self.set_settings(window1=window1, window2=window2, window3=window3, weight1=weight1, weight2=weight2,
-                              weight3=weight3, fillna=fillna, randomize=randomize)
+        def add_indicator(self, df):
 
             self.strategy = UltimateOscillator(close=df['close'],
                                                high=df['high'],
@@ -618,14 +593,13 @@ class MomentumIndicators:
                 math.floor(lbp - (lbp * randomize)) - 1, math.ceil(lbp + (lbp * randomize)))
             self.strategy_settings['fillna'] = fillna
 
-        def add_indicator(self, df, lbp=14, fillna=False, randomize=False):
-
-            self.set_settings(lbp=lbp, fillna=fillna, randomize=randomize)
+        def add_indicator(self, df):
 
             self.strategy = WilliamsRIndicator(close=df['close'],
                                                high=df['high'],
                                                low=df['low'],
-                                               lbp=lbp, fillna=self.strategy_settings['fillna'])
+                                               lbp=self.strategy_settings['lbp'],
+                                               fillna=self.strategy_settings['fillna'])
 
             df[f"momentum_wr"] = self.strategy.williams_r()
             self.clear_settings()

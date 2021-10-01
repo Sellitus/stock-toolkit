@@ -1,18 +1,20 @@
 
+import copy
 import math
 import warnings
 
 
 class Result:
-    def __init__(self, capital, candidate, buys, sells):
+    def __init__(self, capital, candidate, buys, sells, population_id):
         self.capital = capital
         self.candidate = candidate
         self.buys = buys
         self.sells = sells
+        self.population_id = population_id
 
 class StrategyTester():
 
-    def test_strategy(self, threaded_results, ticker, data, candidate, train_period, randomize=False,
+    def test_strategy(self, threaded_results, ticker, data, candidate, population_id, train_period,
                       initial_capital=10000):
         buy_position = False
 
@@ -21,6 +23,8 @@ class StrategyTester():
 
         buys = []
         sells = []
+
+        data = copy.deepcopy(data)
 
         price = 0
         with warnings.catch_warnings():
@@ -90,5 +94,5 @@ class StrategyTester():
             purchase_amount = 0
             buy_position = False
 
-        threaded_results[ticker] += [Result(capital, candidate, buys, sells)]
+        threaded_results[ticker] += [Result(capital, candidate, buys, sells, population_id)]
         return capital

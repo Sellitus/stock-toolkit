@@ -191,6 +191,6 @@ class TickerData:
             df = self.data[ticker]
 
             # Drop all columns
-            df.drop(labels=df.columns.difference(feature_columns))
+            df.drop(columns=df.columns.difference(feature_columns))
 
         return data

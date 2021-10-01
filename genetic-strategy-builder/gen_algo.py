@@ -36,10 +36,12 @@ parser.add_argument('--seed', dest="SEED", required=False, type=int, default=Non
                     help="Seed to use for random number generator for consistent results. Ex: --seed 314")
 parser.add_argument('--randomize', dest="RANDOMIZE", required=False, type=float, default=0.2,
                     help="Percentage to randomize indicator settings. Ex: --randomize 0.25")
+parser.add_argument('--pass-unaltered', dest="PASS_UNALTERED", required=False, type=int, default=0,
+                    help="Number of each generation to be passed unaltered to the next. Ex: --pass-unaltered 1")
 parser.add_argument('-no-filter', dest="FILTER_OUTLIERS", required=False, action='store_false', default=True,
                     help="Prevents filtering out of outliers from candidate list each generation. Filters for a "
                          "minimum number of trades and filters out top results that are a certain percentage away from "
-                         "the norm. Ex: -filter")
+                         "the norm. Ex: -no-filter")
 parser.add_argument('-u', dest='UPDATE', required=False, action='store_true',
                     help="Flag to remove old data files so they will be redownloaded.")
 args = parser.parse_args()
@@ -56,6 +58,7 @@ CAPITAL = args.CAPITAL
 MIN_TRADES = args.MIN_TRADES
 CAPITAL_NORMALIZATION = args.CAPITAL_NORMALIZATION
 FILTER_OUTLIERS = args.FILTER_OUTLIERS
+PASS_UNALTERED = args.PASS_UNALTERED
 if CAPITAL_NORMALIZATION <= 0:
     CAPITAL_NORMALIZATION = None
 
@@ -112,7 +115,7 @@ best_sells = 0
 population = []
 for _ in range(POPULATION):
     # Mock data here for strategy tester
-    population.append(Candidate())
+    population.append(Candidate(randomize=RANDOMIZE))
 
 plt.ion()
 best_performing_indicators = {}
@@ -123,23 +126,23 @@ for i in range(NUM_GENERATIONS):
 
     print('Adding indicator data and testing every member of the population against each ticker passed...', end='')
 
-    ticker_data.clear_ticker_data()
+    #ticker_data.clear_ticker_data()
     new_data = ticker_data.data.copy()
 
     # Create the shared dict and initialize with arrays
     manager = mp.Manager()
     threaded_results = manager.dict()
     for ticker in tickers:
-        threaded_results[ticker] = []
+        threaded_results[ticker] = manager.list()
 
     process_pool = mp.Pool(mp.cpu_count() * MULTITHREAD_PROCESS_MULTIPLIER)
 
-    #tester.test_strategy(threaded_results, 'AMD', new_data['AMD'], population[0], TRAIN_PERIOD, RANDOMIZE, CAPITAL)
+    # tester.test_strategy(threaded_results, 'AMD', new_data['AMD'], population[0], TRAIN_PERIOD, CAPITAL)
 
-    for j in range(len(population)):
-        for ticker in tickers:
+    for ticker in tickers:
+        for j in range(len(population)):
             process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, new_data[ticker], population[j],
-                                                            TRAIN_PERIOD, RANDOMIZE, CAPITAL,))
+                                                            j, TRAIN_PERIOD, CAPITAL,))
 
     process_pool.close()
     process_pool.join()
@@ -147,6 +150,10 @@ for i in range(NUM_GENERATIONS):
     print('DONE')
     print('Sorting the candidates by performance and calculating results...', end='')
 
+    # Sort by population ID so all threaded_results[ticker] lists are synced to the same index in each list
+    for ticker in tickers:
+        threaded_results[ticker] = sorted(threaded_results[ticker], key=lambda x: x.population_id)
+    
     # Calculate average capital gain from each candidate for each ticker passed
     average_capital = [0] * POPULATION
     average_buys = [0] * POPULATION
@@ -160,21 +167,21 @@ for i in range(NUM_GENERATIONS):
                 if capital > ceil:
                     capital = ceil
 
-            average_capital[j] += ticker_results[j].capital
+            average_capital[j] += capital
             average_buys[j] += len(ticker_results[j].buys)
             average_sells[j] += len(ticker_results[j].sells)
 
     for j in range(len(average_capital)):
         average_capital[j] = average_capital[j] / len(tickers)
-        average_buys[j] = round(average_buys[j] / len(tickers))
-        average_sells[j] = round(average_sells[j] / len(tickers))
+        average_buys[j] = average_buys[j] / len(tickers)
+        average_sells[j] = average_sells[j] / len(tickers)
 
     # Create new candidate list with the average capitals
     candidate_average = []
 
     for j in range(min(len(average_capital), len(threaded_results[tickers[0]]))):
         candidate_average.append(Result(average_capital[j], threaded_results[tickers[0]][j].candidate,
-                                 average_buys[j], average_sells[j]))
+                                 average_buys[j], average_sells[j], None))
 
     # Sort candidate_average
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
@@ -214,14 +221,13 @@ for i in range(NUM_GENERATIONS):
     # Create a list for the new population's candidates
     new_population = []
 
-    # # Save top maximum_elite percentage, passing them directly to the next generation
-    # maximum_elite = round(len(candidate_average) * 0.05)
-    # for j in range(maximum_elite):
-    #     new_population.append(candidate_average[j].candidate)
+    # Save top unaltered amount, passing them directly to the next generation
+    for j in range(PASS_UNALTERED):
+        new_population.append(copy.deepcopy(candidate_average[j].candidate))
 
     # Create new population, splicing top performers with the rest of the pop and filling out the rest with a randomized
     # population
-    num_elite = round(len(candidate_average) * 0.2)
+    num_elite = round(POPULATION * 0.2)
     for j in range(num_elite):
         elite = candidate_average[j].candidate
         # Mix an elite with another random member of the elite
@@ -238,7 +244,7 @@ for i in range(NUM_GENERATIONS):
         new_population.append(child)
     # Fill out the rest of the population with random candidates
     while len(new_population) < POPULATION:
-        new_population.append(Candidate())
+        new_population.append(Candidate(randomize=RANDOMIZE))
 
     # Store the frequencies of the indicators for the most elite population
     top_tier_elite = round(POPULATION * 0.02)
@@ -307,14 +313,14 @@ for i in range(NUM_GENERATIONS):
                                ).replace(']', '').replace('(', '').replace(')', '')[:-1]
         curr_settings_str += ' -[' + str(candidate_average[0].candidate.DNA[j]) + ']- ' + str(cleaned_settings)
 
-    # Finally print the stuff I've been calculating forever
-    print('Best in Generation {}: ${:,.2f}  Buys: {}  Sells: {}  DNA: {}'.format(
-          i + 1, candidate_average[0].capital, candidate_average[0].buys, candidate_average[0].sells,
-          population[0].DNA))
-    print('-This Generation- Settings:' + str(curr_settings_str))
+    # Finally print the stuff I've been calculating for forever it seems like
     print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
     print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
     print('-This Generation- Plebs: {}'.format(plebs))
+    print('-Best in Generation- {}: ${:,.2f}  Buys: {}  Sells: {}  DNA: {}'.format(
+        i + 1, candidate_average[0].capital, candidate_average[0].buys, candidate_average[0].sells,
+        population[0].DNA))
+    print('-Best in Generation- Settings:' + str(curr_settings_str))
     print('======================')
     print('Most Frequent Elite Indicators: {}'.format(str(sorted_best_ind
                                                           ).replace('\'', '').replace('{', '(').replace('}', ')')))
@@ -329,5 +335,8 @@ for i in range(NUM_GENERATIONS):
     print('')
     print('------------------------------------------------------------------')
     print('')
+
+    # import pdb; pdb.set_trace()
+    # tester.test_strategy(threaded_results, 'AMD', new_data['AMD'], population[0], TRAIN_PERIOD, CAPITAL)
 
     population = new_population
