@@ -205,8 +205,8 @@ for i in range(NUM_GENERATIONS):
             if 'fillna' in cleaned_settings:
                 cleaned_settings.pop('fillna')
             cleaned_settings = str(collections.OrderedDict(sorted(cleaned_settings.items()))
-                                   ).replace('OrderedDict(', '').replace('\'', '').replace('{', '(').replace('}', ')'
-                                   ).replace('[', '').replace(']', '')[:-1]
+                                   ).replace('OrderedDict(', '').replace('\',', ':').replace('\'', '').replace('[', ''
+                                   ).replace(']', '').replace('(', '').replace(')', '')[:-1]
             best_settings_str += ' -[' + str(best_candidate.candidate.DNA[j]) + ']- ' + str(cleaned_settings)
 
     # Create a list for the new population's candidates
@@ -217,7 +217,8 @@ for i in range(NUM_GENERATIONS):
     # for j in range(maximum_elite):
     #     new_population.append(candidate_average[j].candidate)
 
-    # Create new population, splicing top performers with the rest of the pop and filling out the rest with a randomized population
+    # Create new population, splicing top performers with the rest of the pop and filling out the rest with a randomized
+    # population
     num_elite = round(len(candidate_average) * 0.2)
     for j in range(num_elite):
         elite = candidate_average[j].candidate
@@ -300,8 +301,8 @@ for i in range(NUM_GENERATIONS):
         if 'fillna' in cleaned_settings:
             cleaned_settings.pop('fillna')
         cleaned_settings = str(collections.OrderedDict(sorted(cleaned_settings.items()))
-                               ).replace('OrderedDict(', '').replace('\'', '').replace('{', '(').replace('}', ')'
-                               ).replace('[', '').replace(']', '')[:-1]
+                               ).replace('OrderedDict(', '').replace('\',', ':').replace('\'', '').replace('[', ''
+                               ).replace(']', '').replace('(', '').replace(')', '')[:-1]
         curr_settings_str += ' -[' + str(candidate_average[0].candidate.DNA[j]) + ']- ' + str(cleaned_settings)
 
     # Finally print the stuff I've been calculating forever
