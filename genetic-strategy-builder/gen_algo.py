@@ -38,6 +38,8 @@ parser.add_argument('--randomize', dest="RANDOMIZE", required=False, type=float,
                     help="Percentage to randomize indicator settings. Ex: --randomize 0.25")
 parser.add_argument('--pass-unaltered', dest="PASS_UNALTERED", required=False, type=int, default=0,
                     help="Number of each generation to be passed unaltered to the next. Ex: --pass-unaltered 1")
+parser.add_argument('-remove-duplicates', dest="REMOVE_DUPLICATES", required=False, action='store_true', default=False,
+                    help="Removes duplicate indicator types from the DNA strand randomly. Ex: -remove-duplicates")
 parser.add_argument('-no-filter', dest="FILTER_OUTLIERS", required=False, action='store_false', default=True,
                     help="Prevents filtering out of outliers from candidate list each generation. Filters for a "
                          "minimum number of trades and filters out top results that are a certain percentage away from "
@@ -59,6 +61,7 @@ MIN_TRADES = args.MIN_TRADES
 CAPITAL_NORMALIZATION = args.CAPITAL_NORMALIZATION
 FILTER_OUTLIERS = args.FILTER_OUTLIERS
 PASS_UNALTERED = args.PASS_UNALTERED
+REMOVE_DUPLICATES = args.REMOVE_DUPLICATES
 if CAPITAL_NORMALIZATION <= 0:
     CAPITAL_NORMALIZATION = None
 
@@ -115,7 +118,7 @@ best_sells = 0
 population = []
 for _ in range(POPULATION):
     # Mock data here for strategy tester
-    population.append(Candidate(randomize=RANDOMIZE))
+    population.append(Candidate(randomize=RANDOMIZE, remove_duplicates=REMOVE_DUPLICATES))
 
 plt.ion()
 best_performing_indicators = {}
@@ -153,7 +156,7 @@ for i in range(NUM_GENERATIONS):
     # Sort by population ID so all threaded_results[ticker] lists are synced to the same index in each list
     for ticker in tickers:
         threaded_results[ticker] = sorted(threaded_results[ticker], key=lambda x: x.population_id)
-    
+
     # Calculate average capital gain from each candidate for each ticker passed
     average_capital = [0] * POPULATION
     average_buys = [0] * POPULATION
@@ -232,7 +235,7 @@ for i in range(NUM_GENERATIONS):
         elite = candidate_average[j].candidate
         # Mix an elite with another random member of the elite
         random_elite = candidate_average[random.randint(0, num_elite - 1)].candidate
-        child = Candidate(dna_to_mix=[elite.DNA.copy(), random_elite.DNA.copy()])
+        child = Candidate(dna_to_mix=[elite.DNA.copy(), random_elite.DNA.copy()], remove_duplicates=REMOVE_DUPLICATES)
         new_population.append(child)
     num_extra = round(len(candidate_average) * 0.1)
     # Made 10% elites with non-elites
@@ -240,11 +243,11 @@ for i in range(NUM_GENERATIONS):
         elite = candidate_average[j].candidate
         # Mix an elite with another random member of the elite
         random_non_elite = candidate_average[random.randint(num_elite + 1, len(candidate_average) - 1)].candidate
-        child = Candidate(dna_to_mix=[elite.DNA.copy(), random_non_elite.DNA.copy()])
+        child = Candidate(dna_to_mix=[elite.DNA.copy(), random_non_elite.DNA.copy()], remove_duplicates=REMOVE_DUPLICATES)
         new_population.append(child)
     # Fill out the rest of the population with random candidates
     while len(new_population) < POPULATION:
-        new_population.append(Candidate(randomize=RANDOMIZE))
+        new_population.append(Candidate(randomize=RANDOMIZE, remove_duplicates=REMOVE_DUPLICATES))
 
     # Store the frequencies of the indicators for the most elite population
     top_tier_elite = round(POPULATION * 0.02)
@@ -317,9 +320,8 @@ for i in range(NUM_GENERATIONS):
     print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
     print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
     print('-This Generation- Plebs: {}'.format(plebs))
-    print('-Best in Generation- {}: ${:,.2f}  Buys: {}  Sells: {}  DNA: {}'.format(
-        i + 1, candidate_average[0].capital, candidate_average[0].buys, candidate_average[0].sells,
-        population[0].DNA))
+    print('-Best in Generation- {}: ${:,.2f}  Avg Buys/Sells: {}  DNA: {}'.format(
+        i + 1, candidate_average[0].capital, candidate_average[0].buys, population[0].DNA))
     print('-Best in Generation- Settings:' + str(curr_settings_str))
     print('======================')
     print('Most Frequent Elite Indicators: {}'.format(str(sorted_best_ind

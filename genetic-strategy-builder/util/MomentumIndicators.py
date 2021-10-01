@@ -244,7 +244,6 @@ class MomentumIndicators:
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
-            
             self.strategy_settings['window'] = window if randomize is False else random.randint(
                 math.floor(window - (window * randomize)) - 1, math.ceil(window + (window * randomize)))
             self.strategy_settings['fillna'] = fillna

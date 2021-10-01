@@ -9,7 +9,7 @@ class TechnicalIndicator(ABC):
     # 'NEUTRAL' means no action should be taken, 'ACTION' means either a buy or sell order should be placed
     buy_sell = ['BUY', 'SELL', 'NEUTRAL', 'ACTION', 'INACTION']
 
-    def __init__(self, df=None):
+    def __init__(self, df=None, randomize=False):
         self.df = {}
         if df is not None:
             self.df = df
@@ -29,7 +29,7 @@ class TechnicalIndicator(ABC):
 
         self.randomize_default = 0.1
 
-        self.set_settings()
+        self.set_settings(randomize=randomize)
 
     def set_name(self, name):
         self.name = name
