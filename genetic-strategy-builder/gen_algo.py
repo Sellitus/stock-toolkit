@@ -34,14 +34,14 @@ parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=int,
                     help="Min trades that should be executed. Values below this are removed. Ex: --min-trades 3")
 parser.add_argument('--population', dest="POPULATION", required=False, type=int, default=100,
                     help="Number of member of each generation. Ex: --population 100")
-parser.add_argument('--seed', dest="SEED", required=False, type=int, default=None,
-                    help="Seed to use for random number generator for consistent results. Ex: --seed 314")
 parser.add_argument('--randomize', dest="RANDOMIZE", required=False, type=float, default=0.2,
                     help="Percentage to randomize indicator settings. Ex: --randomize 0.25")
 parser.add_argument('--pass-unaltered', dest="PASS_UNALTERED", required=False, type=int, default=0,
                     help="Number of each generation to be passed unaltered to the next. Ex: --pass-unaltered 1")
 parser.add_argument('-remove-duplicates', dest="REMOVE_DUPLICATES", required=False, action='store_true', default=False,
                     help="Removes duplicate indicator types from the DNA strand randomly. Ex: -remove-duplicates")
+parser.add_argument('-rng', dest="RNG", required=False, action='store_true', default=False,
+                    help="Enables real RNG, which does not set RNG seeds for consistent results. Ex: -rng")
 parser.add_argument('-no-filter', dest="FILTER_OUTLIERS", required=False, action='store_false', default=True,
                     help="Prevents filtering out of outliers from candidate list each generation. Filters for a "
                          "minimum number of trades and filters out top results that are a certain percentage away from "
@@ -57,13 +57,13 @@ UPDATE = args.UPDATE
 TRAIN_PERIOD = args.TRAIN_PERIOD
 RANDOMIZE = args.RANDOMIZE
 POPULATION = args.POPULATION
-SEED = args.SEED
 CAPITAL = args.CAPITAL
 MIN_TRADES = args.MIN_TRADES
 CAPITAL_NORMALIZATION = args.CAPITAL_NORMALIZATION
 FILTER_OUTLIERS = args.FILTER_OUTLIERS
 PASS_UNALTERED = args.PASS_UNALTERED
 REMOVE_DUPLICATES = args.REMOVE_DUPLICATES
+RNG = args.RNG
 if CAPITAL_NORMALIZATION <= 0:
     CAPITAL_NORMALIZATION = None
 
@@ -80,9 +80,9 @@ print('')
 print('Initialization and setup...')
 
 # Set randomizer seeds for consistent results between runs
-if SEED is not None:
-    np.random.seed(SEED)
-    random.seed(SEED)
+if not RNG:
+    np.random.seed(314)
+    random.seed(314)
 
 # Grab the current date
 date_time_start = time.strftime("%Y-%m-%d_%H:%M:%S")
@@ -352,23 +352,24 @@ for i in range(NUM_GENERATIONS):
     individual_stock_performance = individual_stock_performance[:-2]
 
     # Finally print the stuff I've been calculating for forever it seems like
-    print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
-    print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
-    print('-This Generation- Plebs: {}'.format(plebs))
     print('-Best in Generation- {}: ${:,.2f}  DNA: {}  Avg Buys/Sells: {}'.format(
         i + 1, candidate_average[0].capital, str(list(population[0].DNA)), candidate_average[0].buys))
     print('-Best in Generation- Settings:' + str(curr_settings_str))
     print('-Best in Generation- Stock Performance: {}'.format(individual_stock_performance))
-    print('======================')
-    print('Buy+Hold Earnings: - {}'.format(buy_and_hold_str))
-    print('Most Frequent Elite Indicators: {}'.format(str(sorted_best_ind
-                                                          ).replace('\'', '').replace('{', '(').replace('}', ')')))
     print('======================')
     print('-Best Candidate- Earnings: ${:,.2f}  Avg Buys/Sells: {}  DNA: {}'.format(best_candidate.capital,
                                                                                      best_buys,
                                                                                      best_candidate.candidate.DNA))
     print('-Best Candidate- Settings:' + str(best_settings_str))
     print('-Best Candidate- Stock Performance: {}'.format(best_ind_stock_performance))
+    print('======================')
+    print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
+    print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
+    print('-This Generation- Plebs: {}'.format(plebs))
+    print('======================')
+    print('Buy+Hold Earnings: - {}'.format(buy_and_hold_str))
+    print('Most Frequent Elite Indicators: {}'.format(str(sorted_best_ind
+                                                          ).replace('\'', '').replace('{', '(').replace('}', ')')))
 
     # Print individual results from each ticker for best candidate
 
