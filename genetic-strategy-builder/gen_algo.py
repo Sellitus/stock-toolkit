@@ -21,8 +21,8 @@ from util.TickerData import TickerData
 parser = argparse.ArgumentParser(description='Find That Setup')
 parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
                     help="Stock tickers to find trading setups for. Ex: --tickers AMD GOOGL INTC")
-parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=1095,
-                    help="Units of time to train on. Ex: --period 365")
+parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=756,
+                    help="Number of days to train on (252 is 1 year). Ex: --period 252")
 parser.add_argument('--capital', dest="CAPITAL", required=False, type=int, default=10000,
                     help="Initial capital to start the trading algorithm with. Ex: --capital 10000")
 parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", required=False, type=int, default=20,
@@ -250,10 +250,10 @@ for i in range(NUM_GENERATIONS):
         child = Candidate(dna_to_mix=[elite.DNA.copy(), random_elite.DNA.copy()], remove_duplicates=REMOVE_DUPLICATES)
         new_population.append(child)
     num_extra = round(len(candidate_average) * 0.1)
-    # Made 10% elites with non-elites
-    for j in range(num_extra):
+    # Splice 10% elites with non-elites
+    for j in range(num_elite, num_elite + num_extra):
         elite = candidate_average[j].candidate
-        # Mix an elite with another random member of the elite
+        # Mix an elite with another random non-elite
         random_non_elite = candidate_average[random.randint(num_elite + 1, len(candidate_average) - 1)].candidate
         child = Candidate(dna_to_mix=[elite.DNA.copy(), random_non_elite.DNA.copy()], remove_duplicates=REMOVE_DUPLICATES)
         new_population.append(child)
@@ -332,7 +332,7 @@ for i in range(NUM_GENERATIONS):
     if buy_and_hold_str == "":
         avg = 0
         for ticker in tickers:
-            buy_hold_earnings = math.floor(CAPITAL / new_data[ticker].iloc[0]['adjclose'])
+            buy_hold_earnings = math.floor(CAPITAL / new_data[ticker].iloc[-1 * TRAIN_PERIOD]['adjclose'])
             buy_hold_earnings = buy_hold_earnings * new_data[ticker].iloc[-1]['adjclose']
             avg += buy_hold_earnings
             buy_and_hold_str += '{}: ${:,.2f}, '.format(ticker, buy_hold_earnings)
