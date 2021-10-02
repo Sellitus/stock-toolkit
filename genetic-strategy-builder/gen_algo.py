@@ -1,6 +1,7 @@
 import argparse
 import collections
 import copy
+import math
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 import numpy as np
@@ -11,6 +12,7 @@ import time
 
 from util.Candidate import Candidate
 from util.StrategyTester import StrategyTester, Result
+from util.Threads import save_candidate_average
 from util.TickerData import TickerData
 
 
@@ -113,6 +115,7 @@ if CAPITAL_NORMALIZATION is not None:
 
 best_candidate = None
 best_settings_str = ""
+buy_and_hold_str = ""
 best_buys = 0
 best_sells = 0
 population = []
@@ -139,8 +142,6 @@ for i in range(NUM_GENERATIONS):
         threaded_results[ticker] = manager.list()
 
     process_pool = mp.Pool(mp.cpu_count() * MULTITHREAD_PROCESS_MULTIPLIER)
-
-    # tester.test_strategy(threaded_results, 'AMD', new_data['AMD'], population[0], TRAIN_PERIOD, CAPITAL)
 
     for ticker in tickers:
         for j in range(len(population)):
@@ -180,15 +181,26 @@ for i in range(NUM_GENERATIONS):
         average_sells[j] = average_sells[j] / len(tickers)
 
     # Create new candidate list with the average capitals
-    candidate_average = []
+    candidate_average = manager.list()
+    process_pool = mp.Pool(mp.cpu_count() * MULTITHREAD_PROCESS_MULTIPLIER)
 
     for j in range(min(len(average_capital), len(threaded_results[tickers[0]]))):
-        candidate_average.append(Result(average_capital[j], threaded_results[tickers[0]][j].candidate,
-                                 average_buys[j], average_sells[j], None))
+        # process_pool.apply_async(save_candidate_average, (threaded_results, tickers, j, candidate_average,
+        #                                                   average_capital[j], average_buys[j],
+        #                                                   average_sells[j],))
+        save_candidate_average(threaded_results, tickers, j, candidate_average,
+                                 average_capital[j], average_buys[j],
+                                 average_sells[j])
+
+    process_pool.close()
+    process_pool.join()
+
 
     # Sort candidate_average
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
     candidate_average.reverse()
+
+
 
     # Best not outlier sets the best result to another candidate if the candidate is not a passed percentage above the
     # X lower elements
@@ -267,27 +279,27 @@ for i in range(NUM_GENERATIONS):
 
     # Output Section
 
-    # plt.xlabel("date")
-    # plt.ylabel("$ price")
-    # plt.title("{} Stock Price".format(tickers[0]))
-    # #plt.plot(candidate_average[0].buys, label="Buys")
-    # # import pdb; pdb.set_trace()
-    # # new_data[tickers[0]]['buys'] = False
-    # # new_data[tickers[0]]['sells'] = False
-    # # for idx, row in new_data[tickers[0]].iterrows():
-    # #     if row.name in candidate_average[0].buys:
-    # #         row.buys = True
-    # #     if row.name in candidate_average[0].sells:
-    # #         row.sells = True
-    #
-    # #plt.plot(buy, color='g', linestyle='None', marker='*')
-    # #plt.plot(sell, color='r', linestyle='None', marker='*')
+    plt.xlabel("date")
+    plt.ylabel("$ price")
+    plt.title("{} Stock Price".format(tickers[0]))
+    #plt.plot(candidate_average[0].buys, label="Buys")
+    # import pdb; pdb.set_trace()
+    # new_data[tickers[0]]['buys'] = False
+    # new_data[tickers[0]]['sells'] = False
+    # for idx, row in new_data[tickers[0]].iterrows():
+    #     if row.name in candidate_average[0].buys:
+    #         row.buys = True
+    #     if row.name in candidate_average[0].sells:
+    #         row.sells = True
+
+    #plt.plot(buy, color='g', linestyle='None', marker='*')
+    #plt.plot(sell, color='r', linestyle='None', marker='*')
     # plt.plot(new_data[tickers[0]]['trend_sma_fast'], 'g--', label="SMA Fast")
-    # plt.plot(new_data[tickers[0]]['close'], label="close")
-    # plt.legend()
-    # plt.draw()
-    # plt.pause(0.0001)
-    # plt.clf()
+    plt.plot(new_data[tickers[0]]['close'], label="close")
+    plt.legend()
+    plt.draw()
+    plt.pause(0.0001)
+    plt.clf()
 
 
 
@@ -319,14 +331,27 @@ for i in range(NUM_GENERATIONS):
                                ).replace(']', '').replace('(', '').replace(')', '')[:-1]
         curr_settings_str += ' -[' + str(candidate_average[0].candidate.DNA[j]) + ']- ' + str(cleaned_settings)
 
+    # Calculate the amount if you were to just have bought and held
+    if buy_and_hold_str == "":
+        for ticker in tickers:
+            buy_hold_earnings = math.floor(CAPITAL / new_data[ticker].iloc[0]['adjclose'])
+            buy_hold_earnings = buy_hold_earnings * new_data[ticker].iloc[-1]['adjclose']
+            buy_and_hold_str += '{}: ${:,.2f}, '.format(ticker, buy_hold_earnings)
+
+    individual_stock_performance = ""
+    for ticker in tickers:
+        individual_stock_performance += '{}: ${:,.2f}, '.format(ticker, candidate_average[0].ticker_capital[ticker])
+
     # Finally print the stuff I've been calculating for forever it seems like
     print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
     print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
     print('-This Generation- Plebs: {}'.format(plebs))
-    print('-Best in Generation- {}: ${:,.2f}  Avg Buys/Sells: {}  DNA: {}'.format(
+    print('-Best in Generation- {}: ${:,.2f}  DNA: {}  Avg Buys/Sells: {}'.format(
         i + 1, candidate_average[0].capital, candidate_average[0].buys, population[0].DNA))
     print('-Best in Generation- Settings:' + str(curr_settings_str))
+    print('-Best in Generation- Stock Performance: {}'.format(individual_stock_performance))
     print('======================')
+    print('Buy+Hold Earnings: {}'.format(buy_and_hold_str))
     print('Most Frequent Elite Indicators: {}'.format(str(sorted_best_ind
                                                           ).replace('\'', '').replace('{', '(').replace('}', ')')))
     print('======================')
