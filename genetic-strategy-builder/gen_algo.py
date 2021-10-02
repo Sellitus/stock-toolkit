@@ -230,8 +230,8 @@ for i in range(NUM_GENERATIONS):
         #         break
         if len(filtered_candidate_average) > num_elite + num_extra:
             candidate_average = filtered_candidate_average
-        else:
-            candidate_average = candidate_average[:num_elite + num_extra]
+        # else:
+        #     candidate_average = candidate_average[:num_elite + num_extra]
 
     # Save best candidate
     if best_candidate is None or best_candidate.capital < candidate_average[best_not_outlier].capital:
@@ -333,17 +333,18 @@ for i in range(NUM_GENERATIONS):
     # fig.canvas.draw_idle()
     # plt.pause(0.1)
 
-    plt.subplot(211)
+    plt.clf()
+
+    plt.subplot(111)
     plt.plot(new_data[tickers[0]]['close'], label="close")
-    plt.subplot(211)
+    plt.subplot(111)
     plt.scatter(buy_coords.index, buy_coords.close, color='g')
-    plt.subplot(211)
+    plt.subplot(111)
     plt.scatter(sell_coords.index, sell_coords.close, color='r')
 
     # plt.legend()
     plt.draw()
-    plt.pause(0.0001)
-    plt.clf()
+    plt.pause(0.1)
 
     # plt.show()
 
