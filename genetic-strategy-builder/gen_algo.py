@@ -330,10 +330,13 @@ for i in range(NUM_GENERATIONS):
 
     # Calculate the amount if you were to just have bought and held
     if buy_and_hold_str == "":
+        avg = 0
         for ticker in tickers:
             buy_hold_earnings = math.floor(CAPITAL / new_data[ticker].iloc[0]['adjclose'])
             buy_hold_earnings = buy_hold_earnings * new_data[ticker].iloc[-1]['adjclose']
+            avg += buy_hold_earnings
             buy_and_hold_str += '{}: ${:,.2f}, '.format(ticker, buy_hold_earnings)
+        buy_and_hold_str = '{}: ${:,.2f} - '.format('Average', avg / len(tickers)) + buy_and_hold_str
 
     individual_stock_performance = ""
     for ticker in tickers:
@@ -348,7 +351,7 @@ for i in range(NUM_GENERATIONS):
     print('-Best in Generation- Settings:' + str(curr_settings_str))
     print('-Best in Generation- Stock Performance: {}'.format(individual_stock_performance))
     print('======================')
-    print('Buy+Hold Earnings: {}'.format(buy_and_hold_str))
+    print('Buy+Hold Earnings: - {}'.format(buy_and_hold_str))
     print('Most Frequent Elite Indicators: {}'.format(str(sorted_best_ind
                                                           ).replace('\'', '').replace('{', '(').replace('}', ')')))
     print('======================')
