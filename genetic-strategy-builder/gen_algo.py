@@ -110,7 +110,7 @@ tester = StrategyTester()
 # Calculate the maximum multiplier per year, to help normalize extreme results
 ceil = None
 if CAPITAL_NORMALIZATION is not None:
-    num_years = TRAIN_PERIOD / 365
+    num_years = TRAIN_PERIOD / 252
     ceil = (CAPITAL * CAPITAL_NORMALIZATION) * num_years
 
 best_candidate = None
@@ -352,12 +352,12 @@ for i in range(NUM_GENERATIONS):
     individual_stock_performance = individual_stock_performance[:-2]
 
     # Finally print the stuff I've been calculating for forever it seems like
-    print('-Best in Generation- {}: ${:,.2f}  DNA: {}  Avg Buys/Sells: {}'.format(
+    print('-Best in Generation- {}: ${:,.2f}  Avg Trades: {}  DNA: {}'.format(
         i + 1, candidate_average[0].capital, str(list(population[0].DNA)), candidate_average[0].buys))
     print('-Best in Generation- Settings:' + str(curr_settings_str))
     print('-Best in Generation- Stock Performance: {}'.format(individual_stock_performance))
     print('======================')
-    print('-Best Candidate- Earnings: ${:,.2f}  Avg Buys/Sells: {}  DNA: {}'.format(best_candidate.capital,
+    print('-Best Candidate- Earnings: ${:,.2f}  Avg Trades: {}  DNA: {}'.format(best_candidate.capital,
                                                                                      best_buys,
                                                                                      best_candidate.candidate.DNA))
     print('-Best Candidate- Settings:' + str(best_settings_str))
