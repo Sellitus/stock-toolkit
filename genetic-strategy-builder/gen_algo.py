@@ -366,8 +366,10 @@ for i in range(NUM_GENERATIONS):
     for ticker in tickers:
         individual_stock_performance += '{}: ${:,.2f}, '.format(ticker, candidate_average[0].ticker_capital[ticker])
     individual_stock_performance = individual_stock_performance[:-2]
-
+    import pdb; pdb.set_trace()
     # Finally print the stuff I've been calculating for forever it seems like
+    print('Time Range: {} -> {}'.format(str(new_data[tickers[0]].iloc[-1 * TRAIN_PERIOD].name),
+                                        str(new_data[tickers[0]].iloc[-1].name)))
     print('-Best in Generation- {}: ${:,.2f}  Avg Trades: {}  DNA: {}'.format(
         i + 1, candidate_average[0].capital, candidate_average[0].buys, str(list(population[0].DNA))))
     print('-Best in Generation- Settings:' + str(curr_settings_str))
