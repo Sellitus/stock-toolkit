@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import multiprocessing as mp
 import numpy as np
 import os
+import pandas as pd
 import random
 import shutil
 import time
@@ -323,8 +324,14 @@ for generation in range(NUM_GENERATIONS):
         if timestamp not in best_candidate.sell_list:
             sell_coords = sell_coords.drop(index=timestamp)
 
+    # Create a new series with them in order
+    buy_sell_index_combined = buy_coords.index.union(sell_coords.index)
+    buy_sell_close_combined = pd.concat([buy_coords.close, sell_coords.close]).sort_index()
+
     plt.subplot(211)
-    plt.plot(new_data[tickers[0]]['close'], label="close")
+    plt.plot(new_data[tickers[0]]['close'], label="close", color='black')
+    plt.subplot(211)
+    plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b')
     plt.subplot(211)
     plt.scatter(buy_coords.index, buy_coords.close, color='g')
     plt.subplot(211)
@@ -332,7 +339,7 @@ for generation in range(NUM_GENERATIONS):
 
     plt.xlabel("date")
     plt.ylabel("$ price")
-    plt.title("{}: Best Strategy".format(tickers[0]))
+    plt.title("{}: Overall Best".format(tickers[0]))
 
     buy_coords = copy.deepcopy(new_data[tickers[0]])
     sell_coords = copy.deepcopy(new_data[tickers[0]])
@@ -343,8 +350,14 @@ for generation in range(NUM_GENERATIONS):
         if timestamp not in candidate_average[0].sell_list:
             sell_coords = sell_coords.drop(index=timestamp)
 
+    # Create a new series with them in order
+    buy_sell_index_combined = buy_coords.index.union(sell_coords.index)
+    buy_sell_close_combined = pd.concat([buy_coords.close, sell_coords.close]).sort_index()
+
     plt.subplot(212)
-    plt.plot(new_data[tickers[0]]['close'], label="close")
+    plt.plot(new_data[tickers[0]]['close'], label="close", color='black')
+    plt.subplot(212)
+    plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b')
     plt.subplot(212)
     plt.scatter(buy_coords.index, buy_coords.close, color='g')
     plt.subplot(212)
@@ -352,7 +365,7 @@ for generation in range(NUM_GENERATIONS):
 
     plt.xlabel("date")
     plt.ylabel("$ price")
-    plt.title("{}: Generation {}'s Best Strategy".format(tickers[0], generation + 1))
+    plt.title("{}: Generation {}'s Best".format(tickers[0], generation + 1))
 
     plt.tight_layout()
 
