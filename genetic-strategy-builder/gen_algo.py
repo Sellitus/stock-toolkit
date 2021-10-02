@@ -276,27 +276,27 @@ for i in range(NUM_GENERATIONS):
 
     # Output Section
 
-    plt.xlabel("date")
-    plt.ylabel("$ price")
-    plt.title("{} Stock Price".format(tickers[0]))
-    #plt.plot(candidate_average[0].buys, label="Buys")
-    # import pdb; pdb.set_trace()
-    # new_data[tickers[0]]['buys'] = False
-    # new_data[tickers[0]]['sells'] = False
-    # for idx, row in new_data[tickers[0]].iterrows():
-    #     if row.name in candidate_average[0].buys:
-    #         row.buys = True
-    #     if row.name in candidate_average[0].sells:
-    #         row.sells = True
-
-    #plt.plot(buy, color='g', linestyle='None', marker='*')
-    #plt.plot(sell, color='r', linestyle='None', marker='*')
-    # plt.plot(new_data[tickers[0]]['trend_sma_fast'], 'g--', label="SMA Fast")
-    plt.plot(new_data[tickers[0]]['close'], label="close")
-    plt.legend()
-    plt.draw()
-    plt.pause(0.0001)
-    plt.clf()
+    # plt.xlabel("date")
+    # plt.ylabel("$ price")
+    # plt.title("{} Stock Price".format(tickers[0]))
+    # #plt.plot(candidate_average[0].buys, label="Buys")
+    # # import pdb; pdb.set_trace()
+    # # new_data[tickers[0]]['buys'] = False
+    # # new_data[tickers[0]]['sells'] = False
+    # # for idx, row in new_data[tickers[0]].iterrows():
+    # #     if row.name in candidate_average[0].buys:
+    # #         row.buys = True
+    # #     if row.name in candidate_average[0].sells:
+    # #         row.sells = True
+    #
+    # #plt.plot(buy, color='g', linestyle='None', marker='*')
+    # #plt.plot(sell, color='r', linestyle='None', marker='*')
+    # # plt.plot(new_data[tickers[0]]['trend_sma_fast'], 'g--', label="SMA Fast")
+    # plt.plot(new_data[tickers[0]]['close'], label="close")
+    # plt.legend()
+    # plt.draw()
+    # plt.pause(0.0001)
+    # plt.clf()
 
 
 
