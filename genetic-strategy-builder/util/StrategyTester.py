@@ -89,7 +89,7 @@ class StrategyTester():
         # If it ends with stock purchased, sell the stock
         if purchase_amount > 0:
             # Log the sale
-            sells.append(data[-1:].copy())
+            #sells.append(data[-1:].copy())
             # Conduct the sale transaction
             capital += purchase_amount * price
             purchase_amount = 0
