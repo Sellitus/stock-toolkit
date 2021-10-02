@@ -10,6 +10,7 @@ from sklearn import preprocessing
 from util.TrendIndicators import TrendIndicators as ti
 from util.MomentumIndicators import MomentumIndicators as mi
 from yahoo_fin import stock_info as si
+import yfinance as yf
 
 
 
@@ -18,7 +19,6 @@ class TickerData:
     """
     Downloads or loads all daily data for specified stock tickers
     """
-
 
     FEATURE_COLUMNS = ['open', 'high', 'low', 'close', 'adjclose', 'volume',
                        'volume_adi', 'volume_obv', 'volume_cmf', 'volume_fi', 'volume_mfi',
@@ -48,24 +48,31 @@ class TickerData:
 
     basic_feature_columns = ('adjclose', 'volume', 'open', 'high', 'low', 'close')
 
-    def __init__(self, tickers=None):
+    intervals = {'1m': '7d', '2m': '60d', '5m': '60d', '15m': '60d', '30m': '60d', '60m': '730d', '90m': '60d',
+                 '1h': '730d', '1d': 'max', '5d': 'max', '1wk': 'max', '1mo': 'max', '3mo': 'max'}
+
+    def __init__(self, tickers=None, interval='1d'):
         self.data = None
         self.scalers = {}
         self.indicator_settings = {}
 
         if tickers is not None:
-            self.data = self.load_ticker_data_yf(tickers)
+            self.data = self.load_ticker_data_yf(tickers, interval)
 
-    def load_ticker_data_yf(self, tickers):
+    def load_ticker_data_yf(self, tickers, interval='1d'):
         """
         Download the stock data from Yahoo Finance if the stock data exists. if it is already downloaded, load and use
         that data
         """
 
+        if interval not in self.intervals.keys():
+            print("Interval '{}' not recognized. Must be from this list: {}".format(interval, self.intervals))
+            exit()
+
         data = {}
         for ticker in tickers:
             ticker_data_filename = os.path.join(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))
-                                                                 ), 'data'), f"{ticker}.csv")
+                                                                 ), 'data'), f"{ticker}-{interval}.csv")
             #ticker_data_filename = os.path.join("../../data", f"{ticker}.csv")
             # Load the data from disk if it exists, otherwise pull info from Yahoo Finance
             if os.path.exists(ticker_data_filename):
@@ -80,7 +87,8 @@ class TickerData:
                 # see if ticker is already a loaded stock from yahoo finance
                 if isinstance(ticker, str):
                     # load it from yahoo_fin library
-                    curr_data_df = si.get_data(ticker)
+                    # OLD LIBRARY FOR DOWNLOADING: curr_data_df = si.get_data(ticker)
+                    curr_data_df = yf.download(ticker, interval=interval, period=self.intervals[interval])
                 elif isinstance(ticker, pd.DataFrame):
                     # already loaded, use it directly
                     curr_data_df = ticker
@@ -88,7 +96,15 @@ class TickerData:
                 # Save the dataframe to prevent fetching every run
                 pickle.dump(curr_data_df, open(ticker_data_filename, "wb"))
 
-                data[ticker] = curr_data_df.drop(columns='ticker')
+                # Rename the columns to the standard format
+                renamed_columns = {}
+                for i in range(len(curr_data_df.columns)):
+                    renamed_columns[curr_data_df.columns[i]] = str(curr_data_df.columns[i]).lower().replace(' ', '')
+                curr_data_df = curr_data_df.rename(columns=renamed_columns)
+
+                data[ticker] = curr_data_df
+                if 'ticker' in curr_data_df.columns:
+                    data[ticker] = curr_data_df.drop(columns='ticker')
 
         self.data = data
         return data

@@ -22,9 +22,13 @@ parser = argparse.ArgumentParser(description='Find That Setup')
 parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
                     help="Stock tickers to find trading setups for. Ex: --tickers AMD GOOGL INTC")
 parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=756,
-                    help="Number of days to train on (252 is 1 year). Ex: --period 252")
+                    help="Number of days to train on (252 is 1 year). Less than 1 is no limit. Ex: --period 252")
 parser.add_argument('--capital', dest="CAPITAL", required=False, type=int, default=10000,
                     help="Initial capital to start the trading algorithm with. Ex: --capital 10000")
+parser.add_argument('--data-interval', dest="DATA_INTERVAL", required=False, type=str, default='1d',
+                    help="Interval for the data to be downloaded and tested on. Can be from this list:"
+                         "1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo"
+                         "Ex: --data-interval 1m")
 parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", required=False, type=int, default=10,
                     help="Set to <=0 to disable. Sets a normalized cap for each result, to prevent outliers from "
                          "affecting the results negatively. Integer passed is the multiplier for the initial capital "
@@ -55,6 +59,8 @@ args = parser.parse_args()
 TICKERS = args.TICKERS
 UPDATE = args.UPDATE
 TRAIN_PERIOD = args.TRAIN_PERIOD
+if TRAIN_PERIOD < 1:
+    TRAIN_PERIOD = None
 RANDOMIZE = args.RANDOMIZE
 POPULATION = args.POPULATION
 CAPITAL = args.CAPITAL
@@ -64,9 +70,9 @@ FILTER_OUTLIERS = args.FILTER_OUTLIERS
 PASS_UNALTERED = args.PASS_UNALTERED
 REMOVE_DUPLICATES = args.REMOVE_DUPLICATES
 RNG = args.RNG
+DATA_INTERVAL = args.DATA_INTERVAL
 if CAPITAL_NORMALIZATION <= 0:
     CAPITAL_NORMALIZATION = None
-
 
 MULTITHREAD_PROCESS_MULTIPLIER = 1
 NUM_GENERATIONS = 100000
@@ -99,7 +105,10 @@ if not os.path.isdir("data"):
     os.mkdir("data")
 
 # Initialize TickerData, passing a list of tickers to load
-ticker_data = TickerData(tickers=tickers)
+indicator_gen_period = 250
+ticker_data = TickerData(tickers=tickers, interval=DATA_INTERVAL)
+if TRAIN_PERIOD is None:
+    TRAIN_PERIOD = min([len(ticker_data.data[tickers[i]].index) for i in range(len(tickers))]) - indicator_gen_period
 
 # Cut down the data to only the timeframe being tested
 for ticker in ticker_data.data.keys():
