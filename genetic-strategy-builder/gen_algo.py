@@ -104,9 +104,10 @@ if UPDATE:
 if not os.path.isdir("data"):
     os.mkdir("data")
 
-# Initialize TickerData, passing a list of tickers to load
-indicator_gen_period = 250
 ticker_data = TickerData(tickers=tickers, interval=DATA_INTERVAL)
+
+# Initialize TickerData, passing a list of tickers to load
+indicator_gen_period = 25
 if TRAIN_PERIOD is None:
     TRAIN_PERIOD = min([len(ticker_data.data[tickers[i]].index) for i in range(len(tickers))]) - indicator_gen_period
 
@@ -366,7 +367,7 @@ for i in range(NUM_GENERATIONS):
     for ticker in tickers:
         individual_stock_performance += '{}: ${:,.2f}, '.format(ticker, candidate_average[0].ticker_capital[ticker])
     individual_stock_performance = individual_stock_performance[:-2]
-    import pdb; pdb.set_trace()
+
     # Finally print the stuff I've been calculating for forever it seems like
     print('Time Range: {} -> {}'.format(str(new_data[tickers[0]].iloc[-1 * TRAIN_PERIOD].name),
                                         str(new_data[tickers[0]].iloc[-1].name)))

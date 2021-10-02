@@ -78,7 +78,6 @@ class TickerData:
             if os.path.exists(ticker_data_filename):
                 print("Loading Ticker History: {}".format(ticker_data_filename))
                 curr_data_df = pickle.load(open(ticker_data_filename, "rb"))
-                data[ticker] = curr_data_df.drop(columns='ticker')
             else:
                 print("Downloading Ticker History: {}".format(ticker))
                 #curr_data = load_data(ticker, feature_columns=FEATURE_COLUMNS)
@@ -93,18 +92,18 @@ class TickerData:
                     # already loaded, use it directly
                     curr_data_df = ticker
 
-                # Save the dataframe to prevent fetching every run
-                pickle.dump(curr_data_df, open(ticker_data_filename, "wb"))
-
                 # Rename the columns to the standard format
                 renamed_columns = {}
                 for i in range(len(curr_data_df.columns)):
                     renamed_columns[curr_data_df.columns[i]] = str(curr_data_df.columns[i]).lower().replace(' ', '')
                 curr_data_df = curr_data_df.rename(columns=renamed_columns)
 
-                data[ticker] = curr_data_df
-                if 'ticker' in curr_data_df.columns:
-                    data[ticker] = curr_data_df.drop(columns='ticker')
+                # Save the dataframe to prevent fetching every run
+                pickle.dump(curr_data_df, open(ticker_data_filename, "wb"))
+
+            data[ticker] = curr_data_df
+            if 'ticker' in curr_data_df.columns:
+                data[ticker] = curr_data_df.drop(columns='ticker')
 
         self.data = data
         return data
