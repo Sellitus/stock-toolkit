@@ -5,11 +5,13 @@ import warnings
 
 
 class Result:
-    def __init__(self, capital, candidate, buys, sells, ticker_capital, population_id):
+    def __init__(self, capital, candidate, buys, sells, buy_list, sell_list, ticker_capital, population_id):
         self.capital = capital
         self.candidate = candidate
         self.buys = buys
         self.sells = sells
+        self.buy_list = buy_list
+        self.sell_list = sell_list
         self.ticker_capital = ticker_capital
         self.population_id = population_id
 
@@ -95,5 +97,6 @@ class StrategyTester():
             purchase_amount = 0
             buy_position = False
 
-        threaded_results[ticker] += [Result(capital, candidate, buys, sells, None, population_id)]
+        threaded_results[ticker] += [Result(capital, candidate, len(buys), len(sells), list(buys), list(sells),
+                                            None, population_id)]
         return capital

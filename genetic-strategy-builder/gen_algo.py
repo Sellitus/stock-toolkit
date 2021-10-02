@@ -135,8 +135,9 @@ for _ in range(POPULATION):
     # Mock data here for strategy tester
     population.append(Candidate(randomize=RANDOMIZE, remove_duplicates=REMOVE_DUPLICATES))
 
-plt.ion()
 best_performing_indicators = {}
+
+abc = None
 
 print('DONE\n')
 
@@ -184,8 +185,8 @@ for i in range(NUM_GENERATIONS):
                     capital = ceil
 
             average_capital[j] += capital
-            average_buys[j] += len(ticker_results[j].buys)
-            average_sells[j] += len(ticker_results[j].sells)
+            average_buys[j] += ticker_results[j].buys
+            average_sells[j] += ticker_results[j].sells
 
     for j in range(len(average_capital)):
         average_capital[j] = average_capital[j] / len(tickers)
@@ -197,14 +198,14 @@ for i in range(NUM_GENERATIONS):
 
     # Copy threaded_results for faster performance in the following loop
     threaded_copy = dict(threaded_results)
+
     # Save candidate information to candidate_average so the results can be sorted by performance and kept in sync
     for j in range(min(len(average_capital), len(threaded_copy[tickers[0]]))):
         save_candidate_average(threaded_copy, tickers, j, candidate_average,
-                               average_capital[j], average_buys[j],
-                               average_sells[j])
+                               average_capital[j], average_buys[j], average_sells[j])
 
-    process_pool.close()
-    process_pool.join()
+    # process_pool.close()
+    # process_pool.join()
 
     # Sort candidate_average
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
@@ -298,29 +299,72 @@ for i in range(NUM_GENERATIONS):
     print('')
 
     # Output Section
+    buy_coords = copy.deepcopy(new_data[tickers[0]])
+    sell_coords = copy.deepcopy(new_data[tickers[0]])
+
+    # Remove unneeded columns
+
+    # Calculate buy and sell coordinates
+
+    for timestamp, row in new_data[tickers[0]].iterrows():
+        if timestamp not in candidate_average[0].buy_list:
+            buy_coords = buy_coords.drop(index=timestamp)
+        if timestamp not in candidate_average[0].sell_list:
+            sell_coords = sell_coords.drop(index=timestamp)
 
     # plt.xlabel("date")
     # plt.ylabel("$ price")
     # plt.title("{} Stock Price".format(tickers[0]))
-    # #plt.plot(candidate_average[0].buys, label="Buys")
-    # # import pdb; pdb.set_trace()
-    # # new_data[tickers[0]]['buys'] = False
-    # # new_data[tickers[0]]['sells'] = False
-    # # for idx, row in new_data[tickers[0]].iterrows():
-    # #     if row.name in candidate_average[0].buys:
-    # #         row.buys = True
-    # #     if row.name in candidate_average[0].sells:
-    # #         row.sells = True
-    #
-    # #plt.plot(buy, color='g', linestyle='None', marker='*')
-    # #plt.plot(sell, color='r', linestyle='None', marker='*')
-    # # plt.plot(new_data[tickers[0]]['trend_sma_fast'], 'g--', label="SMA Fast")
+
     # plt.plot(new_data[tickers[0]]['close'], label="close")
+    # plt.scatter(buy_coords.index, buy_coords.close, color='g')
+    # plt.scatter(sell_coords.index, sell_coords.close, color='r')
+    #
     # plt.legend()
     # plt.draw()
     # plt.pause(0.0001)
     # plt.clf()
+    # plt.clf()
 
+
+    # x = buy_coords.index
+    # y = buy_coords.close
+    # sc.set_offsets(np.c_[x, y])
+    # fig.canvas.draw_idle()
+    # plt.pause(0.1)
+
+    plt.subplot(211)
+    plt.plot(new_data[tickers[0]]['close'], label="close")
+    plt.subplot(211)
+    plt.scatter(buy_coords.index, buy_coords.close, color='g')
+    plt.subplot(211)
+    plt.scatter(sell_coords.index, sell_coords.close, color='r')
+
+    # plt.legend()
+    plt.draw()
+    plt.pause(0.0001)
+    plt.clf()
+
+    # plt.show()
+
+    #
+    # if abc is not None:
+    #     abc.remove()
+    #
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
+    # abc = ax.scatter(buy_coords.index, buy_coords.close)
+    # ax2 = fig.add_subplot(111)
+    # abc2 = ax2.plot(new_data[tickers[0]]['close'], label="close")
+    #
+    # plt.xlabel("date")
+    # plt.ylabel("$ price")
+    # plt.title("{} Stock Price".format(tickers[0]))
+    # #ax.grid(True)
+    #
+    # plt.show()
+    #
+    # import pdb; pdb.set_trace()
 
 
     # Calculate top and low tier elite
