@@ -34,8 +34,11 @@ parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", req
                          "affecting the results negatively. Integer passed is the multiplier for the initial capital "
                          "/ year. So for a value of 20 and initial capital of 10,000, the yearly max would be 200,000."
                          "Ex: --capital-normalization 20")
-parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=int, default=3,
+parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=float, default=3,
                     help="Min trades that should be executed. Values below this are removed. Ex: --min-trades 3")
+parser.add_argument('--max-trades', dest="MAX_TRADES", required=False, type=float, default=float('inf'),
+                    help="Max trades that should be executed. Values above this are removed. Default is disabled."
+                         "Ex: --max-trades 40")
 parser.add_argument('--population', dest="POPULATION", required=False, type=int, default=100,
                     help="Number of member of each generation. Ex: --population 100")
 parser.add_argument('--randomize', dest="RANDOMIZE", required=False, type=float, default=0.2,
@@ -65,6 +68,7 @@ RANDOMIZE = args.RANDOMIZE
 POPULATION = args.POPULATION
 CAPITAL = args.CAPITAL
 MIN_TRADES = args.MIN_TRADES
+MAX_TRADES = args.MAX_TRADES
 CAPITAL_NORMALIZATION = args.CAPITAL_NORMALIZATION
 FILTER_OUTLIERS = args.FILTER_OUTLIERS
 PASS_UNALTERED = args.PASS_UNALTERED
@@ -211,9 +215,6 @@ for generation in range(NUM_GENERATIONS):
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
     candidate_average.reverse()
 
-    num_elite = round(POPULATION * 0.2)
-    num_extra = round(POPULATION * 0.1)
-
     # Best not outlier sets the best result to another candidate if the candidate is not a passed percentage above the
     # X lower elements
     best_not_outlier = 0
@@ -222,14 +223,22 @@ for generation in range(NUM_GENERATIONS):
     if FILTER_OUTLIERS:
         filtered_candidate_average = []
         for j in range(len(candidate_average) - 1):
-            if candidate_average[j].buys >= MIN_TRADES:
+            add = True
+            if MAX_TRADES < float('inf'):
+                if candidate_average[j].buys > MAX_TRADES:
+                    add = False
+            if MIN_TRADES > 0:
+                if candidate_average[j].buys < MIN_TRADES:
+                    add = False
+            if add:
                 filtered_candidate_average.append(candidate_average[j])
+
         # for j in reversed(range(1, num_top)):
         #     if candidate_average[j - 1].capital > (candidate_average[j].capital * (1 + DROP_THRESHOLD)):
         #         best_not_outlier = j
         #         break
-        if len(filtered_candidate_average) > num_elite + num_extra:
-            candidate_average = filtered_candidate_average
+        # if len(filtered_candidate_average) > num_elite + num_extra:
+        candidate_average = filtered_candidate_average
         # else:
         #     candidate_average = candidate_average[:num_elite + num_extra]
 
@@ -265,6 +274,9 @@ for generation in range(NUM_GENERATIONS):
 
     for j in range(PASS_UNALTERED):
         new_population.append(copy.deepcopy(candidate_average[j].candidate))
+
+    num_elite = int(len(candidate_average) * 0.2)
+    num_extra = int(len(candidate_average) * 0.1)
 
     # Create new population, splicing first half of top performers with other elites
     for j in range(int(num_elite / 2)):
