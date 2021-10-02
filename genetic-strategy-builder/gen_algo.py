@@ -112,7 +112,7 @@ if TRAIN_PERIOD is None:
 
 # Cut down the data to only the timeframe being tested
 for ticker in ticker_data.data.keys():
-    ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * (TRAIN_PERIOD + 500):-1]
+    ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * (TRAIN_PERIOD + indicator_gen_period):-1]
 
 tester = StrategyTester()
 
