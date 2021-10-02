@@ -181,16 +181,15 @@ for i in range(NUM_GENERATIONS):
         average_sells[j] = average_sells[j] / len(tickers)
 
     # Create new candidate list with the average capitals
-    candidate_average = manager.list()
-    process_pool = mp.Pool(mp.cpu_count() * MULTITHREAD_PROCESS_MULTIPLIER)
+    candidate_average = []
 
-    for j in range(min(len(average_capital), len(threaded_results[tickers[0]]))):
-        # process_pool.apply_async(save_candidate_average, (threaded_results, tickers, j, candidate_average,
-        #                                                   average_capital[j], average_buys[j],
-        #                                                   average_sells[j],))
-        save_candidate_average(threaded_results, tickers, j, candidate_average,
-                                 average_capital[j], average_buys[j],
-                                 average_sells[j])
+    # Copy threaded_results for faster performance in the following loop
+    threaded_copy = dict(threaded_results)
+    # Save candidate information to candidate_average so the results can be sorted by performance and kept in sync
+    for j in range(min(len(average_capital), len(threaded_copy[tickers[0]]))):
+        save_candidate_average(threaded_copy, tickers, j, candidate_average,
+                               average_capital[j], average_buys[j],
+                               average_sells[j])
 
     process_pool.close()
     process_pool.join()
@@ -199,8 +198,6 @@ for i in range(NUM_GENERATIONS):
     # Sort candidate_average
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
     candidate_average.reverse()
-
-
 
     # Best not outlier sets the best result to another candidate if the candidate is not a passed percentage above the
     # X lower elements

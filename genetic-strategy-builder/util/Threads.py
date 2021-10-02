@@ -7,6 +7,7 @@ from .StrategyTester import Result
 
 def save_candidate_average(threaded_results, tickers, j, candidate_average, average_capital, average_buys,
                            average_sells):
+
     ticker_capital = {}
     for ticker in tickers:
         ticker_capital[ticker] = threaded_results[ticker][j].capital
