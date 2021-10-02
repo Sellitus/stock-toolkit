@@ -66,7 +66,7 @@ class TickerData:
         """
 
         if interval not in self.intervals.keys():
-            print("Interval '{}' not recognized. Must be from this list: {}".format(interval, self.intervals))
+            print("Interval '{}' not recognized. Must be from this list: {}".format(interval, self.intervals.keys()))
             exit()
 
         data = {}
@@ -87,7 +87,7 @@ class TickerData:
                 if isinstance(ticker, str):
                     # load it from yahoo_fin library
                     # OLD LIBRARY FOR DOWNLOADING: curr_data_df = si.get_data(ticker)
-                    curr_data_df = yf.download(ticker, interval=interval, period=self.intervals[interval])
+                    curr_data_df = yf.download(ticker, interval=interval, period='max')
                 elif isinstance(ticker, pd.DataFrame):
                     # already loaded, use it directly
                     curr_data_df = ticker
