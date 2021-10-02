@@ -201,6 +201,9 @@ for i in range(NUM_GENERATIONS):
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
     candidate_average.reverse()
 
+    num_elite = round(POPULATION * 0.2)
+    num_extra = round(POPULATION * 0.1)
+
     # Best not outlier sets the best result to another candidate if the candidate is not a passed percentage above the
     # X lower elements
     best_not_outlier = 0
@@ -215,10 +218,10 @@ for i in range(NUM_GENERATIONS):
         #     if candidate_average[j - 1].capital > (candidate_average[j].capital * (1 + DROP_THRESHOLD)):
         #         best_not_outlier = j
         #         break
-        if len(filtered_candidate_average) < 10:
-            candidate_average = filtered_candidate_average[:int(POPULATION * 0.2)]
-        else:
+        if len(filtered_candidate_average) > num_elite + num_extra:
             candidate_average = filtered_candidate_average
+        else:
+            candidate_average = candidate_average[:num_elite + num_extra]
 
     # Save best candidate
     if best_candidate is None or best_candidate.capital < candidate_average[best_not_outlier].capital:
@@ -249,20 +252,19 @@ for i in range(NUM_GENERATIONS):
 
     # Create new population, splicing top performers with the rest of the pop and filling out the rest with a randomized
     # population
-    num_elite = round(POPULATION * 0.2)
     for j in range(num_elite):
         elite = candidate_average[j].candidate
         # Mix an elite with another random member of the elite
         random_elite = candidate_average[random.randint(0, num_elite - 1)].candidate
         child = Candidate(dna_to_mix=[elite.DNA.copy(), random_elite.DNA.copy()], remove_duplicates=REMOVE_DUPLICATES)
         new_population.append(child)
-    num_extra = round(len(candidate_average) * 0.1)
-    # Splice 10% elites with non-elites
-    for j in range(num_elite, num_elite + num_extra):
+    # Splice elites with non-elites
+    for j in range(num_elite):
         elite = candidate_average[j].candidate
         # Mix an elite with another random non-elite
-        random_non_elite = candidate_average[random.randint(num_elite + 1, len(candidate_average) - 1)].candidate
-        child = Candidate(dna_to_mix=[elite.DNA.copy(), random_non_elite.DNA.copy()], remove_duplicates=REMOVE_DUPLICATES)
+        random_non_elite = candidate_average[random.randint(num_elite + 1, num_elite + num_extra - 1)].candidate
+        child = Candidate(dna_to_mix=[elite.DNA.copy(), random_non_elite.DNA.copy()],
+                          remove_duplicates=REMOVE_DUPLICATES)
         new_population.append(child)
     # Fill out the rest of the population with random candidates
     while len(new_population) < POPULATION:
