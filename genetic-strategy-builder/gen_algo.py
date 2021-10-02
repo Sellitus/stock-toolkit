@@ -109,8 +109,8 @@ tester = StrategyTester()
 
 # Calculate the maximum multiplier per year, to help normalize extreme results
 ceil = None
+num_years = TRAIN_PERIOD / 252
 if CAPITAL_NORMALIZATION is not None:
-    num_years = TRAIN_PERIOD / 252
     ceil = (CAPITAL * CAPITAL_NORMALIZATION) * num_years
 
 best_candidate = None
@@ -228,6 +228,11 @@ for i in range(NUM_GENERATIONS):
         best_candidate = candidate_average[best_not_outlier]
         best_buys = candidate_average[best_not_outlier].buys
         best_sells = candidate_average[best_not_outlier].sells
+
+        if CAPITAL_NORMALIZATION is not None:
+            # Set ceiling higher
+            ceil = (best_candidate.capital * CAPITAL_NORMALIZATION) * num_years
+
         best_settings_str = ""
         best_ind_stock_performance = ""
         for ticker in tickers:
