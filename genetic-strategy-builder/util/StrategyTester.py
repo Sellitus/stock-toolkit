@@ -60,7 +60,7 @@ class StrategyTester():
                 # Conduct the buy transaction
                 if price == 0:
                     price = 0.00000000000000000001
-                purchase_amount = math.floor(capital / price)
+                purchase_amount = capital / price
                 capital -= purchase_amount * price
                 buy_position = True
 

@@ -87,7 +87,7 @@ class TickerData:
                 if isinstance(ticker, str):
                     # load it from yahoo_fin library
                     # OLD LIBRARY FOR DOWNLOADING: curr_data_df = si.get_data(ticker)
-                    curr_data_df = yf.download(ticker, interval=interval, period='max')
+                    curr_data_df = yf.download(ticker, interval=interval, period=self.intervals[interval])
                 elif isinstance(ticker, pd.DataFrame):
                     # already loaded, use it directly
                     curr_data_df = ticker
@@ -97,6 +97,9 @@ class TickerData:
                 for i in range(len(curr_data_df.columns)):
                     renamed_columns[curr_data_df.columns[i]] = str(curr_data_df.columns[i]).lower().replace(' ', '')
                 curr_data_df = curr_data_df.rename(columns=renamed_columns)
+
+                # Fix for new yahoo finance Python package having weird adjclose numbers
+                curr_data_df['adjclose'] = curr_data_df['close']
 
                 # Save the dataframe to prevent fetching every run
                 pickle.dump(curr_data_df, open(ticker_data_filename, "wb"))

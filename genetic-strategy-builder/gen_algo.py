@@ -206,7 +206,6 @@ for i in range(NUM_GENERATIONS):
     process_pool.close()
     process_pool.join()
 
-
     # Sort candidate_average
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
     candidate_average.reverse()
@@ -351,12 +350,12 @@ for i in range(NUM_GENERATIONS):
                                ).replace('OrderedDict(', '').replace('\',', ':').replace('\'', '').replace('[', ''
                                ).replace(']', '').replace('(', '').replace(')', '')[:-1]
         curr_settings_str += ' -[' + str(candidate_average[0].candidate.DNA[j]) + ']- ' + str(cleaned_settings)
-
+    
     # Calculate the amount if you were to just have bought and held
     if buy_and_hold_str == "":
         avg = 0
         for ticker in tickers:
-            buy_hold_earnings = math.floor(CAPITAL / new_data[ticker].iloc[-1 * TRAIN_PERIOD]['adjclose'])
+            buy_hold_earnings = CAPITAL / new_data[ticker].iloc[-1 * TRAIN_PERIOD]['adjclose']
             buy_hold_earnings = buy_hold_earnings * new_data[ticker].iloc[-1]['adjclose']
             avg += buy_hold_earnings
             buy_and_hold_str += '{}: ${:,.2f}, '.format(ticker, buy_hold_earnings)
