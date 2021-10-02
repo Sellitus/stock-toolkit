@@ -141,7 +141,7 @@ abc = None
 
 print('DONE\n')
 
-for i in range(NUM_GENERATIONS):
+for generation in range(NUM_GENERATIONS):
 
     print('Adding indicator data and testing every member of the population against each ticker passed...', end='')
 
@@ -262,22 +262,22 @@ for i in range(NUM_GENERATIONS):
     new_population = []
 
     # Save top unaltered amount, passing them directly to the next generation
+
     for j in range(PASS_UNALTERED):
         new_population.append(copy.deepcopy(candidate_average[j].candidate))
 
-    # Create new population, splicing top performers with the rest of the pop and filling out the rest with a randomized
-    # population
-    for j in range(num_elite):
+    # Create new population, splicing first half of top performers with other elites
+    for j in range(int(num_elite / 2)):
         elite = candidate_average[j].candidate
         # Mix an elite with another random member of the elite
         random_elite = candidate_average[random.randint(0, num_elite - 1)].candidate
         child = Candidate(dna_to_mix=[elite.DNA.copy(), random_elite.DNA.copy()], remove_duplicates=REMOVE_DUPLICATES)
         new_population.append(child)
-    # Splice elites with non-elites
-    for j in range(num_elite):
+    # Splice second half of elites with non-elites
+    for j in range(int(num_elite / 2), num_elite + num_extra):
         elite = candidate_average[j].candidate
         # Mix an elite with another random non-elite
-        random_non_elite = candidate_average[random.randint(num_elite + 1, num_elite + num_extra - 1)].candidate
+        random_non_elite = candidate_average[random.randint(num_elite + 1, len(candidate_average) - 1)].candidate
         child = Candidate(dna_to_mix=[elite.DNA.copy(), random_non_elite.DNA.copy()],
                           remove_duplicates=REMOVE_DUPLICATES)
         new_population.append(child)
@@ -299,12 +299,31 @@ for i in range(NUM_GENERATIONS):
     print('')
 
     # Output Section
+
+    plt.clf()
+
     buy_coords = copy.deepcopy(new_data[tickers[0]])
     sell_coords = copy.deepcopy(new_data[tickers[0]])
 
-    # Remove unneeded columns
+    for timestamp, row in new_data[tickers[0]].iterrows():
+        if timestamp not in best_candidate.buy_list:
+            buy_coords = buy_coords.drop(index=timestamp)
+        if timestamp not in best_candidate.sell_list:
+            sell_coords = sell_coords.drop(index=timestamp)
 
-    # Calculate buy and sell coordinates
+    plt.subplot(211)
+    plt.plot(new_data[tickers[0]]['close'], label="close")
+    plt.subplot(211)
+    plt.scatter(buy_coords.index, buy_coords.close, color='g')
+    plt.subplot(211)
+    plt.scatter(sell_coords.index, sell_coords.close, color='r')
+
+    plt.xlabel("date")
+    plt.ylabel("$ price")
+    plt.title("{}: Best Strategy".format(tickers[0]))
+
+    buy_coords = copy.deepcopy(new_data[tickers[0]])
+    sell_coords = copy.deepcopy(new_data[tickers[0]])
 
     for timestamp, row in new_data[tickers[0]].iterrows():
         if timestamp not in candidate_average[0].buy_list:
@@ -312,39 +331,23 @@ for i in range(NUM_GENERATIONS):
         if timestamp not in candidate_average[0].sell_list:
             sell_coords = sell_coords.drop(index=timestamp)
 
-    # plt.xlabel("date")
-    # plt.ylabel("$ price")
-    # plt.title("{} Stock Price".format(tickers[0]))
-
-    # plt.plot(new_data[tickers[0]]['close'], label="close")
-    # plt.scatter(buy_coords.index, buy_coords.close, color='g')
-    # plt.scatter(sell_coords.index, sell_coords.close, color='r')
-    #
-    # plt.legend()
-    # plt.draw()
-    # plt.pause(0.0001)
-    # plt.clf()
-    # plt.clf()
-
-
-    # x = buy_coords.index
-    # y = buy_coords.close
-    # sc.set_offsets(np.c_[x, y])
-    # fig.canvas.draw_idle()
-    # plt.pause(0.1)
-
-    plt.clf()
-
-    plt.subplot(111)
+    plt.subplot(212)
     plt.plot(new_data[tickers[0]]['close'], label="close")
-    plt.subplot(111)
+    plt.subplot(212)
     plt.scatter(buy_coords.index, buy_coords.close, color='g')
-    plt.subplot(111)
+    plt.subplot(212)
     plt.scatter(sell_coords.index, sell_coords.close, color='r')
+
+    plt.xlabel("date")
+    plt.ylabel("$ price")
+    plt.title("{}: Generation {}'s Best Strategy".format(tickers[0], generation + 1))
+
+    plt.tight_layout()
 
     # plt.legend()
     plt.draw()
-    plt.pause(0.1)
+    plt.pause(0.2)
+
 
     # plt.show()
 
@@ -416,7 +419,7 @@ for i in range(NUM_GENERATIONS):
     print('Time Range: {} -> {}'.format(str(new_data[tickers[0]].iloc[-1 * TRAIN_PERIOD].name),
                                         str(new_data[tickers[0]].iloc[-1].name)))
     print('-Best in Generation- {}: ${:,.2f}  Avg Trades: {}  DNA: {}'.format(
-        i + 1, candidate_average[0].capital, candidate_average[0].buys, str(list(population[0].DNA))))
+        generation + 1, candidate_average[0].capital, candidate_average[0].buys, str(list(population[0].DNA))))
     print('-Best in Generation- Settings:' + str(curr_settings_str))
     print('-Best in Generation- Stock Performance: {}'.format(individual_stock_performance))
     print('======================')

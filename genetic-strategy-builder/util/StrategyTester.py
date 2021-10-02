@@ -22,10 +22,13 @@ class StrategyTester():
         buy_position = False
 
         capital = initial_capital
-        purchase_amount = 0
+        last_capital = capital
 
+        purchase_amount = 0
         buys = []
         sells = []
+        profitable = []
+        unprofitable = []
 
         data = copy.deepcopy(data)
 
@@ -56,37 +59,29 @@ class StrategyTester():
 
             # Buy as much stock as possible
             price = row['close']
-            if buy_position is False and purchase_amount == 0 and buy > sell:
-                # Log the buy
-                buys.append(row.name)
+            if buy_position is False and purchase_amount == 0 and buy > sell and price != 0:
                 # Conduct the buy transaction
-                if price == 0:
-                    price = 0.00000000000000000001
                 purchase_amount = capital / price
-                capital -= purchase_amount * price
-                buy_position = True
-
                 # If you can't purchase anymore...the game is over
                 # NOTE: (change later to stick around and see if the price gets within buying range)
                 if purchase_amount < 1:
                     break
-                    # return 'BANKRUPT'
 
-                #print('BUY p: {} c: {}'.format(price, capital))
+                capital -= purchase_amount * price
+                buy_position = True
+
+                # Log the buy
+                buys.append(row.name)
 
             elif buy_position is True and purchase_amount > 0 and sell > buy:
-                # Log the sale
-                sells.append(row.name)
                 # Conduct the sale transaction
                 capital += purchase_amount * price
+
                 purchase_amount = 0
                 buy_position = False
 
-                if capital < price:
-                    break
-                    # return 'BANKRUPT'
-
-                #print('SELL p: {} c: {}'.format(price, capital))
+                # Log the sale
+                sells.append(row.name)
 
         # If it ends with stock purchased, sell the stock
         if purchase_amount > 0:
