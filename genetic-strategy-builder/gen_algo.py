@@ -31,7 +31,7 @@ parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", req
                          "/ year. So for a value of 20 and initial capital of 10,000, the yearly max would be 200,000."
                          "Ex: --capital-normalization 20")
 parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=int, default=3,
-                    help="Min trades that should be executed. Values below this are removed. Ex: --min-trades 5")
+                    help="Min trades that should be executed. Values below this are removed. Ex: --min-trades 3")
 parser.add_argument('--population', dest="POPULATION", required=False, type=int, default=100,
                     help="Number of member of each generation. Ex: --population 100")
 parser.add_argument('--seed', dest="SEED", required=False, type=int, default=None,
@@ -116,6 +116,8 @@ if CAPITAL_NORMALIZATION is not None:
 best_candidate = None
 best_settings_str = ""
 buy_and_hold_str = ""
+best_ind_stock_performance = ""
+
 best_buys = 0
 best_sells = 0
 population = []
@@ -209,10 +211,10 @@ for i in range(NUM_GENERATIONS):
         for j in range(len(candidate_average) - 1):
             if candidate_average[j].buys >= MIN_TRADES:
                 filtered_candidate_average.append(candidate_average[j])
-        for j in reversed(range(1, num_top)):
-            if candidate_average[j - 1].capital > (candidate_average[j].capital * (1 + DROP_THRESHOLD)):
-                best_not_outlier = j
-                break
+        # for j in reversed(range(1, num_top)):
+        #     if candidate_average[j - 1].capital > (candidate_average[j].capital * (1 + DROP_THRESHOLD)):
+        #         best_not_outlier = j
+        #         break
         if len(filtered_candidate_average) < 10:
             candidate_average = filtered_candidate_average[:int(POPULATION * 0.2)]
         else:
@@ -224,6 +226,11 @@ for i in range(NUM_GENERATIONS):
         best_buys = candidate_average[best_not_outlier].buys
         best_sells = candidate_average[best_not_outlier].sells
         best_settings_str = ""
+        best_ind_stock_performance = ""
+        for ticker in tickers:
+            best_ind_stock_performance += '{}: ${:,.2f}, '.format(
+                ticker, candidate_average[best_not_outlier].ticker_capital[ticker])
+        best_ind_stock_performance = best_ind_stock_performance[:-2]
         for j in range(len(best_candidate.candidate.DNA)):
             cleaned_settings = copy.deepcopy(best_candidate.candidate.DNA[j].get_settings())
             if 'fillna' in cleaned_settings:
@@ -337,17 +344,19 @@ for i in range(NUM_GENERATIONS):
             avg += buy_hold_earnings
             buy_and_hold_str += '{}: ${:,.2f}, '.format(ticker, buy_hold_earnings)
         buy_and_hold_str = '{}: ${:,.2f} - '.format('Average', avg / len(tickers)) + buy_and_hold_str
+        buy_and_hold_str = buy_and_hold_str[:-2]
 
     individual_stock_performance = ""
     for ticker in tickers:
         individual_stock_performance += '{}: ${:,.2f}, '.format(ticker, candidate_average[0].ticker_capital[ticker])
+    individual_stock_performance = individual_stock_performance[:-2]
 
     # Finally print the stuff I've been calculating for forever it seems like
     print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
     print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
     print('-This Generation- Plebs: {}'.format(plebs))
     print('-Best in Generation- {}: ${:,.2f}  DNA: {}  Avg Buys/Sells: {}'.format(
-        i + 1, candidate_average[0].capital, candidate_average[0].buys, population[0].DNA))
+        i + 1, candidate_average[0].capital, population[0].DNA, candidate_average[0].buys))
     print('-Best in Generation- Settings:' + str(curr_settings_str))
     print('-Best in Generation- Stock Performance: {}'.format(individual_stock_performance))
     print('======================')
@@ -359,6 +368,7 @@ for i in range(NUM_GENERATIONS):
                                                                                      best_buys, best_sells,
                                                                                      best_candidate.candidate.DNA))
     print('-Best Candidate- Settings:' + str(best_settings_str))
+    print('-Best Candidate- Stock Performance: {}'.format(best_ind_stock_performance))
 
     # Print individual results from each ticker for best candidate
 
