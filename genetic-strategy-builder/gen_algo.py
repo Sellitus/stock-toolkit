@@ -356,7 +356,7 @@ for i in range(NUM_GENERATIONS):
     print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
     print('-This Generation- Plebs: {}'.format(plebs))
     print('-Best in Generation- {}: ${:,.2f}  DNA: {}  Avg Buys/Sells: {}'.format(
-        i + 1, candidate_average[0].capital, population[0].DNA, candidate_average[0].buys))
+        i + 1, candidate_average[0].capital, str(list(population[0].DNA)), candidate_average[0].buys))
     print('-Best in Generation- Settings:' + str(curr_settings_str))
     print('-Best in Generation- Stock Performance: {}'.format(individual_stock_performance))
     print('======================')
@@ -364,8 +364,8 @@ for i in range(NUM_GENERATIONS):
     print('Most Frequent Elite Indicators: {}'.format(str(sorted_best_ind
                                                           ).replace('\'', '').replace('{', '(').replace('}', ')')))
     print('======================')
-    print('-Best Candidate- Earnings: ${:,.2f}  Buys: {}  Sells: {}  DNA: {}'.format(best_candidate.capital,
-                                                                                     best_buys, best_sells,
+    print('-Best Candidate- Earnings: ${:,.2f}  Avg Buys/Sells: {}  DNA: {}'.format(best_candidate.capital,
+                                                                                     best_buys,
                                                                                      best_candidate.candidate.DNA))
     print('-Best Candidate- Settings:' + str(best_settings_str))
     print('-Best Candidate- Stock Performance: {}'.format(best_ind_stock_performance))
