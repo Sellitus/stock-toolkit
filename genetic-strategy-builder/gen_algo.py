@@ -190,16 +190,19 @@ for i in range(NUM_GENERATIONS):
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
     candidate_average.reverse()
 
+    # Best not outlier sets the best result to another candidate if the candidate is not a passed percentage above the
+    # X lower elements
+    best_not_outlier = 0
     # Filter out candidates if they don't have enough buys or they are certain percentage more than previous ones
+    num_top = 5
     if FILTER_OUTLIERS:
         filtered_candidate_average = []
-        num_top = 5
         for j in range(len(candidate_average) - 1):
             if candidate_average[j].buys >= MIN_TRADES:
                 filtered_candidate_average.append(candidate_average[j])
         for j in reversed(range(1, num_top)):
             if candidate_average[j - 1].capital > (candidate_average[j].capital * (1 + DROP_THRESHOLD)):
-                filtered_candidate_average = filtered_candidate_average[j:]
+                best_not_outlier = j
                 break
         if len(filtered_candidate_average) < 10:
             candidate_average = filtered_candidate_average[:int(POPULATION * 0.2)]
@@ -207,10 +210,10 @@ for i in range(NUM_GENERATIONS):
             candidate_average = filtered_candidate_average
 
     # Save best candidate
-    if best_candidate is None or best_candidate.capital < candidate_average[0].capital:
-        best_candidate = candidate_average[0]
-        best_buys = candidate_average[0].buys
-        best_sells = candidate_average[0].sells
+    if best_candidate is None or best_candidate.capital < candidate_average[best_not_outlier].capital:
+        best_candidate = candidate_average[best_not_outlier]
+        best_buys = candidate_average[best_not_outlier].buys
+        best_sells = candidate_average[best_not_outlier].sells
         best_settings_str = ""
         for j in range(len(best_candidate.candidate.DNA)):
             cleaned_settings = copy.deepcopy(best_candidate.candidate.DNA[j].get_settings())
