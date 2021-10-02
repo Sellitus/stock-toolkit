@@ -25,7 +25,7 @@ parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, d
                     help="Number of days to train on (252 is 1 year). Ex: --period 252")
 parser.add_argument('--capital', dest="CAPITAL", required=False, type=int, default=10000,
                     help="Initial capital to start the trading algorithm with. Ex: --capital 10000")
-parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", required=False, type=int, default=20,
+parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", required=False, type=int, default=10,
                     help="Set to <=0 to disable. Sets a normalized cap for each result, to prevent outliers from "
                          "affecting the results negatively. Integer passed is the multiplier for the initial capital "
                          "/ year. So for a value of 20 and initial capital of 10,000, the yearly max would be 200,000."
@@ -360,7 +360,7 @@ for i in range(NUM_GENERATIONS):
 
     # Finally print the stuff I've been calculating for forever it seems like
     print('-Best in Generation- {}: ${:,.2f}  Avg Trades: {}  DNA: {}'.format(
-        i + 1, candidate_average[0].capital, str(list(population[0].DNA)), candidate_average[0].buys))
+        i + 1, candidate_average[0].capital, candidate_average[0].buys, str(list(population[0].DNA))))
     print('-Best in Generation- Settings:' + str(curr_settings_str))
     print('-Best in Generation- Stock Performance: {}'.format(individual_stock_performance))
     print('======================')
