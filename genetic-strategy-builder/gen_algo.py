@@ -381,11 +381,11 @@ for generation in range(NUM_GENERATIONS):
     plt.subplot(211)
     plt.plot(new_data[tickers[0]]['close'], label="close", color='black')
     plt.subplot(211)
-    plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b')
+    plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b', zorder=1)
     plt.subplot(211)
-    plt.scatter(buy_coords.index, buy_coords.close, color='g')
+    plt.scatter(buy_coords.index, buy_coords.close, color='g', zorder=2, marker='.')
     plt.subplot(211)
-    plt.scatter(sell_coords.index, sell_coords.close, color='r')
+    plt.scatter(sell_coords.index, sell_coords.close, color='r', zorder=2, marker='.')
 
     plt.xlabel("date")
     plt.ylabel("$ price")
@@ -405,13 +405,13 @@ for generation in range(NUM_GENERATIONS):
     buy_sell_close_combined = pd.concat([buy_coords.close, sell_coords.close]).sort_index()
 
     plt.subplot(212)
-    plt.plot(new_data[tickers[0]]['close'], label="close", color='black')
+    plt.plot(new_data[tickers[0]]['close'], label="close", color='black', zorder=2)
     plt.subplot(212)
-    plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b')
+    plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b', zorder=1)
     plt.subplot(212)
-    plt.scatter(buy_coords.index, buy_coords.close, color='g')
+    plt.scatter(buy_coords.index, buy_coords.close, color='g', zorder=3, marker='.')
     plt.subplot(212)
-    plt.scatter(sell_coords.index, sell_coords.close, color='r')
+    plt.scatter(sell_coords.index, sell_coords.close, color='r', zorder=3, marker='.')
 
     plt.xlabel("date")
     plt.ylabel("$ price")
@@ -462,22 +462,35 @@ for generation in range(NUM_GENERATIONS):
         buy_and_hold_str = '{}: ${:,.2f} - '.format('Average', avg / len(tickers)) + buy_and_hold_str
         buy_and_hold_str = buy_and_hold_str[:-2]
 
-    individual_stock_performance = ""
+    individual_stock_performance_str = ""
     for ticker in tickers:
-        individual_stock_performance += '{}: ${:,.2f}, '.format(ticker, candidate_average[0].ticker_capital[ticker])
-    individual_stock_performance = individual_stock_performance[:-2]
+        individual_stock_performance_str += '{}: ${:,.2f}, '.format(ticker, candidate_average[0].ticker_capital[ticker])
+    individual_stock_performance_str = individual_stock_performance_str[:-2]
+
+    generation_gains_losses_str = ""
+    for gain_loss in candidate_average[0].trade_gains_losses:
+        generation_gains_losses_str += '${:,.2f}, '.format(gain_loss)
+    generation_gains_losses_str = generation_gains_losses_str[:-2]
+
+    best_gains_losses_str = ""
+    for gain_loss in best_candidate.trade_gains_losses:
+        best_gains_losses_str += '${:,.2f}, '.format(gain_loss)
+    best_gains_losses_str = best_gains_losses_str[:-2]
+
 
     # Finally print the stuff I've been calculating for forever it seems like
     print('Time Range: {} -> {}'.format(str(new_data[tickers[0]].iloc[-1 * TRAIN_PERIOD].name),
                                         str(new_data[tickers[0]].iloc[-1].name)))
-    print('-Best in Generation- {}: ${:,.2f} (Unadjusted: ${:,.2f})  Avg Trades: {}  DNA: {}'.format(
-        generation + 1, candidate_average[0].capital, candidate_average[0].unadjusted_capital,
-        candidate_average[0].buys, str(list(population[0].DNA))))
+    print('-Best in Generation- {}: ${:,.2f} (Unadjusted: ${:,.2f})  Avg Trades: {}  DNA: {}'
+          ''.format(generation + 1, candidate_average[0].capital, candidate_average[0].unadjusted_capital,
+                    candidate_average[0].buys, str(list(population[0].DNA))))
+    print('-Best in Generation- Trade Gains/Losses: {}'.format(generation_gains_losses_str))
     print('-Best in Generation- Settings:' + str(curr_settings_str))
-    print('-Best in Generation- Stock Performance: {}'.format(individual_stock_performance))
+    print('-Best in Generation- Stock Performance: {}'.format(individual_stock_performance_str))
     print('======================')
     print('-Best Candidate- Earnings: ${:,.2f} (Unadjusted: ${:,.2f})  Avg Trades: {}  DNA: {}'
           ''.format(best_candidate.capital, best_candidate.unadjusted_capital, best_buys, best_candidate.candidate.DNA))
+    print('-Best Candidate- Trade Gains/Losses: {}'.format(best_gains_losses_str))
     print('-Best Candidate- Settings:' + str(best_settings_str))
     print('-Best Candidate- Stock Performance: {}'.format(best_ind_stock_performance))
     print('======================')

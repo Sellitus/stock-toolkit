@@ -15,5 +15,5 @@ def save_candidate_average(threaded_results, tickers, j, candidate_average, aver
 
     candidate_average.append(Result(average_capital, candidate, average_buys, average_sells,
                                     threaded_results[tickers[0]][j].buy_list, threaded_results[tickers[0]][j].sell_list,
-                                    threaded_results[tickers[0]][j].buy_position,
-                                    average_unadjusted_capital, ticker_capital, None))
+                                    threaded_results[tickers[0]][j].buy_position, average_unadjusted_capital,
+                                    threaded_results[tickers[0]][j].trade_gains_losses, ticker_capital, None))

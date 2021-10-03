@@ -6,7 +6,7 @@ import warnings
 
 class Result:
     def __init__(self, capital, candidate, buys, sells, buy_list, sell_list, buy_position, unadjusted_capital,
-                 ticker_capital, population_id):
+                 trade_gains_losses, ticker_capital, population_id):
         self.capital = capital
         self.candidate = candidate
         self.buys = buys
@@ -15,6 +15,7 @@ class Result:
         self.sell_list = sell_list
         self.buy_position = buy_position
         self.unadjusted_capital = unadjusted_capital
+        self.trade_gains_losses = trade_gains_losses
         self.ticker_capital = ticker_capital
         self.population_id = population_id
 
@@ -29,7 +30,6 @@ class StrategyTester():
 
         capital = initial_capital
         unadjusted_capital = capital
-        last_capital = capital
 
         # Stores the last x rows for when an indicator requires history data
         x = 10
@@ -39,8 +39,8 @@ class StrategyTester():
         unadjusted_purchase_amount = 0
         buys = []
         sells = []
-        profitable = []
-        unprofitable = []
+        last_capital = capital
+        trade_gains_losses = []
 
         data = copy.deepcopy(data)
 
@@ -76,6 +76,8 @@ class StrategyTester():
             # Buy as much stock as possible
             price = row['close']
             if buy_position is False and purchase_amount == 0 and buy > sell and price != 0:
+                # Save the last capital to calculate the gains / losses from each trade
+                last_capital = capital
                 # Charge the commission fee from the top
                 capital = capital * (1.0 - commission)
 
@@ -99,6 +101,9 @@ class StrategyTester():
                 capital += purchase_amount * price
                 unadjusted_capital += unadjusted_purchase_amount * price
 
+                # Append the result of the trade
+                trade_gains_losses.append((purchase_amount * price) - last_capital)
+
                 purchase_amount = 0
                 unadjusted_purchase_amount = 0
                 buy_position = False
@@ -117,5 +122,5 @@ class StrategyTester():
             # buy_position = False
 
         threaded_results[ticker] += [Result(capital, candidate, len(buys), len(sells), list(buys), list(sells),
-                                            buy_position, unadjusted_capital, None, population_id)]
+                                            buy_position, unadjusted_capital, trade_gains_losses, None, population_id)]
         return capital
