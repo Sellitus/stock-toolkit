@@ -331,13 +331,14 @@ for generation in range(NUM_GENERATIONS):
             num_vote_buy += 1
         elif overall_best_candidates[j].buy_position is False:
             num_vote_sell += 1
-    current_buy_sell_status = None
+
     if num_vote_buy > num_vote_sell:
-        current_buy_sell_status = 'Top {} candidate buy/sell signal avg: {}'.format(top_vote, 'BUY')
+        vote = 'BUY'
     elif num_vote_buy < num_vote_sell:
-        current_buy_sell_status = 'Top {} candidate buy/sell signal avg: {}'.format(top_vote, 'SELL')
+        vote = 'SELL'
     else:
-        current_buy_sell_status = 'Top {} candidate buy/sell signal avg: {}'.format(top_vote, 'NEUTRAL')
+        vote = 'NEUTRAL'
+
 
     overall_best_candidate_str = "Top {} Candidate DNA and Capital: ".format(top_vote)
     for result in overall_best_candidates:
@@ -490,9 +491,10 @@ for generation in range(NUM_GENERATIONS):
                                                                                      best_candidate.candidate.DNA))
     print('-Best Candidate- Settings:' + str(best_settings_str))
     print('-Best Candidate- Stock Performance: {}'.format(best_ind_stock_performance))
+    print('======================')
     print(overall_best_candidate_str)
     print('======================')
-    print(current_buy_sell_status)
+    print('Top {} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote, vote, num_vote_buy, num_vote_sell))
     print('======================')
     print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
     print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
