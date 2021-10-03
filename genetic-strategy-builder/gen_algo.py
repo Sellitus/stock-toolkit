@@ -167,7 +167,7 @@ for generation in range(NUM_GENERATIONS):
     for ticker in tickers:
         for j in range(len(population)):
             process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, new_data[ticker], population[j],
-                                                            j, TRAIN_PERIOD, CAPITAL,))
+                                                            j, TRAIN_PERIOD, 0.01, CAPITAL,))
 
     process_pool.close()
     process_pool.join()
@@ -218,7 +218,7 @@ for generation in range(NUM_GENERATIONS):
     # Sort candidate_average
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
     candidate_average.reverse()
-
+    import pdb; pdb.set_trace()
     # Best not outlier sets the best result to another candidate if the candidate is not a passed percentage above the
     # X lower elements
     best_not_outlier = 0
@@ -509,8 +509,5 @@ for generation in range(NUM_GENERATIONS):
     print('')
     print('------------------------------------------------------------------')
     print('')
-
-    # import pdb; pdb.set_trace()
-    # tester.test_strategy(threaded_results, 'AMD', new_data['AMD'], population[0], TRAIN_PERIOD, CAPITAL)
 
     population = new_population

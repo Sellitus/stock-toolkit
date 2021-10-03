@@ -19,8 +19,11 @@ class Result:
 
 class StrategyTester():
 
-    def test_strategy(self, threaded_results, ticker, data, candidate, population_id, train_period,
+    def test_strategy(self, threaded_results, ticker, data, candidate, population_id, train_period, commission=0.01,
                       initial_capital=10000):
+        # commission charges a 1% fee per buy, which is used to affect a strategy that trades too much negatively.
+        # Commission is only charged on the buy order since 1% is high
+
         buy_position = False
 
         capital = initial_capital
@@ -62,6 +65,9 @@ class StrategyTester():
             # Buy as much stock as possible
             price = row['close']
             if buy_position is False and purchase_amount == 0 and buy > sell and price != 0:
+                # Charge the commission fee from the top
+                capital = capital * (1.0 - commission)
+
                 # Conduct the buy transaction
                 purchase_amount = capital / price
                 # If you can't purchase anymore...the game is over
