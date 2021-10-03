@@ -5,8 +5,8 @@ import warnings
 
 
 class Result:
-    def __init__(self, capital, candidate, buys, sells, buy_list, sell_list, buy_position, ticker_capital,
-                 population_id):
+    def __init__(self, capital, candidate, buys, sells, buy_list, sell_list, buy_position, unadjusted_capital,
+                 ticker_capital, population_id):
         self.capital = capital
         self.candidate = candidate
         self.buys = buys
@@ -14,6 +14,7 @@ class Result:
         self.buy_list = buy_list
         self.sell_list = sell_list
         self.buy_position = buy_position
+        self.unadjusted_capital = unadjusted_capital
         self.ticker_capital = ticker_capital
         self.population_id = population_id
 
@@ -27,6 +28,7 @@ class StrategyTester():
         buy_position = False
 
         capital = initial_capital
+        unadjusted_capital = capital
         last_capital = capital
 
         # Stores the last x rows for when an indicator requires history data
@@ -34,6 +36,7 @@ class StrategyTester():
         last_x_rows = []
 
         purchase_amount = 0
+        unadjusted_purchase_amount = 0
         buys = []
         sells = []
         profitable = []
@@ -78,12 +81,14 @@ class StrategyTester():
 
                 # Conduct the buy transaction
                 purchase_amount = capital / price
+                unadjusted_purchase_amount = unadjusted_capital / price
                 # If you can't purchase anymore...the game is over
                 # NOTE: (change later to stick around and see if the price gets within buying range)
                 if purchase_amount < 1:
                     break
 
                 capital -= purchase_amount * price
+                unadjusted_capital -= unadjusted_purchase_amount * price
                 buy_position = True
 
                 # Log the buy
@@ -92,8 +97,10 @@ class StrategyTester():
             elif buy_position is True and purchase_amount > 0 and sell > buy:
                 # Conduct the sale transaction
                 capital += purchase_amount * price
+                unadjusted_capital += unadjusted_purchase_amount * price
 
                 purchase_amount = 0
+                unadjusted_purchase_amount = 0
                 buy_position = False
 
                 # Log the sale
@@ -104,9 +111,11 @@ class StrategyTester():
             # Since this is not a real sale, do not log it, only adding to the capital
             # Conduct the sale transaction
             capital += purchase_amount * price
+            unadjusted_capital += unadjusted_purchase_amount * price
             # purchase_amount = 0
+            # unadjusted_purchase_amount = 0
             # buy_position = False
 
         threaded_results[ticker] += [Result(capital, candidate, len(buys), len(sells), list(buys), list(sells),
-                                            buy_position, None, population_id)]
+                                            buy_position, unadjusted_capital, None, population_id)]
         return capital

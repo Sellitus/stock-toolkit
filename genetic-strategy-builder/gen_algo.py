@@ -35,6 +35,10 @@ parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", req
                          "affecting the results negatively. Integer passed is the multiplier for the initial capital "
                          "/ year. So for a value of 20 and initial capital of 10,000, the yearly max would be 200,000."
                          "Ex: --capital-normalization 20")
+parser.add_argument('--commission', dest="COMMISSION", required=False, type=float, default=0.001,
+                    help="Commission to take off the top for every buy order. Helps prevent strategies with a high"
+                         "number of trades from zoning out the more efficient algorithms. Default is 0.001 (0.1%)."
+                         "Ex (for 1%): --commission 0.01")
 parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=float, default=3,
                     help="Min trades that should be executed. Values below this are removed. Ex: --min-trades 3")
 parser.add_argument('--max-trades', dest="MAX_TRADES", required=False, type=float, default=float('inf'),
@@ -68,6 +72,7 @@ if TRAIN_PERIOD < 1:
 RANDOMIZE = args.RANDOMIZE
 POPULATION = args.POPULATION
 CAPITAL = args.CAPITAL
+COMMISSION = args.COMMISSION
 MIN_TRADES = args.MIN_TRADES
 MAX_TRADES = args.MAX_TRADES
 CAPITAL_NORMALIZATION = args.CAPITAL_NORMALIZATION
@@ -169,7 +174,7 @@ for generation in range(NUM_GENERATIONS):
     for ticker in tickers:
         for j in range(len(population)):
             process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, new_data[ticker], population[j],
-                                                            j, TRAIN_PERIOD, 0.01, CAPITAL,))
+                                                            j, TRAIN_PERIOD, COMMISSION, CAPITAL,))
 
     process_pool.close()
     process_pool.join()
@@ -183,23 +188,28 @@ for generation in range(NUM_GENERATIONS):
 
     # Calculate average capital gain from each candidate for each ticker passed
     average_capital = [0] * POPULATION
+    average_unadjusted_capital = [0] * POPULATION
     average_buys = [0] * POPULATION
     average_sells = [0] * POPULATION
     for ticker in tickers:
         ticker_results = threaded_results[ticker]
         for j in range(len(ticker_results)):
             capital = ticker_results[j].capital
+            unadjusted_capital = ticker_results[j].unadjusted_capital
 
             if CAPITAL_NORMALIZATION is not None:
                 if capital > ceil:
                     capital = ceil
+                    unadjusted_capital = ceil
 
             average_capital[j] += capital
+            average_unadjusted_capital[j] += unadjusted_capital
             average_buys[j] += ticker_results[j].buys
             average_sells[j] += ticker_results[j].sells
 
     for j in range(len(average_capital)):
         average_capital[j] = average_capital[j] / len(tickers)
+        average_unadjusted_capital[j] = average_unadjusted_capital[j] / len(tickers)
         average_buys[j] = average_buys[j] / len(tickers)
         average_sells[j] = average_sells[j] / len(tickers)
 
@@ -208,11 +218,11 @@ for generation in range(NUM_GENERATIONS):
 
     # Copy threaded_results for faster performance in the following loop
     threaded_copy = dict(threaded_results)
-    
+
     # Save candidate information to candidate_average so the results can be sorted by performance and kept in sync
     for j in range(min([len(threaded_copy[ticker]) for ticker in tickers])):
         save_candidate_average(threaded_copy, tickers, j, candidate_average,
-                               average_capital[j], average_buys[j], average_sells[j])
+                               average_capital[j], average_buys[j], average_sells[j], average_unadjusted_capital[j])
 
     # process_pool.close()
     # process_pool.join()
@@ -460,14 +470,14 @@ for generation in range(NUM_GENERATIONS):
     # Finally print the stuff I've been calculating for forever it seems like
     print('Time Range: {} -> {}'.format(str(new_data[tickers[0]].iloc[-1 * TRAIN_PERIOD].name),
                                         str(new_data[tickers[0]].iloc[-1].name)))
-    print('-Best in Generation- {}: ${:,.2f}  Avg Trades: {}  DNA: {}'.format(
-        generation + 1, candidate_average[0].capital, candidate_average[0].buys, str(list(population[0].DNA))))
+    print('-Best in Generation- {}: ${:,.2f} (Unadjusted: ${:,.2f})  Avg Trades: {}  DNA: {}'.format(
+        generation + 1, candidate_average[0].capital, candidate_average[0].unadjusted_capital,
+        candidate_average[0].buys, str(list(population[0].DNA))))
     print('-Best in Generation- Settings:' + str(curr_settings_str))
     print('-Best in Generation- Stock Performance: {}'.format(individual_stock_performance))
     print('======================')
-    print('-Best Candidate- Earnings: ${:,.2f}  Avg Trades: {}  DNA: {}'.format(best_candidate.capital,
-                                                                                     best_buys,
-                                                                                     best_candidate.candidate.DNA))
+    print('-Best Candidate- Earnings: ${:,.2f} (Unadjusted: ${:,.2f})  Avg Trades: {}  DNA: {}'
+          ''.format(best_candidate.capital, best_candidate.unadjusted_capital, best_buys, best_candidate.candidate.DNA))
     print('-Best Candidate- Settings:' + str(best_settings_str))
     print('-Best Candidate- Stock Performance: {}'.format(best_ind_stock_performance))
     print('======================')
