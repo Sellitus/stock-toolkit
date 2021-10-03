@@ -5,13 +5,15 @@ import warnings
 
 
 class Result:
-    def __init__(self, capital, candidate, buys, sells, buy_list, sell_list, ticker_capital, population_id):
+    def __init__(self, capital, candidate, buys, sells, buy_list, sell_list, buy_position, ticker_capital,
+                 population_id):
         self.capital = capital
         self.candidate = candidate
         self.buys = buys
         self.sells = sells
         self.buy_list = buy_list
         self.sell_list = sell_list
+        self.buy_position = buy_position
         self.ticker_capital = ticker_capital
         self.population_id = population_id
 
@@ -88,9 +90,9 @@ class StrategyTester():
             # Since this is not a real sale, do not log it, only adding to the capital
             # Conduct the sale transaction
             capital += purchase_amount * price
-            purchase_amount = 0
-            buy_position = False
+            # purchase_amount = 0
+            # buy_position = False
 
         threaded_results[ticker] += [Result(capital, candidate, len(buys), len(sells), list(buys), list(sells),
-                                            None, population_id)]
+                                            buy_position, None, population_id)]
         return capital

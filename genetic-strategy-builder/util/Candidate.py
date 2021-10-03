@@ -29,7 +29,7 @@ class Candidate:
     def get_dna(self):
         return self.DNA
 
-    def generate_random_dna(self, minimum=2, maximum=20, randomize=False, remove_duplicates=True):
+    def generate_random_dna(self, minimum=2, maximum=10, randomize=False, remove_duplicates=True):
         num_strategies = random.randrange(minimum, maximum)
 
         all_dna = ti.trend_dna + mi.momentum_dna

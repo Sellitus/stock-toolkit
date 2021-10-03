@@ -144,6 +144,9 @@ best_performing_indicators = {}
 
 abc = None
 
+# Stores a list of the top X candidates for voting
+overall_best_candidates = []
+
 print('DONE\n')
 
 for generation in range(NUM_GENERATIONS):
@@ -308,6 +311,40 @@ for generation in range(NUM_GENERATIONS):
             else:
                 best_performing_indicators[str(indicator)] += 1
 
+    top_vote = 20
+    # Initialize
+    if len(overall_best_candidates) == 0:
+        for j in range(top_vote):
+            overall_best_candidates.append(candidate_average[j])
+    else:
+        # Otherwise, calculate the top 10 overall best
+        overall_best_candidates += candidate_average[:top_vote]
+        overall_best_candidates = sorted(overall_best_candidates, key=lambda x: x.capital)
+        overall_best_candidates.reverse()
+        overall_best_candidates = overall_best_candidates[:top_vote]
+
+    # Count vote for best and deliver the message...
+    num_vote_buy = 0
+    num_vote_sell = 0
+    for j in range(top_vote):
+        if overall_best_candidates[j].buy_position is True:
+            num_vote_buy += 1
+        elif overall_best_candidates[j].buy_position is False:
+            num_vote_sell += 1
+    current_buy_sell_status = None
+    if num_vote_buy > num_vote_sell:
+        current_buy_sell_status = 'Top {} candidate buy/sell signal avg: {}'.format(top_vote, 'BUY')
+    elif num_vote_buy < num_vote_sell:
+        current_buy_sell_status = 'Top {} candidate buy/sell signal avg: {}'.format(top_vote, 'SELL')
+    else:
+        current_buy_sell_status = 'Top {} candidate buy/sell signal avg: {}'.format(top_vote, 'NEUTRAL')
+
+    overall_best_candidate_str = "Top {} Candidate DNA and Capital: ".format(top_vote)
+    for result in overall_best_candidates:
+        overall_best_candidate_str += '{}: ${:,.2f}, '.format(result.candidate.DNA, result.capital)
+
+    overall_best_candidate_str = overall_best_candidate_str[:-2]
+
     print('DONE')
     print('')
 
@@ -453,6 +490,9 @@ for generation in range(NUM_GENERATIONS):
                                                                                      best_candidate.candidate.DNA))
     print('-Best Candidate- Settings:' + str(best_settings_str))
     print('-Best Candidate- Stock Performance: {}'.format(best_ind_stock_performance))
+    print(overall_best_candidate_str)
+    print('======================')
+    print(current_buy_sell_status)
     print('======================')
     print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
     print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
