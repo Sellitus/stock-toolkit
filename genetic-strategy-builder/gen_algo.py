@@ -379,13 +379,16 @@ for generation in range(NUM_GENERATIONS):
     buy_sell_close_combined = pd.concat([buy_coords.close, sell_coords.close]).sort_index()
 
     plt.subplot(211)
-    plt.plot(new_data[tickers[0]]['close'], label="close", color='black')
+    plt.plot(new_data[tickers[0]]['close'], label="close", color='black', zorder=2)
     plt.subplot(211)
     plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b', zorder=1)
     plt.subplot(211)
-    plt.scatter(buy_coords.index, buy_coords.close, color='g', zorder=2, marker='.')
+    plt.scatter(buy_coords.index, buy_coords.close, color='lime', zorder=3, edgecolors='black')
     plt.subplot(211)
-    plt.scatter(sell_coords.index, sell_coords.close, color='r', zorder=2, marker='.')
+    plt.scatter(sell_coords.index, sell_coords.close, color='r', zorder=3, edgecolors='black')
+
+    ax = plt.gca()
+    ax.set_facecolor('ghostwhite')
 
     plt.xlabel("date")
     plt.ylabel("$ price")
@@ -409,13 +412,16 @@ for generation in range(NUM_GENERATIONS):
     plt.subplot(212)
     plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b', zorder=1)
     plt.subplot(212)
-    plt.scatter(buy_coords.index, buy_coords.close, color='g', zorder=3, marker='.')
+    plt.scatter(buy_coords.index, buy_coords.close, color='lime', zorder=3, edgecolors='black')
     plt.subplot(212)
-    plt.scatter(sell_coords.index, sell_coords.close, color='r', zorder=3, marker='.')
+    plt.scatter(sell_coords.index, sell_coords.close, color='r', zorder=3, edgecolors='black')
 
     plt.xlabel("date")
     plt.ylabel("$ price")
     plt.title("{}: Generation {}'s Best".format(tickers[0], generation + 1))
+
+    ax = plt.gca()
+    ax.set_facecolor('ghostwhite')
 
     plt.tight_layout()
 
