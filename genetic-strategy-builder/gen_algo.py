@@ -218,7 +218,7 @@ for generation in range(NUM_GENERATIONS):
     # Sort candidate_average
     candidate_average = sorted(candidate_average, key=lambda x: x.capital)
     candidate_average.reverse()
-    import pdb; pdb.set_trace()
+
     # Best not outlier sets the best result to another candidate if the candidate is not a passed percentage above the
     # X lower elements
     best_not_outlier = 0
@@ -407,31 +407,8 @@ for generation in range(NUM_GENERATIONS):
 
     plt.tight_layout()
 
-    # plt.legend()
     plt.draw()
     plt.pause(0.2)
-
-
-    # plt.show()
-
-    #
-    # if abc is not None:
-    #     abc.remove()
-    #
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
-    # abc = ax.scatter(buy_coords.index, buy_coords.close)
-    # ax2 = fig.add_subplot(111)
-    # abc2 = ax2.plot(new_data[tickers[0]]['close'], label="close")
-    #
-    # plt.xlabel("date")
-    # plt.ylabel("$ price")
-    # plt.title("{} Stock Price".format(tickers[0]))
-    # #ax.grid(True)
-    #
-    # plt.show()
-    #
-    # import pdb; pdb.set_trace()
 
 
     # Calculate top and low tier elite
