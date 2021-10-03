@@ -19,7 +19,7 @@ class Result:
 
 class StrategyTester():
 
-    def test_strategy(self, threaded_results, ticker, data, candidate, population_id, train_period, commission=0.01,
+    def test_strategy(self, threaded_results, ticker, data, candidate, population_id, train_period, commission=0.001,
                       initial_capital=10000):
         # commission charges a 1% fee per buy, which is used to affect a strategy that trades too much negatively.
         # Commission is only charged on the buy order since 1% is high

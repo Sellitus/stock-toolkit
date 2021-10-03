@@ -311,7 +311,7 @@ for generation in range(NUM_GENERATIONS):
             else:
                 best_performing_indicators[str(indicator)] += 1
 
-    top_vote = 20
+    top_vote = 30
     # Initialize
     if len(overall_best_candidates) == 0:
         for j in range(top_vote):
@@ -340,9 +340,9 @@ for generation in range(NUM_GENERATIONS):
         vote = 'NEUTRAL'
 
 
-    overall_best_candidate_str = "Top {} Candidate DNA and Capital: ".format(top_vote)
+    overall_best_candidate_str = "Top {} Candidate Capital: ".format(top_vote)
     for result in overall_best_candidates:
-        overall_best_candidate_str += '{}: ${:,.2f}, '.format(result.candidate.DNA, result.capital)
+        overall_best_candidate_str += '${:,.2f}, '.format(result.capital)
 
     overall_best_candidate_str = overall_best_candidate_str[:-2]
 
