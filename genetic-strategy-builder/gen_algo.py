@@ -208,7 +208,7 @@ for generation in range(NUM_GENERATIONS):
 
     # Copy threaded_results for faster performance in the following loop
     threaded_copy = dict(threaded_results)
-    import pdb; pdb.set_trace()
+    
     # Save candidate information to candidate_average so the results can be sorted by performance and kept in sync
     for j in range(min([len(threaded_copy[ticker]) for ticker in tickers])):
         save_candidate_average(threaded_copy, tickers, j, candidate_average,
