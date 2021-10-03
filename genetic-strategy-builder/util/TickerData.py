@@ -9,6 +9,7 @@ import ta
 from sklearn import preprocessing
 from util.TrendIndicators import TrendIndicators as ti
 from util.MomentumIndicators import MomentumIndicators as mi
+from util.VolumeIndicators import VolumeIndicators as vi
 from yahoo_fin import stock_info as si
 import yfinance as yf
 
@@ -131,7 +132,7 @@ class TickerData:
                 df = ta.add_all_ta_features(df, open="open", high="high", low="low", close="adjclose", volume="volume",
                                             fillna=True)
 
-            all_indicators = ti.trend_dna + mi.momentum_dna
+            all_indicators = ti.trend_dna + mi.momentum_dna + vi.volume_dna
             for indicator in all_indicators:
                 # Save each indicator's settings
                 self.indicator_settings[str(indicator)] = indicator.get_settings()
@@ -173,7 +174,7 @@ class TickerData:
             #df = ta.utils.dropna(df)
             # df = df.replace([0], 0.000000001)
 
-            all_indicators = ti.trend_dna + mi.momentum_dna
+            all_indicators = ti.trend_dna + mi.momentum_dna + vi.volume_dna
             for indicator in all_indicators:
                 with np.errstate(divide='ignore'):
                     # Append indicator results to dataframe

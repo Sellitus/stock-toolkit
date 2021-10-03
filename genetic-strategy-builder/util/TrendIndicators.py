@@ -49,6 +49,7 @@ class TrendIndicators:
             buy_type: 'STANDARD' for a standard buy signal, 'NEUTRAL_RANGE' for a neutral range around the current price
             neutral_percentage: Percentage around upper and lower range to provide buy or sell signal
             """
+            row = row[0]
 
             price = row['close']
             ma_value = row['trend_sma_fast']
@@ -125,6 +126,7 @@ class TrendIndicators:
             """
             Provides a signal for buy, sell or neutral (if supported)
             """
+            row = row[0]
 
             macd = row['trend_macd']
 
@@ -180,6 +182,7 @@ class TrendIndicators:
             return df
 
         def signal(self, row):
+            row = row[0]
 
             adx = row['trend_adx']
 
@@ -231,6 +234,8 @@ class TrendIndicators:
             return df
 
         def signal(self, row):
+            row = row[0]
+
             uptrend = row['trend_vortex_ind_pos']
             downtrend = row['trend_vortex_ind_neg']
 
@@ -276,6 +281,8 @@ class TrendIndicators:
             return df
 
         def signal(self, row):
+            row = row[0]
+
             trix = row['trend_trix']
 
             if trix > 0:
@@ -324,8 +331,9 @@ class TrendIndicators:
             self.clear_settings()
             return df
 
-        def signal(self):
-            pass
+        def signal(self, row):
+            row = row[0]
+            return 'NEUTRAL'
 
 
     class SignalCCI(TechnicalIndicator):
@@ -370,6 +378,8 @@ class TrendIndicators:
             return df
 
         def signal(self, row, bottom=-100, top=100, action_range=25):
+            row = row[0]
+
             cci = row['trend_cci']
 
             # Calculate the neutral range around the bottom and top values
@@ -424,6 +434,8 @@ class TrendIndicators:
             return df
 
         def signal(self, row):
+            row = row[0]
+
             dpo = row['trend_dpo']
 
             if dpo > 0:
@@ -494,6 +506,8 @@ class TrendIndicators:
             return df
 
         def signal(self, row):
+            row = row[0]
+
             # NOTE: Might be incorrect signals being saved here
             fast = row['trend_kst_sig']
             slow = row['trend_kst']
@@ -552,6 +566,8 @@ class TrendIndicators:
             return df
 
         def signal(self, row):
+            row = row[0]
+
             price = row['close']
             leading_span_a = row['trend_ichimoku_a']
 
@@ -605,6 +621,8 @@ class TrendIndicators:
             return df
 
         def signal(self, row):
+            row = row[0]
+
             price = row['close']
             parabolic_sar = row['trend_psar_up']
 
@@ -664,6 +682,8 @@ class TrendIndicators:
             return df
 
         def signal(self, row, bottom=25, top=75, action_range=10):
+            row = row[0]
+
             stc = row['trend_stc']
 
             # Calculate the neutral range around the bottom and top values

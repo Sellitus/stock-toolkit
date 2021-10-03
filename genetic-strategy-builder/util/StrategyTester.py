@@ -29,6 +29,10 @@ class StrategyTester():
         capital = initial_capital
         last_capital = capital
 
+        # Stores the last x rows for when an indicator requires history data
+        x = 10
+        last_x_rows = []
+
         purchase_amount = 0
         buys = []
         sells = []
@@ -48,10 +52,14 @@ class StrategyTester():
         data = data[-1 * train_period:-1]
 
         for idx, row in data.iterrows():
+            last_x_rows.append(row)
+            if len(last_x_rows) > x:
+                last_x_rows.pop(0)
+
             # Calculate votes of all signals
             votes = []
             for strategy in candidate.DNA:
-                votes.append(strategy.signal(row))
+                votes.append(strategy.signal([row, last_x_rows]))
 
             # Calculate result
             buy = 0

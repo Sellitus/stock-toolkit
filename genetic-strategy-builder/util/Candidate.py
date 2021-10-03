@@ -4,6 +4,7 @@ import random
 
 from .TrendIndicators import TrendIndicators as ti
 from .MomentumIndicators import MomentumIndicators as mi
+from .VolumeIndicators import VolumeIndicators as vi
 
 
 class Candidate:
@@ -32,7 +33,7 @@ class Candidate:
     def generate_random_dna(self, minimum=2, maximum=10, randomize=False, remove_duplicates=True):
         num_strategies = random.randrange(minimum, maximum)
 
-        all_dna = ti.trend_dna + mi.momentum_dna
+        all_dna = ti.trend_dna + mi.momentum_dna + vi.volume_dna
 
         new_dna = []
         for _ in range(num_strategies):

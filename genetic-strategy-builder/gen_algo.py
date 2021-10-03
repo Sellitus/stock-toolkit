@@ -164,6 +164,8 @@ for generation in range(NUM_GENERATIONS):
 
     process_pool = mp.Pool(mp.cpu_count() * MULTITHREAD_PROCESS_MULTIPLIER)
 
+    tester.test_strategy(threaded_results, tickers[0], new_data[tickers[0]], population[0], 0, TRAIN_PERIOD, 0.01)
+
     for ticker in tickers:
         for j in range(len(population)):
             process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, new_data[ticker], population[j],
@@ -206,9 +208,9 @@ for generation in range(NUM_GENERATIONS):
 
     # Copy threaded_results for faster performance in the following loop
     threaded_copy = dict(threaded_results)
-
+    import pdb; pdb.set_trace()
     # Save candidate information to candidate_average so the results can be sorted by performance and kept in sync
-    for j in range(min(len(average_capital), len(threaded_copy[tickers[0]]))):
+    for j in range(min([len(threaded_copy[ticker]) for ticker in tickers])):
         save_candidate_average(threaded_copy, tickers, j, candidate_average,
                                average_capital[j], average_buys[j], average_sells[j])
 

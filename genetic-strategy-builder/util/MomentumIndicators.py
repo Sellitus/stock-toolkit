@@ -50,6 +50,7 @@ class MomentumIndicators:
             row: current row for buy or sell signal
             buy_type: 'STANDARD' for a standard buy signal
             """
+            row = row[0]
 
             ao_value = row['momentum_ao']
 
@@ -105,6 +106,7 @@ class MomentumIndicators:
             row: current row for buy or sell signal
             buy_type: 'STANDARD' for a standard buy signal
             """
+            row = row[0]
 
             price = row['close']
             kama_value = row['momentum_kama']
@@ -167,6 +169,7 @@ class MomentumIndicators:
             row: current row for buy or sell signal
             buy_type: 'STANDARD' for a standard buy signal
             """
+            row = row[0]
 
             ppo = row['momentum_ppo']
             ppo_signal = row['momentum_ppo_signal']
@@ -224,7 +227,8 @@ class MomentumIndicators:
             return df
 
         def signal(self, row, buy_type='STANDARD'):
-            pass
+            row = row[0]
+            return 'NEUTRAL'
 
 
     class SignalROC(TechnicalIndicator):
@@ -263,6 +267,7 @@ class MomentumIndicators:
             row: current row for buy or sell signal
             buy_type: 'STANDARD' for a standard buy signal
             """
+            row = row[0]
 
             roc = row['momentum_roc']
 
@@ -312,6 +317,7 @@ class MomentumIndicators:
             row: current row for buy or sell signal
             buy_type: 'STANDARD' for a standard buy signal
             """
+            row = row[0]
 
             rsi = row['momentum_rsi']
 
@@ -370,6 +376,7 @@ class MomentumIndicators:
             row: current row for buy or sell signal
             buy_type: 'STANDARD' for a standard buy signal
             """
+            row = row[0]
 
             stochastic_slow = row['momentum_stoch_signal']
             stochastic_fast = row['momentum_stoch']
@@ -429,6 +436,7 @@ class MomentumIndicators:
             row: current row for buy or sell signal
             buy_type: 'STANDARD' for a standard buy signal
             """
+            row = row[0]
 
             stochastic_rsi = row['momentum_stoch_rsi']
 
@@ -483,6 +491,7 @@ class MomentumIndicators:
             row: current row for buy or sell signal
             buy_type: 'STANDARD' for a standard buy signal
             """
+            row = row[0]
 
             tsi = row['momentum_tsi']
 
@@ -552,6 +561,7 @@ class MomentumIndicators:
             row: current row for buy or sell signal
             buy_type: 'STANDARD' for a standard buy signal
             """
+            row = row[0]
 
             uo = row['momentum_uo']
 
@@ -610,6 +620,7 @@ class MomentumIndicators:
             row: current row for buy or sell signal
             buy_type: 'STANDARD' for a standard buy signal
             """
+            row = row[0]
 
             uo = row['momentum_wr']
 
