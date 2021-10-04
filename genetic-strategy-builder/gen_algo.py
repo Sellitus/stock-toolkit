@@ -475,7 +475,7 @@ for generation in range(NUM_GENERATIONS):
             cleaned_settings.pop('fillna')
         cleaned_settings = str(collections.OrderedDict(sorted(cleaned_settings.items()))
                                ).replace('OrderedDict(', '').replace('\',', ':').replace('\'', '').replace('[', ''
-                               ).replace(']', '').replace('(', '').replace(')', '')[:-1]
+                               ).replace(']', '').replace('(', '').replace(')', '')
         curr_settings_str += ' -[' + str(candidate_average[0].candidate.DNA[j]) + ']- ' + str(cleaned_settings)
 
     # Calculate the amount if you were to just have bought and held
@@ -512,7 +512,7 @@ for generation in range(NUM_GENERATIONS):
                                         str(new_data[tickers[0]].iloc[-1].name)))
     print('-Best in Generation- {}: ${:,.2f} (Unadjusted: ${:,.2f})  Avg Trades: {}  DNA: {}'
           ''.format(generation + 1, candidate_average[0].capital, candidate_average[0].unadjusted_capital,
-                    candidate_average[0].buys, str(list(population[0].DNA))))
+                    candidate_average[0].buys, str(list(candidate_average[0].candidate.DNA))))
     print('-Best in Generation- Trade Gains/Losses: {}'.format(generation_gains_losses_str))
     print('-Best in Generation- Settings:' + str(curr_settings_str))
     print('-Best in Generation- Stock Performance: {}'.format(individual_stock_performance_str))
