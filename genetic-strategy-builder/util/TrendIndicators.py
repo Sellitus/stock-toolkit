@@ -22,9 +22,17 @@ class TrendIndicators:
         def __repr__(self):
             return 'MA'
 
-        def set_settings(self, window=20, fillna=False, randomize=False):
+        def set_settings(self, window=True, fillna=False, randomize=False):
+            # Window can be an integer or True to pick a random popular SMA value
+
             if randomize is True:
                 randomize = self.randomize_default
+
+            default_window_values = [5, 10, 20, 50, 100, 200]
+
+            if window is True:
+                window = default_window_values[random.randrange(len(default_window_values))]
+
             # Cut randomize in half for determining range
             randomize = False if randomize is False else randomize * 0.5
 
