@@ -22,7 +22,7 @@ from util.TickerData import TickerData
 parser = argparse.ArgumentParser(description='Find That Setup')
 parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
                     help="Stock tickers to find trading setups for. Ex: --tickers AMD GOOGL INTC")
-parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=756,
+parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=252,
                     help="Number of days to train on (252 is 1 year). Less than 1 is no limit. Ex: --period 252")
 parser.add_argument('--capital', dest="CAPITAL", required=False, type=int, default=10000,
                     help="Initial capital to start the trading algorithm with. Ex: --capital 10000")
@@ -39,7 +39,7 @@ parser.add_argument('--commission', dest="COMMISSION", required=False, type=floa
                     help="Commission to take off the top for every buy order. Helps prevent strategies with a high"
                          "number of trades from zoning out the more efficient algorithms. Default is 0.000 (0.1%)."
                          "Ex (for 1%): --commission 0.01")
-parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=float, default=1,
+parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=float, default=3,
                     help="Min trades that should be executed. Values below this are removed. Default: 1. "
                          "Ex: --min-trades 3")
 parser.add_argument('--max-trades', dest="MAX_TRADES", required=False, type=float, default=float('inf'),
@@ -86,7 +86,7 @@ if CAPITAL_NORMALIZATION <= 0:
     CAPITAL_NORMALIZATION = None
 
 MULTITHREAD_PROCESS_MULTIPLIER = 1
-NUM_GENERATIONS = 100000
+NUM_GENERATIONS = 9999999999999999
 DROP_THRESHOLD = 0.2
 
 
