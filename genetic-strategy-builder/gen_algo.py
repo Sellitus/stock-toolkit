@@ -195,7 +195,7 @@ for generation in range(NUM_GENERATIONS):
     average_sells = [0] * POPULATION
     for ticker in tickers:
         ticker_results = threaded_results[ticker]
-        for j in range(len(ticker_results)):
+        for j in range(POPULATION):
             capital = ticker_results[j].capital
             unadjusted_capital = ticker_results[j].unadjusted_capital
 
@@ -222,7 +222,7 @@ for generation in range(NUM_GENERATIONS):
     threaded_copy = dict(threaded_results)
 
     # Save candidate information to candidate_average so the results can be sorted by performance and kept in sync
-    for j in range(min([len(threaded_copy[ticker]) for ticker in tickers])):
+    for j in range(POPULATION):
         save_candidate_average(threaded_copy, tickers, j, candidate_average,
                                average_capital[j], average_buys[j], average_sells[j], average_unadjusted_capital[j])
 

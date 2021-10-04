@@ -312,7 +312,9 @@ class VolumeIndicators:
             prev_rows = row[1]
 
             nvi_value = curr_row['volume_nvi']
-            prev_nvi_value = prev_rows[int(self.strategy_settings['look_back'])]['volume_nvi']
+            look_back_idx = int(self.strategy_settings['look_back'])
+            look_back_idx = look_back_idx if look_back_idx < len(prev_rows) else len(prev_rows) - 1
+            prev_nvi_value = prev_rows[look_back_idx]['volume_nvi']
 
             signal = None
             if buy_type == 'STANDARD':
@@ -364,7 +366,9 @@ class VolumeIndicators:
             prev_rows = row[1]
 
             obv_value = curr_row['volume_obv']
-            prev_obv_value = prev_rows[int(self.strategy_settings['look_back'])]['volume_obv']
+            look_back_idx = int(self.strategy_settings['look_back'])
+            look_back_idx = look_back_idx if look_back_idx < len(prev_rows) else len(prev_rows) - 1
+            prev_obv_value = prev_rows[look_back_idx]['volume_obv']
 
             signal = None
             if buy_type == 'STANDARD':
@@ -416,7 +420,9 @@ class VolumeIndicators:
             prev_rows = row[1]
 
             vpt_value = curr_row['volume_vpt']
-            prev_vpt_value = prev_rows[int(self.strategy_settings['look_back'])]['volume_vpt']
+            look_back_idx = int(self.strategy_settings['look_back'])
+            look_back_idx = look_back_idx if look_back_idx < len(prev_rows) else len(prev_rows) - 1
+            prev_vpt_value = prev_rows[look_back_idx]['volume_vpt']
 
             signal = None
             if buy_type == 'STANDARD':
