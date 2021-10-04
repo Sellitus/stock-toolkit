@@ -326,19 +326,19 @@ for generation in range(NUM_GENERATIONS):
     # Initialize
     if len(overall_best_candidates) == 0:
         for j in range(top_vote):
-            overall_best_candidates.append(candidate_average[j])
+            overall_best_candidates.append(copy.deepcopy(candidate_average[j]))
     else:
         # Otherwise, calculate the top top_vote overall best
         overall_best_candidates += candidate_average[:top_vote]
         overall_best_candidates = sorted(overall_best_candidates, key=lambda x: x.capital)
         overall_best_candidates.reverse()
         # Remove duplicates
-        filtered_capital = []
+        filtered_capital = set()
         filtered_overall_best_candidates = []
-        for candidate in candidate_average:
+        for candidate in overall_best_candidates:
             if candidate.capital not in filtered_capital:
                 filtered_overall_best_candidates.append(candidate)
-                filtered_capital.append(candidate.capital)
+                filtered_capital.add(candidate.capital)
         overall_best_candidates = filtered_overall_best_candidates
         # Filter out everything but the top_vote
         overall_best_candidates = overall_best_candidates[:top_vote]
