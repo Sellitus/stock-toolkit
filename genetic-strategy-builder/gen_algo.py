@@ -35,12 +35,13 @@ parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", req
                          "affecting the results negatively. Integer passed is the multiplier for the initial capital "
                          "/ year. So for a value of 20 and initial capital of 10,000, the yearly max would be 200,000."
                          "Ex: --capital-normalization 20")
-parser.add_argument('--commission', dest="COMMISSION", required=False, type=float, default=0.001,
+parser.add_argument('--commission', dest="COMMISSION", required=False, type=float, default=0.000,
                     help="Commission to take off the top for every buy order. Helps prevent strategies with a high"
-                         "number of trades from zoning out the more efficient algorithms. Default is 0.001 (0.1%)."
+                         "number of trades from zoning out the more efficient algorithms. Default is 0.000 (0.1%)."
                          "Ex (for 1%): --commission 0.01")
-parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=float, default=3,
-                    help="Min trades that should be executed. Values below this are removed. Ex: --min-trades 3")
+parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=float, default=1,
+                    help="Min trades that should be executed. Values below this are removed. Default: 1. "
+                         "Ex: --min-trades 3")
 parser.add_argument('--max-trades', dest="MAX_TRADES", required=False, type=float, default=float('inf'),
                     help="Max trades that should be executed. Values above this are removed. Default is disabled."
                          "Ex: --max-trades 40")
@@ -456,12 +457,13 @@ for generation in range(NUM_GENERATIONS):
                                ).replace('OrderedDict(', '').replace('\',', ':').replace('\'', '').replace('[', ''
                                ).replace(']', '').replace('(', '').replace(')', '')[:-1]
         curr_settings_str += ' -[' + str(candidate_average[0].candidate.DNA[j]) + ']- ' + str(cleaned_settings)
-    
+
     # Calculate the amount if you were to just have bought and held
     if buy_and_hold_str == "":
         avg = 0
         for ticker in tickers:
-            buy_hold_earnings = CAPITAL / new_data[ticker].iloc[-1 * TRAIN_PERIOD]['adjclose']
+            idx = (-1 * TRAIN_PERIOD) if TRAIN_PERIOD < len(new_data[ticker]) else 0
+            buy_hold_earnings = CAPITAL / new_data[ticker].iloc[idx]['adjclose']
             buy_hold_earnings = buy_hold_earnings * new_data[ticker].iloc[-1]['adjclose']
             avg += buy_hold_earnings
             buy_and_hold_str += '{}: ${:,.2f}, '.format(ticker, buy_hold_earnings)
@@ -485,7 +487,8 @@ for generation in range(NUM_GENERATIONS):
 
 
     # Finally print the stuff I've been calculating for forever it seems like
-    print('Time Range: {} -> {}'.format(str(new_data[tickers[0]].iloc[-1 * TRAIN_PERIOD].name),
+    idx = (-1 * TRAIN_PERIOD) if TRAIN_PERIOD < len(new_data[tickers[0]]) else 0
+    print('Time Range: {} -> {}'.format(str(new_data[tickers[0]].iloc[idx].name),
                                         str(new_data[tickers[0]].iloc[-1].name)))
     print('-Best in Generation- {}: ${:,.2f} (Unadjusted: ${:,.2f})  Avg Trades: {}  DNA: {}'
           ''.format(generation + 1, candidate_average[0].capital, candidate_average[0].unadjusted_capital,
