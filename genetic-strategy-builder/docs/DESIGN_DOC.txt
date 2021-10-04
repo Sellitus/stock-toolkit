@@ -81,3 +81,37 @@ functions similar to the others, with variable trade decision abilities.
 pain points that can be smoothed over and rework things that can be reworked. Also consider making the algorithm even
 more generic than it currently is at this point. Can you just grab random stocks and start there?
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Performance Improvement Ideas (10-3-21):
+
+- Average the top 30 candidates and do a test using those buy and sell signals for each generation. This can show what
+the average buys and sells for a real-world version would be like. This might be easier to do after creating a
+custom indicator that can run full strategies.
+
+
+
+
+
+
