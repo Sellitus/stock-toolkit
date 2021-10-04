@@ -52,7 +52,9 @@ class VolumeIndicators:
             prev_rows = row[1]
 
             curr_adi_value = curr_row['volume_adi']
-            prev_adi_value = prev_rows[int(self.strategy_settings['look_back'])]['volume_adi']
+            look_back_idx = int(self.strategy_settings['look_back'])
+            look_back_idx = look_back_idx if look_back_idx < len(prev_rows) else len(prev_rows) - 1
+            prev_adi_value = prev_rows[look_back_idx]['volume_adi']
 
             signal = None
             if buy_type == 'STANDARD':
