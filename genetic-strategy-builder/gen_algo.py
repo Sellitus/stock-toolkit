@@ -171,8 +171,6 @@ for generation in range(NUM_GENERATIONS):
 
     process_pool = mp.Pool(mp.cpu_count() * MULTITHREAD_PROCESS_MULTIPLIER)
 
-    tester.test_strategy(threaded_results, tickers[0], new_data[tickers[0]], population[0], 0, TRAIN_PERIOD, 0.01)
-
     for ticker in tickers:
         for j in range(len(population)):
             process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, new_data[ticker], population[j],
@@ -187,6 +185,9 @@ for generation in range(NUM_GENERATIONS):
     # Sort by population ID so all threaded_results[ticker] lists are synced to the same index in each list
     for ticker in tickers:
         threaded_results[ticker] = sorted(threaded_results[ticker], key=lambda x: x.population_id)
+
+    # Copy threaded_results for faster performance in the following loop
+    threaded_copy = dict(threaded_results)
 
     # Calculate average capital gain from each candidate for each ticker passed
     average_capital = [0] * POPULATION
@@ -217,9 +218,6 @@ for generation in range(NUM_GENERATIONS):
 
     # Create new candidate list with the average capitals
     candidate_average = []
-
-    # Copy threaded_results for faster performance in the following loop
-    threaded_copy = dict(threaded_results)
 
     # Save candidate information to candidate_average so the results can be sorted by performance and kept in sync
     for j in range(POPULATION):
@@ -287,7 +285,6 @@ for generation in range(NUM_GENERATIONS):
 
     # Create a list for the new population's candidates
     new_population = []
-
     # Save top unaltered amount, passing them directly to the next generation
     for j in range(PASS_UNALTERED):
         new_population.append(copy.deepcopy(candidate_average[j].candidate))
