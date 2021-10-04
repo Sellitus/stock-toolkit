@@ -1,0 +1,5 @@
+
+-Backtesting beginning on 10-4-21
+Paper trading on Tradingview
+
+Symbols to backtest: AMD, NVDA, MSFT, SPY, ADA-USD, COTI-USD, ETH-USD
