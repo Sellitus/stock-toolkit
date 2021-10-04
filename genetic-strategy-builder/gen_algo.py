@@ -196,7 +196,7 @@ for generation in range(NUM_GENERATIONS):
     average_sells = [0] * POPULATION
     for ticker in tickers:
         ticker_results = threaded_results[ticker]
-        for j in range(POPULATION):
+        for j in range(len(ticker_results)):
             capital = ticker_results[j].capital
             unadjusted_capital = ticker_results[j].unadjusted_capital
 
@@ -220,7 +220,7 @@ for generation in range(NUM_GENERATIONS):
     candidate_average = []
 
     # Save candidate information to candidate_average so the results can be sorted by performance and kept in sync
-    for j in range(POPULATION):
+    for j in range(min([len(result) for result in threaded_copy])):
         save_candidate_average(threaded_copy, tickers, j, candidate_average,
                                average_capital[j], average_buys[j], average_sells[j], average_unadjusted_capital[j])
 
@@ -313,7 +313,7 @@ for generation in range(NUM_GENERATIONS):
 
     # Store the frequencies of the indicators for the most elite population
     top_tier_elite = round(POPULATION * 0.02)
-    for j in range(top_tier_elite):
+    for j in range(min(top_tier_elite, len(candidate_average))):
         elite_dna = candidate_average[j].candidate.DNA
         for indicator in elite_dna:
             if str(indicator) not in best_performing_indicators:
@@ -325,7 +325,7 @@ for generation in range(NUM_GENERATIONS):
     top_vote_small = 10
     # Initialize
     if len(overall_best_candidates) == 0:
-        for j in range(top_vote):
+        for j in range(min(top_vote, len(candidate_average))):
             overall_best_candidates.append(copy.deepcopy(candidate_average[j]))
     else:
         # Otherwise, calculate the top top_vote overall best
@@ -348,7 +348,7 @@ for generation in range(NUM_GENERATIONS):
     num_vote_sell = 0
     num_vote_buy_small = 0
     num_vote_sell_small = 0
-    for j in range(top_vote):
+    for j in range(min(top_vote, len(overall_best_candidates))):
         if overall_best_candidates[j].buy_position is True:
             num_vote_buy += 1
             if j < top_vote_small:
