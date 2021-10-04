@@ -49,8 +49,9 @@ parser.add_argument('--population', dest="POPULATION", required=False, type=int,
                     help="Number of member of each generation. Ex: --population 100")
 parser.add_argument('--randomize', dest="RANDOMIZE", required=False, type=float, default=0.2,
                     help="Percentage to randomize indicator settings. Ex: --randomize 0.25")
-parser.add_argument('--pass-unaltered', dest="PASS_UNALTERED", required=False, type=int, default=0,
-                    help="Number of each generation to be passed unaltered to the next. Ex: --pass-unaltered 1")
+parser.add_argument('--pass-unaltered', dest="PASS_UNALTERED", required=False, type=int, default=1,
+                    help="Number of each generation to be passed unaltered to the next. Default is 1. "
+                         "Ex: --pass-unaltered 1")
 parser.add_argument('-remove-duplicates', dest="REMOVE_DUPLICATES", required=False, action='store_true', default=False,
                     help="Removes duplicate indicator types from the DNA strand randomly. Ex: -remove-duplicates")
 parser.add_argument('-rng', dest="RNG", required=False, action='store_true', default=False,
@@ -288,7 +289,6 @@ for generation in range(NUM_GENERATIONS):
     new_population = []
 
     # Save top unaltered amount, passing them directly to the next generation
-
     for j in range(PASS_UNALTERED):
         new_population.append(copy.deepcopy(candidate_average[j].candidate))
 
@@ -324,26 +324,42 @@ for generation in range(NUM_GENERATIONS):
             else:
                 best_performing_indicators[str(indicator)] += 1
 
-    top_vote = 30
+    top_vote = 50
+    top_vote_small = 10
     # Initialize
     if len(overall_best_candidates) == 0:
         for j in range(top_vote):
             overall_best_candidates.append(candidate_average[j])
     else:
-        # Otherwise, calculate the top 10 overall best
+        # Otherwise, calculate the top top_vote overall best
         overall_best_candidates += candidate_average[:top_vote]
         overall_best_candidates = sorted(overall_best_candidates, key=lambda x: x.capital)
         overall_best_candidates.reverse()
+        # Remove duplicates
+        filtered_capital = []
+        filtered_overall_best_candidates = []
+        for candidate in candidate_average:
+            if candidate.capital not in filtered_capital:
+                filtered_overall_best_candidates.append(candidate)
+                filtered_capital.append(candidate.capital)
+        overall_best_candidates = filtered_overall_best_candidates
+        # Filter out everything but the top_vote
         overall_best_candidates = overall_best_candidates[:top_vote]
 
     # Count vote for best and deliver the message...
     num_vote_buy = 0
     num_vote_sell = 0
+    num_vote_buy_small = 0
+    num_vote_sell_small = 0
     for j in range(top_vote):
         if overall_best_candidates[j].buy_position is True:
             num_vote_buy += 1
+            if j < top_vote_small:
+                num_vote_buy_small += 1
         elif overall_best_candidates[j].buy_position is False:
             num_vote_sell += 1
+            if j < top_vote_small:
+                num_vote_sell_small += 1
 
     if num_vote_buy > num_vote_sell:
         vote = 'BUY'
@@ -351,6 +367,13 @@ for generation in range(NUM_GENERATIONS):
         vote = 'SELL'
     else:
         vote = 'NEUTRAL'
+
+    if num_vote_buy_small > num_vote_sell_small:
+        vote_small = 'BUY'
+    elif num_vote_buy_small < num_vote_sell_small:
+        vote_small = 'SELL'
+    else:
+        vote_small = 'NEUTRAL'
 
 
     overall_best_candidate_str = "Top {} Candidate Capital: ".format(top_vote)
@@ -506,6 +529,8 @@ for generation in range(NUM_GENERATIONS):
     print(overall_best_candidate_str)
     print('======================')
     print('Top {} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote, vote, num_vote_buy, num_vote_sell))
+    print('Top {} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, vote_small,
+                                                                          num_vote_buy_small, num_vote_sell_small))
     print('======================')
     print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
     print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
