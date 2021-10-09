@@ -285,9 +285,10 @@ for generation in range(NUM_GENERATIONS):
 
     # Create a list for the new population's candidates
     new_population = []
+    unaltered_range = 4
     # Save top unaltered amount, passing them directly to the next generation
     for j in range(PASS_UNALTERED):
-        idx = random.randint(0, 9)
+        idx = random.randint(0, unaltered_range)
         new_population.append(copy.deepcopy(candidate_average[idx].candidate))
 
     num_elite = int(len(candidate_average) * 0.2)
