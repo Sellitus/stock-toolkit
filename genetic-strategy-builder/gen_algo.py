@@ -172,7 +172,7 @@ print('DONE\n')
 
 for generation in range(NUM_GENERATIONS):
 
-    print('Adding indicator data and testing every member of the population against each ticker passed...', end='')
+    print('Adding indicator data and testing every member of the population against each ticker passed...')
 
     #ticker_data.clear_ticker_data()
     if TEST_DATA is not None:
@@ -206,9 +206,6 @@ for generation in range(NUM_GENERATIONS):
 
     process_pool.close()
     process_pool.join()
-
-    print('DONE')
-    print('Sorting the candidates by performance and calculating results...', end='')
 
     # Sort by population ID so all threaded_results[ticker] lists are synced to the same index in each list
     for ticker in tickers:
@@ -419,9 +416,6 @@ for generation in range(NUM_GENERATIONS):
 
             overall_best_candidate_str = overall_best_candidate_str[:-2]
 
-    print('DONE')
-    print('')
-
     # Output Section
 
     plt.clf()
@@ -548,6 +542,7 @@ for generation in range(NUM_GENERATIONS):
 
 
     # Finally print the stuff I've been calculating for forever it seems like
+    print('')
     idx = (-1 * curr_train_period) if curr_train_period < len(new_data[tickers[0]]) else 0
     print('Time Range: {} -> {}'.format(str(new_data[tickers[0]].iloc[idx].name),
                                         str(new_data[tickers[0]].iloc[-1].name)))
