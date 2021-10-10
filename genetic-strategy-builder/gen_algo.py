@@ -30,6 +30,13 @@ parser.add_argument('--data-interval', dest="DATA_INTERVAL", required=False, typ
                     help="Interval for the data to be downloaded and tested on. Can be from this list:"
                          "1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo"
                          "Ex: --data-interval 1m")
+parser.add_argument('--test-data', dest="TEST_DATA", required=False, type=float, default=None,
+                    help="Separates the latest passed percentage from the total period size to use for testing. Be "
+                         "careful not to pass too small of a --period value, as this will make the training data too "
+                         "small for a trading strategy to be effective on. Changes how the ranking is done to reduce "
+                         "the overfit population. Every 10 generations, the population's fitness will be based on the "
+                         "testing data rather than the training data. "
+                         "Ex (20%): --test-data 0.2")
 parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", required=False, type=int, default=10,
                     help="Set to <=0 to disable. Sets a normalized cap for each result, to prevent outliers from "
                          "affecting the results negatively. Integer passed is the multiplier for the initial capital "
@@ -73,6 +80,7 @@ if TRAIN_PERIOD < 1:
     TRAIN_PERIOD = None
 RANDOMIZE = args.RANDOMIZE
 POPULATION = args.POPULATION
+TEST_DATA = args.TEST_DATA
 CAPITAL = args.CAPITAL
 COMMISSION = args.COMMISSION
 MIN_TRADES = args.MIN_TRADES
@@ -151,6 +159,14 @@ abc = None
 
 # Stores a list of the top X candidates for voting
 overall_best_candidates = []
+overall_best_candidate_str = ""
+top_vote_small = 10
+num_vote_buy = 0
+num_vote_sell = 0
+num_vote_buy_small = 0
+num_vote_sell_small = 0
+vote = ''
+vote_small = ''
 
 print('DONE\n')
 
@@ -159,7 +175,21 @@ for generation in range(NUM_GENERATIONS):
     print('Adding indicator data and testing every member of the population against each ticker passed...', end='')
 
     #ticker_data.clear_ticker_data()
-    new_data = ticker_data.data.copy()
+    if TEST_DATA is not None:
+        num_pop_test = int(round(TRAIN_PERIOD * TEST_DATA))
+        # If this is a generation to use the test data instead of the training data, use it instead
+        new_data = ticker_data.data.copy()
+        if (generation + 1) % 10 == 0:
+            for ticker in TICKERS:
+                new_data[ticker] = new_data[ticker].iloc[-1 * (num_pop_test + indicator_gen_period):-1]
+            curr_train_period = len(new_data[TICKERS[0]])
+        else:
+            for ticker in TICKERS:
+                new_data[ticker] = new_data[ticker].iloc[:-1 * (num_pop_test)]
+            curr_train_period = len(new_data[TICKERS[0]])
+    else:
+        new_data = ticker_data.data.copy()
+        curr_train_period = TRAIN_PERIOD
 
     # Create the shared dict and initialize with arrays
     manager = mp.Manager()
@@ -172,7 +202,7 @@ for generation in range(NUM_GENERATIONS):
     for ticker in tickers:
         for j in range(len(population)):
             process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, new_data[ticker], population[j],
-                                                            j, TRAIN_PERIOD, COMMISSION, CAPITAL,))
+                                                            j, curr_train_period, COMMISSION, CAPITAL,))
 
     process_pool.close()
     process_pool.join()
@@ -325,65 +355,69 @@ for generation in range(NUM_GENERATIONS):
             else:
                 best50_performing_indicators[str(indicator)] += 1
                 if j < 10:
-                    best10_performing_indicators[str(indicator)] = 1
+                    best10_performing_indicators[str(indicator)] += 1
 
 
-    top_vote_small = 10
-    # Initialize
-    if len(overall_best_candidates) == 0:
+    if (TEST_DATA is not None and (generation + 1) % 10 == 0) or TEST_DATA is None:
+        # Initialize
+        if len(overall_best_candidates) == 0:
+            for j in range(top_vote):
+                overall_best_candidates.append(copy.deepcopy(candidate_average[j]))
+        else:
+            # Otherwise, calculate the top top_vote overall best
+            overall_best_candidates += candidate_average[:top_vote]
+            overall_best_candidates = sorted(overall_best_candidates, key=lambda x: x.capital)
+            overall_best_candidates.reverse()
+            # Remove duplicates
+            filtered_capital = set()
+            filtered_overall_best_candidates = []
+            for candidate in overall_best_candidates:
+                if candidate.capital not in filtered_capital:
+                    filtered_overall_best_candidates.append(candidate)
+                    filtered_capital.add(candidate.capital)
+            overall_best_candidates = filtered_overall_best_candidates
+            # Filter out everything but the top_vote
+            overall_best_candidates = overall_best_candidates[:top_vote]
+
+    if len(overall_best_candidates) > 0:
+        top_vote_small = 10
+        num_vote_buy = 0
+        num_vote_sell = 0
+        num_vote_buy_small = 0
+        num_vote_sell_small = 0
+        vote = ''
+        vote_small = ''
+
+        # Count vote for best and deliver the message...
         for j in range(top_vote):
-            overall_best_candidates.append(copy.deepcopy(candidate_average[j]))
-    else:
-        # Otherwise, calculate the top top_vote overall best
-        overall_best_candidates += candidate_average[:top_vote]
-        overall_best_candidates = sorted(overall_best_candidates, key=lambda x: x.capital)
-        overall_best_candidates.reverse()
-        # Remove duplicates
-        filtered_capital = set()
-        filtered_overall_best_candidates = []
-        for candidate in overall_best_candidates:
-            if candidate.capital not in filtered_capital:
-                filtered_overall_best_candidates.append(candidate)
-                filtered_capital.add(candidate.capital)
-        overall_best_candidates = filtered_overall_best_candidates
-        # Filter out everything but the top_vote
-        overall_best_candidates = overall_best_candidates[:top_vote]
+            if overall_best_candidates[j].buy_position is True:
+                num_vote_buy += 1
+                if j < top_vote_small:
+                    num_vote_buy_small += 1
+            elif overall_best_candidates[j].buy_position is False:
+                num_vote_sell += 1
+                if j < top_vote_small:
+                    num_vote_sell_small += 1
 
-    # Count vote for best and deliver the message...
-    num_vote_buy = 0
-    num_vote_sell = 0
-    num_vote_buy_small = 0
-    num_vote_sell_small = 0
-    for j in range(top_vote):
-        if overall_best_candidates[j].buy_position is True:
-            num_vote_buy += 1
-            if j < top_vote_small:
-                num_vote_buy_small += 1
-        elif overall_best_candidates[j].buy_position is False:
-            num_vote_sell += 1
-            if j < top_vote_small:
-                num_vote_sell_small += 1
+            if num_vote_buy > num_vote_sell:
+                vote = 'BUY'
+            elif num_vote_buy < num_vote_sell:
+                vote = 'SELL'
+            else:
+                vote = 'NEUTRAL'
 
-    if num_vote_buy > num_vote_sell:
-        vote = 'BUY'
-    elif num_vote_buy < num_vote_sell:
-        vote = 'SELL'
-    else:
-        vote = 'NEUTRAL'
+            if num_vote_buy_small > num_vote_sell_small:
+                vote_small = 'BUY'
+            elif num_vote_buy_small < num_vote_sell_small:
+                vote_small = 'SELL'
+            else:
+                vote_small = 'NEUTRAL'
 
-    if num_vote_buy_small > num_vote_sell_small:
-        vote_small = 'BUY'
-    elif num_vote_buy_small < num_vote_sell_small:
-        vote_small = 'SELL'
-    else:
-        vote_small = 'NEUTRAL'
+            overall_best_candidate_str = "Top {} Candidate Capital: ".format(top_vote)
+            for result in overall_best_candidates:
+                overall_best_candidate_str += '${:,.2f}, '.format(result.capital)
 
-
-    overall_best_candidate_str = "Top {} Candidate Capital: ".format(top_vote)
-    for result in overall_best_candidates:
-        overall_best_candidate_str += '${:,.2f}, '.format(result.capital)
-
-    overall_best_candidate_str = overall_best_candidate_str[:-2]
+            overall_best_candidate_str = overall_best_candidate_str[:-2]
 
     print('DONE')
     print('')
@@ -489,7 +523,7 @@ for generation in range(NUM_GENERATIONS):
     if buy_and_hold_str == "":
         avg = 0
         for ticker in tickers:
-            idx = (-1 * TRAIN_PERIOD) if TRAIN_PERIOD < len(new_data[ticker]) else 0
+            idx = (-1 * curr_train_period) if curr_train_period < len(new_data[ticker]) else 0
             buy_hold_earnings = CAPITAL / new_data[ticker].iloc[idx]['adjclose']
             buy_hold_earnings = buy_hold_earnings * new_data[ticker].iloc[-1]['adjclose']
             avg += buy_hold_earnings
@@ -514,7 +548,7 @@ for generation in range(NUM_GENERATIONS):
 
 
     # Finally print the stuff I've been calculating for forever it seems like
-    idx = (-1 * TRAIN_PERIOD) if TRAIN_PERIOD < len(new_data[tickers[0]]) else 0
+    idx = (-1 * curr_train_period) if curr_train_period < len(new_data[tickers[0]]) else 0
     print('Time Range: {} -> {}'.format(str(new_data[tickers[0]].iloc[idx].name),
                                         str(new_data[tickers[0]].iloc[-1].name)))
     print('-Best in Generation- {}: ${:,.2f} (Unadjusted: ${:,.2f})  Avg Trades: {}  DNA: {}'
