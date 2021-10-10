@@ -147,8 +147,6 @@ for _ in range(POPULATION):
     # Mock data here for strategy tester
     population.append(Candidate(randomize=RANDOMIZE, remove_duplicates=REMOVE_DUPLICATES))
 
-best_performing_indicators = {}
-
 abc = None
 
 # Stores a list of the top X candidates for voting
@@ -313,17 +311,23 @@ for generation in range(NUM_GENERATIONS):
     while len(new_population) < POPULATION:
         new_population.append(Candidate(randomize=RANDOMIZE, remove_duplicates=REMOVE_DUPLICATES))
 
-    # Store the frequencies of the indicators for the most elite population
-    top_tier_elite = round(POPULATION * 0.02)
-    for j in range(top_tier_elite):
+    # Store the frequencies of the indicators for the top population
+    best50_performing_indicators = {}
+    best10_performing_indicators = {}
+    top_vote = 50
+    for j in range(top_vote):
         elite_dna = candidate_average[j].candidate.DNA
         for indicator in elite_dna:
-            if str(indicator) not in best_performing_indicators:
-                best_performing_indicators[str(indicator)] = 1
+            if str(indicator) not in best50_performing_indicators:
+                best50_performing_indicators[str(indicator)] = 1
+                if j < 10:
+                    best10_performing_indicators[str(indicator)] = 1
             else:
-                best_performing_indicators[str(indicator)] += 1
+                best50_performing_indicators[str(indicator)] += 1
+                if j < 10:
+                    best10_performing_indicators[str(indicator)] = 1
 
-    top_vote = 50
+
     top_vote_small = 10
     # Initialize
     if len(overall_best_candidates) == 0:
@@ -467,7 +471,8 @@ for generation in range(NUM_GENERATIONS):
 
 
     # Sort the indicators by their frequency
-    sorted_best_ind = {k: v for k, v in reversed(sorted(best_performing_indicators.items(), key=lambda item: item[1]))}
+    sorted_best50_ind = {k: v for k, v in reversed(sorted(best50_performing_indicators.items(), key=lambda item: item[1]))}
+    sorted_best10_ind = {k: v for k, v in reversed(sorted(best10_performing_indicators.items(), key=lambda item: item[1]))}
 
     # Calculate output for the current settings
     curr_settings_str = ""
@@ -531,13 +536,16 @@ for generation in range(NUM_GENERATIONS):
     print('Top {} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, vote_small,
                                                                           num_vote_buy_small, num_vote_sell_small))
     print('======================')
+    print('Top 10 Indicator Frequencies: {}'.format(str(sorted_best10_ind
+                                                        ).replace('\'', '').replace('{', '(').replace('}', ')')))
+    print('Top 50 Indicator Frequencies: {}'.format(str(sorted_best50_ind
+                                                        ).replace('\'', '').replace('{', '(').replace('}', ')')))
+    print('======================')
     print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
     print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
     print('-This Generation- Plebs: {}'.format(plebs))
     print('======================')
-    print('Buy+Hold Earnings: - {}'.format(buy_and_hold_str))
-    print('Most Frequent Elite Indicators: {}'.format(str(sorted_best_ind
-                                                          ).replace('\'', '').replace('{', '(').replace('}', ')')))
+    print('Buy+Hold Earnings: - {} - {}'.format(' '.join(tickers), buy_and_hold_str))
 
     # Print individual results from each ticker for best candidate
 
