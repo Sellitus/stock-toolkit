@@ -168,6 +168,8 @@ num_vote_sell_small = 0
 vote = ''
 vote_small = ''
 
+overfit_filter_num = 20
+
 print('DONE\n')
 
 for generation in range(NUM_GENERATIONS):
@@ -179,7 +181,7 @@ for generation in range(NUM_GENERATIONS):
         num_pop_test = int(round(TRAIN_PERIOD * TEST_DATA))
         # If this is a generation to use the test data instead of the training data, use it instead
         new_data = ticker_data.data.copy()
-        if (generation + 1) % 10 == 0:
+        if (generation + 1) % overfit_filter_num == 0:
             for ticker in TICKERS:
                 new_data[ticker] = new_data[ticker].iloc[-1 * (num_pop_test + indicator_gen_period):-1]
             curr_train_period = len(new_data[TICKERS[0]])
@@ -310,10 +312,10 @@ for generation in range(NUM_GENERATIONS):
 
     # Create a list for the new population's candidates
     new_population = []
-    unaltered_range = 4
+    unaltered_range = 5
     # Save top unaltered amount, passing them directly to the next generation
     for j in range(PASS_UNALTERED):
-        idx = random.randint(0, unaltered_range)
+        idx = random.randint(0, unaltered_range) if unaltered_range > 0 else 0
         new_population.append(copy.deepcopy(candidate_average[idx].candidate))
 
     num_elite = int(len(candidate_average) * 0.2)
@@ -342,7 +344,7 @@ for generation in range(NUM_GENERATIONS):
     best50_performing_indicators = {}
     best10_performing_indicators = {}
     top_vote = 50
-    for j in range(top_vote):
+    for j in range(min(top_vote, len(candidate_average))):
         elite_dna = candidate_average[j].candidate.DNA
         for indicator in elite_dna:
             if str(indicator) not in best50_performing_indicators:
@@ -355,7 +357,7 @@ for generation in range(NUM_GENERATIONS):
                     best10_performing_indicators[str(indicator)] += 1
 
 
-    if (TEST_DATA is not None and (generation + 1) % 10 == 0) or TEST_DATA is None:
+    if (TEST_DATA is not None and (generation + 1) % overfit_filter_num == 0) or TEST_DATA is None:
         # Initialize
         if len(overall_best_candidates) == 0:
             for j in range(top_vote):
@@ -514,16 +516,16 @@ for generation in range(NUM_GENERATIONS):
         curr_settings_str += ' -[' + str(candidate_average[0].candidate.DNA[j]) + ']- ' + str(cleaned_settings)
 
     # Calculate the amount if you were to just have bought and held
-    if buy_and_hold_str == "":
-        avg = 0
-        for ticker in tickers:
-            idx = (-1 * curr_train_period) if curr_train_period < len(new_data[ticker]) else 0
-            buy_hold_earnings = CAPITAL / new_data[ticker].iloc[idx]['adjclose']
-            buy_hold_earnings = buy_hold_earnings * new_data[ticker].iloc[-1]['adjclose']
-            avg += buy_hold_earnings
-            buy_and_hold_str += '{}: ${:,.2f}, '.format(ticker, buy_hold_earnings)
-        buy_and_hold_str = '{}: ${:,.2f} - '.format('Average', avg / len(tickers)) + buy_and_hold_str
-        buy_and_hold_str = buy_and_hold_str[:-2]
+    avg = 0
+    buy_and_hold_str = ""
+    for ticker in tickers:
+        idx = (-1 * curr_train_period) if curr_train_period < len(new_data[ticker]) else 0
+        buy_hold_earnings = CAPITAL / new_data[ticker].iloc[idx]['adjclose']
+        buy_hold_earnings = buy_hold_earnings * new_data[ticker].iloc[-1]['adjclose']
+        avg += buy_hold_earnings
+        buy_and_hold_str += '{}: ${:,.2f}, '.format(ticker, buy_hold_earnings)
+    buy_and_hold_str = '{}: ${:,.2f} - '.format('Average', avg / len(tickers)) + buy_and_hold_str
+    buy_and_hold_str = buy_and_hold_str[:-2]
 
     individual_stock_performance_str = ""
     for ticker in tickers:
