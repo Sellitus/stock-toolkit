@@ -168,7 +168,7 @@ num_vote_sell_small = 0
 vote = ''
 vote_small = ''
 
-overfit_filter_num = 20
+overfit_filter_num = 200
 
 print('DONE\n')
 
@@ -360,7 +360,7 @@ for generation in range(NUM_GENERATIONS):
     if (TEST_DATA is not None and (generation + 1) % overfit_filter_num == 0) or TEST_DATA is None:
         # Initialize
         if len(overall_best_candidates) == 0:
-            for j in range(top_vote):
+            for j in range(min(top_vote, len(candidate_average))):
                 overall_best_candidates.append(copy.deepcopy(candidate_average[j]))
         else:
             # Otherwise, calculate the top top_vote overall best
@@ -388,7 +388,7 @@ for generation in range(NUM_GENERATIONS):
         vote_small = ''
 
         # Count vote for best and deliver the message...
-        for j in range(top_vote):
+        for j in range(min(top_vote, len(candidate_average))):
             if overall_best_candidates[j].buy_position is True:
                 num_vote_buy += 1
                 if j < top_vote_small:
