@@ -610,7 +610,7 @@ for generation in range(NUM_GENERATIONS):
     print(overall_best_candidate_str)
     print('======================')
     print('Top {} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote, vote, num_vote_buy, num_vote_sell))
-    print('Top {}->{} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, top_vote_med, vote_med,
+    print('{}->{} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, top_vote_med, vote_med,
                                                                               num_vote_buy_med, num_vote_sell_med))
     print('Top {} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, vote_small,
                                                                           num_vote_buy_small, num_vote_sell_small))
