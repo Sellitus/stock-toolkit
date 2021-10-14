@@ -435,7 +435,7 @@ for generation in range(NUM_GENERATIONS):
                 if j < top_vote_small:
                     num_vote_sell_small += 1
                 if 10 <= j < top_vote_med:
-                    num_vote_buy_med += 1
+                    num_vote_sell_med += 1
 
             if num_vote_buy > num_vote_sell:
                 vote = 'BUY'
