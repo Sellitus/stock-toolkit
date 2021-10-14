@@ -133,7 +133,28 @@ if TRAIN_PERIOD is None:
 
 # Cut down the data to only the timeframe being tested
 for ticker in ticker_data.data.keys():
-    ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * (TRAIN_PERIOD + indicator_gen_period):-1]
+    ticker_data.data[ticker] = ticker_data.data[ticker].iloc[-1 * (TRAIN_PERIOD + indicator_gen_period):]
+
+# Append today's data to dataframe
+
+import yfinance
+def update_current_price(ticker_data, symbol):
+    '''
+    Gets the current price of a ticker and appends it to the dataframe. If update is True, it will remove the last
+    row before appending, so there are not two rows of the same day.
+    '''
+    # Delete the last row for the update
+    ticker_data[symbol] = ticker_data[symbol].iloc[:-1]
+    ticker = yfinance.Ticker(symbol)
+    todays_data = ticker.history(period='1d')
+    todays_data = todays_data.drop(columns='Dividends')
+    todays_data = todays_data.drop(columns='Stock Splits')
+    todays_data.rename(columns={'Open': 'open', 'High': 'high', 'Low': 'low', 'Close': 'close', 'Volume': 'volume'},
+                       inplace=True)
+    todays_data['adjclose'] = todays_data['close']
+    ticker_data[symbol] = ticker_data[symbol].append(todays_data)
+
+    return ticker_data
 
 tester = StrategyTester()
 
@@ -175,6 +196,11 @@ print('DONE\n')
 for generation in range(NUM_GENERATIONS):
 
     print('Adding indicator data and testing every member of the population against each ticker passed...')
+
+    # Updates the current price in the dataframes every 10 generations
+    if (generation + 1) % 10:
+        for ticker in TICKERS:
+            update_current_price(ticker_data.data, ticker)
 
     #ticker_data.clear_ticker_data()
     if TEST_DATA is not None:
@@ -490,12 +516,12 @@ for generation in range(NUM_GENERATIONS):
     top_elite_print = []
     low_elite_print = []
     plebs = []
-    for j in range(5):
+    for j in range(min(5, len(candidate_average))):
         top_elite_print.append('${:,.2f}'.format(candidate_average[j].capital))
-    for j in range(5):
+    for j in range(min(5, len(candidate_average))):
         idx = num_elite - j
         low_elite_print.append('${:,.2f}'.format(candidate_average[idx].capital))
-    for j in range(5):
+    for j in range(min(5, len(candidate_average))):
         idx = round(len(candidate_average) * 0.5) - j
         plebs.append('${:,.2f}'.format(candidate_average[idx].capital))
 
