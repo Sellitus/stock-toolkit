@@ -369,6 +369,7 @@ for generation in range(NUM_GENERATIONS):
     # Store the frequencies of the indicators for the top population
     best50_performing_indicators = {}
     best10_performing_indicators = {}
+    second10_performing_indicators = {}
     top_vote = 50
     for j in range(min(top_vote, len(candidate_average))):
         elite_dna = candidate_average[j].candidate.DNA
@@ -377,10 +378,14 @@ for generation in range(NUM_GENERATIONS):
                 best50_performing_indicators[str(indicator)] = 1
                 if j < 10:
                     best10_performing_indicators[str(indicator)] = 1
+                if j >= 10 and j < 20:
+                    second10_performing_indicators[str(indicator)] = 1
             else:
                 best50_performing_indicators[str(indicator)] += 1
                 if j < 10:
                     best10_performing_indicators[str(indicator)] += 1
+                if 10 <= j < 20:
+                    second10_performing_indicators[str(indicator)] = 1
 
 
     if (TEST_DATA is not None and (generation + 1) % overfit_filter_num == 0) or TEST_DATA is None:
@@ -404,25 +409,33 @@ for generation in range(NUM_GENERATIONS):
             # Filter out everything but the top_vote
             overall_best_candidates = overall_best_candidates[:top_vote]
 
+    top_vote_small = 10
+    top_vote_med = 20
+    num_vote_buy = 0
+    num_vote_sell = 0
+    num_vote_buy_small = 0
+    num_vote_sell_small = 0
+    num_vote_buy_med = 0
+    num_vote_sell_med = 0
+    vote = ''
+    vote_small = ''
+    vote_med = ''
     if len(overall_best_candidates) > 0:
-        top_vote_small = 10
-        num_vote_buy = 0
-        num_vote_sell = 0
-        num_vote_buy_small = 0
-        num_vote_sell_small = 0
-        vote = ''
-        vote_small = ''
-
         # Count vote for best and deliver the message...
         for j in range(min(top_vote, len(candidate_average))):
             if overall_best_candidates[j].buy_position is True:
                 num_vote_buy += 1
                 if j < top_vote_small:
                     num_vote_buy_small += 1
+                if 10 <= j < top_vote_med:
+                    num_vote_buy_med += 1
+
             elif overall_best_candidates[j].buy_position is False:
                 num_vote_sell += 1
                 if j < top_vote_small:
                     num_vote_sell_small += 1
+                if 10 <= j < top_vote_med:
+                    num_vote_buy_med += 1
 
             if num_vote_buy > num_vote_sell:
                 vote = 'BUY'
@@ -437,6 +450,13 @@ for generation in range(NUM_GENERATIONS):
                 vote_small = 'SELL'
             else:
                 vote_small = 'NEUTRAL'
+
+            if num_vote_buy_med > num_vote_sell_med:
+                vote_med = 'BUY'
+            elif num_vote_buy_med < num_vote_sell_med:
+                vote_med = 'SELL'
+            else:
+                vote_med = 'NEUTRAL'
 
             overall_best_candidate_str = "Top {} Candidate Capital: ".format(top_vote)
             for result in overall_best_candidates:
@@ -590,6 +610,8 @@ for generation in range(NUM_GENERATIONS):
     print(overall_best_candidate_str)
     print('======================')
     print('Top {} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote, vote, num_vote_buy, num_vote_sell))
+    print('Top {}->{} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, top_vote_med, vote_med,
+                                                                              num_vote_buy_med, num_vote_sell_med))
     print('Top {} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, vote_small,
                                                                           num_vote_buy_small, num_vote_sell_small))
     print('======================')
