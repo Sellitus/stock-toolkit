@@ -466,7 +466,7 @@ for generation in range(NUM_GENERATIONS):
     plt.subplot(211)
     plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b', zorder=1)
     plt.subplot(211)
-    plt.scatter(buy_coords.index, buy_coords.close, color='lime', zorder=3, edgecolors='black')
+    plt.scatter(buy_coords.index, buy_coords.close, color='lime', zorder=4, edgecolors='black')
     plt.subplot(211)
     plt.scatter(sell_coords.index, sell_coords.close, color='r', zorder=3, edgecolors='black')
 
@@ -495,7 +495,7 @@ for generation in range(NUM_GENERATIONS):
     plt.subplot(212)
     plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b', zorder=1)
     plt.subplot(212)
-    plt.scatter(buy_coords.index, buy_coords.close, color='lime', zorder=3, edgecolors='black')
+    plt.scatter(buy_coords.index, buy_coords.close, color='lime', zorder=4, edgecolors='black')
     plt.subplot(212)
     plt.scatter(sell_coords.index, sell_coords.close, color='r', zorder=3, edgecolors='black')
 
