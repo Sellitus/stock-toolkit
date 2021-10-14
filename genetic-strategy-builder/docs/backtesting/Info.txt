@@ -3,4 +3,4 @@
 Paper trading on Tradingview
 
 Symbols to backtest: AMD, NVDA, MSFT, SPY, ADA-USD, COTI-USD, ETH-USD
-Added part-time symbols: DOT1-USD, DOGE-USD, LINK-USD, GOOGL
+Added part-time symbols: DOT1-USD, DOGE-USD, LINK-USD, GOOGL, AAPL, INTC
