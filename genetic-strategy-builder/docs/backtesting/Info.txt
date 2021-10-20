@@ -6,6 +6,12 @@ Symbols to backtest: AMD, NVDA, MSFT, SPY, ADA-USD, COTI-USD, ETH-USD
 Added part-time symbols: DOT1-USD, DOGE-USD, LINK-USD, GOOGL, AAPL, INTC
 
 
+Portfolio Log:
+10-20-21 @ 12PM: 105,250
+
+
+
+
 ====Portfolio Adjustments====
 
 10-20-21
