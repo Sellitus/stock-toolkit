@@ -22,7 +22,7 @@ from util.TickerData import TickerData
 parser = argparse.ArgumentParser(description='Find That Setup')
 parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
                     help="Stock tickers to find trading setups for. Ex: --tickers AMD GOOGL INTC")
-parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=252,
+parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=200,
                     help="Number of days to train on (252 is 1 year). Less than 1 is no limit. Ex: --period 252")
 parser.add_argument('--capital', dest="CAPITAL", required=False, type=int, default=10000,
                     help="Initial capital to start the trading algorithm with. Ex: --capital 10000")
@@ -42,19 +42,19 @@ parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", req
                          "affecting the results negatively. Integer passed is the multiplier for the initial capital "
                          "/ year. So for a value of 20 and initial capital of 10,000, the yearly max would be 200,000."
                          "Ex: --capital-normalization 20")
-parser.add_argument('--commission', dest="COMMISSION", required=False, type=float, default=0.000,
+parser.add_argument('--commission', dest="COMMISSION", required=False, type=float, default=0.0025,
                     help="Commission to take off the top for every buy order. Helps prevent strategies with a high"
                          "number of trades from zoning out the more efficient algorithms. Default is 0.000 (0.1%)."
                          "Ex (for 1%): --commission 0.01")
-parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=float, default=3,
+parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=float, default=2,
                     help="Min trades that should be executed. Values below this are removed. Default: 1. "
                          "Ex: --min-trades 3")
 parser.add_argument('--max-trades', dest="MAX_TRADES", required=False, type=float, default=float('inf'),
                     help="Max trades that should be executed. Values above this are removed. Default is disabled."
                          "Ex: --max-trades 40")
-parser.add_argument('--population', dest="POPULATION", required=False, type=int, default=100,
+parser.add_argument('--population', dest="POPULATION", required=False, type=int, default=200,
                     help="Number of member of each generation. Ex: --population 100")
-parser.add_argument('--randomize', dest="RANDOMIZE", required=False, type=float, default=0.2,
+parser.add_argument('--randomize', dest="RANDOMIZE", required=False, type=float, default=0.5,
                     help="Percentage to randomize indicator settings. Ex: --randomize 0.25")
 parser.add_argument('--pass-unaltered', dest="PASS_UNALTERED", required=False, type=int, default=1,
                     help="Number of each generation to be passed unaltered to the next. Default is 1. "
@@ -198,9 +198,12 @@ for generation in range(NUM_GENERATIONS):
     print('Adding indicator data and testing every member of the population against each ticker passed...')
 
     # Updates the current price in the dataframes every 10 generations
-    if (generation + 1) % 10:
-        for ticker in TICKERS:
-            update_current_price(ticker_data.data, ticker)
+    try:
+        if (generation + 1) % 10:
+            for ticker in TICKERS:
+                update_current_price(ticker_data.data, ticker)
+    except KeyError as e:
+        print('Unable to update current ticker price. Skipping for this iteration...')
 
     #ticker_data.clear_ticker_data()
     if TEST_DATA is not None:
@@ -336,6 +339,9 @@ for generation in range(NUM_GENERATIONS):
                                    ).replace(']', '').replace('(', '').replace(')', '')[:-1]
             best_settings_str += ' -[' + str(best_candidate.candidate.DNA[j]) + ']- ' + str(cleaned_settings)
 
+    num_elite = int(len(candidate_average) * 0.2)
+    num_extra = int(len(candidate_average) * 0.1)
+
     # Create a list for the new population's candidates
     new_population = []
     unaltered_range = 5
@@ -343,9 +349,9 @@ for generation in range(NUM_GENERATIONS):
     for j in range(PASS_UNALTERED):
         idx = random.randint(0, unaltered_range) if unaltered_range > 0 else 0
         new_population.append(copy.deepcopy(candidate_average[idx].candidate))
-
-    num_elite = int(len(candidate_average) * 0.2)
-    num_extra = int(len(candidate_average) * 0.1)
+    # # Pass all the elite without being touched
+    # for j in range(num_elite):
+    #     new_population.append(copy.deepcopy(candidate_average[j].candidate))
 
     # Create new population, splicing first half of top performers with other elites
     for j in range(int(num_elite / 2)):
