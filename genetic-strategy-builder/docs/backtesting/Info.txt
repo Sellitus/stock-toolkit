@@ -4,3 +4,28 @@ Paper trading on Tradingview
 
 Symbols to backtest: AMD, NVDA, MSFT, SPY, ADA-USD, COTI-USD, ETH-USD
 Added part-time symbols: DOT1-USD, DOGE-USD, LINK-USD, GOOGL, AAPL, INTC
+
+
+====Portfolio Adjustments====
+
+10-20-21
+Lost 72 + 78 because of too many 0s on the DOGE amount. Of course it happens with DOGE.
++150
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Overall Total Adjustment: +150
