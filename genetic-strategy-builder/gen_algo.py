@@ -67,8 +67,8 @@ parser.add_argument('-no-filter', dest="FILTER_OUTLIERS", required=False, action
                     help="Prevents filtering out of outliers from candidate list each generation. Filters for a "
                          "minimum number of trades and filters out top results that are a certain percentage away from "
                          "the norm. Ex: -no-filter")
-parser.add_argument('-u', dest='UPDATE', required=False, action='store_true',
-                    help="Flag to remove old data files so they will be redownloaded.")
+parser.add_argument('-u', dest='UPDATE', required=False, action='store_false',
+                    help="Flag to DISABLE updating of data.")
 args = parser.parse_args()
 
 
@@ -116,15 +116,11 @@ date_time_start = time.strftime("%Y-%m-%d_%H:%M:%S")
 # Save the tickers to a list all uppercase
 tickers = [ticker.upper() for ticker in TICKERS]
 
-if UPDATE:
-    data_path = os.path.dirname(os.path.realpath(__file__)) + '/data'
-    shutil.rmtree(data_path)
-
 # Create the data/ subfolder if it does not already exist
 if not os.path.isdir("data"):
     os.mkdir("data")
 
-ticker_data = TickerData(tickers=tickers, interval=DATA_INTERVAL)
+ticker_data = TickerData(tickers=tickers, interval=DATA_INTERVAL, update=UPDATE)
 
 # Initialize TickerData, passing a list of tickers to load
 indicator_gen_period = 25

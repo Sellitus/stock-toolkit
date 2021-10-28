@@ -52,10 +52,11 @@ class TickerData:
     intervals = {'1m': '7d', '2m': '60d', '5m': '60d', '15m': '60d', '30m': '60d', '60m': '730d', '90m': '60d',
                  '1h': '730d', '1d': 'max', '5d': 'max', '1wk': 'max', '1mo': 'max', '3mo': 'max'}
 
-    def __init__(self, tickers=None, interval='1d'):
+    def __init__(self, tickers=None, interval='1d', update=True):
         self.data = None
         self.scalers = {}
         self.indicator_settings = {}
+        self.update = update
 
         if tickers is not None:
             self.data = self.load_ticker_data_yf(tickers, interval)
@@ -76,7 +77,7 @@ class TickerData:
                                                                  ), 'data'), f"{ticker}-{interval}.csv")
             #ticker_data_filename = os.path.join("../../data", f"{ticker}.csv")
             # Load the data from disk if it exists, otherwise pull info from Yahoo Finance
-            if os.path.exists(ticker_data_filename):
+            if os.path.exists(ticker_data_filename) and not self.update:
                 print("Loading Ticker History: {}".format(ticker_data_filename))
                 curr_data_df = pickle.load(open(ticker_data_filename, "rb"))
             else:

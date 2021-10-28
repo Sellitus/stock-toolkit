@@ -74,7 +74,8 @@ bash Anaconda3-2020.11-Linux-x86_64.sh
 (make sure to say yes to running conda init during install)
 source ~/.bashrc
 
-conda create --name stock-toolkit python
+# Newest version of python is currently busted
+conda create --name stock-toolkit python=3.9
 conda activate stock-toolkit
 conda install pandas matplotlib
 conda install -c anaconda sqlalchemy
