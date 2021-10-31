@@ -2,12 +2,15 @@
 -Backtesting beginning on 10-4-21
 Paper trading on Tradingview
 
-Symbols to backtest: SPY, AMD, NVDA, MSFT, ADA-USD, COTI-USD, ETH-USD
-Added part-time symbols: DOT1-USD, DOGE-USD, LINK-USD, GOOGL, AAPL, INTC
+Stocks to backtest: SPY, AMD, NVDA, MSFT, GOOGL, INTC,
+Crypto to backtest: ADA-USD, COTI-USD, ETH-USD, DOT1-USD, DOGE-USD, LINK-USD
+Added part-time symbols: AAPL
 
 
 Portfolio Log:
 10-20-21 @ 12PM: 105,250
+Portfolio Log:
+10-31-21 @ 4:10PM: 110,700
 
 
 

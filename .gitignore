@@ -132,3 +132,7 @@ dmypy.json
 
 # Ignore IntelliJ Idea cache folder
 .idea/
+
+# Ignore PW file
+.email_pw
+genetic-strategy-builder/.email_pw

@@ -9,7 +9,12 @@ import os
 import pandas as pd
 import random
 import shutil
+import smtplib
+import ssl
 import time
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 from util.Candidate import Candidate
 from util.StrategyTester import StrategyTester, Result
@@ -69,6 +74,11 @@ parser.add_argument('-no-filter', dest="FILTER_OUTLIERS", required=False, action
                          "the norm. Ex: -no-filter")
 parser.add_argument('-u', dest='UPDATE', required=False, action='store_false',
                     help="Flag to DISABLE updating of data.")
+# Real time trading options
+parser.add_argument('--notify', dest="NOTIFY", required=False, type=int, default=0,
+                    help="Sets X as a generation limit, where the model will send a text message with the results "
+                         "then exit. This is good for use with cron as a daily job. "
+                         "Ex: --notify 1500")
 args = parser.parse_args()
 
 
@@ -93,6 +103,8 @@ RNG = args.RNG
 DATA_INTERVAL = args.DATA_INTERVAL
 if CAPITAL_NORMALIZATION <= 0:
     CAPITAL_NORMALIZATION = None
+# Real time trading options
+NOTIFY = args.NOTIFY
 
 MULTITHREAD_PROCESS_MULTIPLIER = 1
 NUM_GENERATIONS = 9999999999999999
@@ -611,11 +623,19 @@ for generation in range(NUM_GENERATIONS):
     print('======================')
     print(overall_best_candidate_str)
     print('======================')
-    print('Top {} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote, vote, num_vote_buy, num_vote_sell))
-    print('{}->{} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, top_vote_med, vote_med,
-                                                                              num_vote_buy_med, num_vote_sell_med))
-    print('Top {} candidate votes - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, vote_small,
-                                                                          num_vote_buy_small, num_vote_sell_small))
+    results_str = '\nTop {} - avg: {} -  buy: {},  sell: {}'.format(top_vote, vote, num_vote_buy, num_vote_sell)
+    results_str = results_str + '\n{}->{} - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, top_vote_med,
+                                                                                  vote_med, num_vote_buy_med,
+                                                                                  num_vote_sell_med)
+    results_str = results_str + '\nTop {} - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, vote_small,
+                                                                                  num_vote_buy_small,
+                                                                                  num_vote_sell_small)
+    print(results_str)
+    # print('Top {} - avg: {} -  buy: {},  sell: {}'.format(top_vote, vote, num_vote_buy, num_vote_sell))
+    # print('{}->{} - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, top_vote_med, vote_med,
+    #                                                                           num_vote_buy_med, num_vote_sell_med))
+    # print('Top {} - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, vote_small,
+    #                                                                       num_vote_buy_small, num_vote_sell_small))
     print('======================')
     print('Top 10 Indicator Frequencies: {}'.format(str(sorted_best10_ind
                                                         ).replace('\'', '').replace('{', '(').replace('}', ')')))
@@ -633,5 +653,30 @@ for generation in range(NUM_GENERATIONS):
     print('')
     print('------------------------------------------------------------------')
     print('')
+
+    if generation + 1 == NOTIFY:
+        f = open('.email_pw')
+        lines = f.readlines()
+        f.close()
+        gmail_user = lines[0] if not lines[0].endswith('\n') else lines[0][:-1]
+        gmail_password = lines[1] if not lines[1].endswith('\n') else lines[1][:-1]
+
+        phone_number = '2285969839@tmomail.net'
+
+        email_text = f""" %s - """ % (results_str)
+
+        mimemsg = MIMEMultipart()
+        mimemsg['From'] = gmail_user
+        mimemsg['To'] = phone_number
+        mimemsg['Subject'] = TICKERS[0] + ' Results'
+        mimemsg.attach(MIMEText(email_text, 'plain'))
+
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.ehlo()
+        server.login(gmail_user, gmail_password)
+        server.send_message(mimemsg)
+        server.quit()
+
+        exit("Results have been reported. Thank you and have a great day!!!")
 
     population = new_population
