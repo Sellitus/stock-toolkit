@@ -6,15 +6,15 @@
 PYTHON_EXE=/home/sellitus/anaconda3/envs/stock-toolkit/bin/python
 GEN_ALGO_EXE=/home/sellitus/PythonProjects/stock-toolkit/genetic-strategy-builder/gen_algo.py
 
-30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers ADA-USD --notify 1500
-30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers ETH-USD --notify 1500
-30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers COTI-USD --notify 1500
-30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers ATOM-USD --notify 1500
+30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers ADA-USD
+30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers ETH-USD
+30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers COTI-USD
+30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers ATOM-USD
 
-30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers SPY --notify 1500
-30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers AMD --notify 1500
-30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers NVDA --notify 1500
-30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers TSLA --notify 1500
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers SPY
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers AMD
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers NVDA
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers TSLA
 
 
 # PC 2
@@ -22,12 +22,12 @@ GEN_ALGO_EXE=/home/sellitus/PythonProjects/stock-toolkit/genetic-strategy-builde
 PYTHON_EXE=/home/sellitus/anaconda3/envs/stock-toolkit/bin/python
 GEN_ALGO_EXE=/home/sellitus/PythonProjects/stock-toolkit/genetic-strategy-builder/gen_algo.py
 
-30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers DOT1-USD --notify 1500
-30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers LINK-USD --notify 1500
-30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers DOGE-USD --notify 1500
-30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers SHIB-USD --notify 1500
+30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers DOT1-USD
+30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers LINK-USD
+30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers DOGE-USD
+30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers SHIB-USD
 
-30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers MSFT --notify 1500
-30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers GOOGL --notify 1500
-30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers INTC --notify 1500
-30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers AAPL --notify 1500
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers MSFT
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers GOOGL
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers INTC
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers AAPL

@@ -88,6 +88,10 @@ parser.add_argument('--notify', dest="NOTIFY", required=False, type=int, default
                     help="Sets X as a generation limit, where the model will send a text message with the results "
                          "then exit. This is good for use with cron as a daily job. "
                          " - Example [ --notify 1500 ]")
+parser.add_argument('-production', dest='PRODUCTION_MODE', required=False, action='store_true',
+                    help="Enables production mode, which notifies all listed members. For use with --notify to prevent"
+                         "notifying everyone by accident. Add other necessary functions for this flag in the future. "
+                         " - Example [ -production ]")
 args = parser.parse_args()
 
 
@@ -114,6 +118,7 @@ if CAPITAL_NORMALIZATION <= 0:
     CAPITAL_NORMALIZATION = None
 # Real time trading options
 NOTIFY = args.NOTIFY
+PRODUCTION_MODE = args.PRODUCTION_MODE
 
 MULTITHREAD_PROCESS_MULTIPLIER = 1
 NUM_GENERATIONS = 9999999999999999
@@ -670,7 +675,10 @@ for generation in range(NUM_GENERATIONS):
         gmail_user = lines[0] if not lines[0].endswith('\n') else lines[0][:-1]
         gmail_password = lines[1] if not lines[1].endswith('\n') else lines[1][:-1]
 
-        recipients = ['2285969839@tmomail.net', 'sellitus@gmail.com', '2283425275@tmomail.net']
+        recipients = ['2285969839@tmomail.net', 'sellitus@gmail.com']
+
+        if PRODUCTION_MODE:
+            recipients.append('2283425275@tmomail.net')
 
         email_text = f""" %s - """ % (results_str)
 
