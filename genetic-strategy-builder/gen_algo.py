@@ -28,66 +28,66 @@ from util.TickerData import TickerData
 parser = argparse.ArgumentParser(description='Find That Setup')
 parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
                     help="Stock tickers to find trading setups for. "
-                         "Ex; --tickers AMD GOOGL INTC")
+                         " - Example [ --tickers AMD GOOGL INTC ]")
 parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=200,
                     help="Number of days to train on (252 is 1 year). Less than 1 is no limit. "
-                         "Ex; --period 252")
+                         " - Example [ --period 252 ]")
 parser.add_argument('--capital', dest="CAPITAL", required=False, type=int, default=10000,
                     help="Initial capital to start the trading algorithm with. "
-                         "Ex; --capital 10000")
+                         " - Example [ --capital 10000 ]")
 parser.add_argument('--data-interval', dest="DATA_INTERVAL", required=False, type=str, default='1d',
                     help="Interval for the data to be downloaded and tested on. Can be from this list-"
                          "1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo"
-                         "Ex; --data-interval 1m")
+                         " - Example [ --data-interval 1m ]")
 parser.add_argument('--test-data', dest="TEST_DATA", required=False, type=float, default=None,
                     help="Separates the latest passed percentage from the total period size to use for testing. Be "
                          "careful not to pass too small of a --period value, as this will make the training data too "
                          "small for a trading strategy to be effective on. Changes how the ranking is done to reduce "
                          "the overfit population. Every 10 generations, the population's fitness will be based on the "
                          "testing data rather than the training data. "
-                         "Ex 20 percent- --test-data 0.2")
+                         "Ex 20 percent- --test-data 0.2 ]")
 parser.add_argument('--capital-normalization', dest="CAPITAL_NORMALIZATION", required=False, type=int, default=10,
                     help="Set to <=0 to disable. Sets a normalized cap for each result, to prevent outliers from "
                          "affecting the results negatively. Integer passed is the multiplier for the initial capital "
                          "/ year. So for a value of 20 and initial capital of 10,000, the yearly max would be 200,000."
-                         "Ex; --capital-normalization 20")
+                         " - Example [ --capital-normalization 20 ]")
 parser.add_argument('--commission', dest="COMMISSION", required=False, type=float, default=0.0025,
                     help="Commission to take off the top for every buy order. Helps prevent strategies with a high"
                          "number of trades from zoning out the more efficient algorithms. Default is 0.000 (0.1 percent)."
-                         "Ex for 1 percent- --commission 0.01")
+                         "Ex for 1 percent- --commission 0.01 ]")
 parser.add_argument('--min-trades', dest="MIN_TRADES", required=False, type=float, default=2,
                     help="Min trades that should be executed. Values below this are removed. Default- 1. "
-                         "Ex; --min-trades 3")
+                         " - Example [ --min-trades 3 ]")
 parser.add_argument('--max-trades', dest="MAX_TRADES", required=False, type=float, default=float('inf'),
                     help="Max trades that should be executed. Values above this are removed. Default is disabled."
-                         "Ex; --max-trades 40")
+                         " - Example [ --max-trades 40 ]")
 parser.add_argument('--population', dest="POPULATION", required=False, type=int, default=200,
                     help="Number of member of each generation. "
-                         "Ex; --population 100")
+                         " - Example [ --population 100 ]")
 parser.add_argument('--randomize', dest="RANDOMIZE", required=False, type=float, default=0.5,
                     help="Percentage to randomize indicator settings. "
-                         "Ex; --randomize 0.25")
+                         " - Example [ --randomize 0.25 ]")
 parser.add_argument('--pass-unaltered', dest="PASS_UNALTERED", required=False, type=int, default=1,
                     help="Number of each generation to be passed unaltered to the next. Default is 1. "
-                         "Ex; --pass-unaltered 1")
+                         " - Example [ --pass-unaltered 1 ]")
 parser.add_argument('-remove-duplicates', dest="REMOVE_DUPLICATES", required=False, action='store_true', default=False,
                     help="Removes duplicate indicator types from the DNA strand randomly. "
-                         "Ex; -remove-duplicates")
+                         " - Example [ -remove-duplicates ]")
 parser.add_argument('-rng', dest="RNG", required=False, action='store_true', default=False,
                     help="Enables real RNG, which does not set RNG seeds for consistent results. "
-                         "Ex; -rng")
+                         " - Example [ -rng ]")
 parser.add_argument('-no-filter', dest="FILTER_OUTLIERS", required=False, action='store_false', default=True,
                     help="Prevents filtering out of outliers from candidate list each generation. Filters for a "
                          "minimum number of trades and filters out top results that are a certain percentage away from "
-                         "the norm. Ex; -no-filter")
+                         "the norm.  - Example [ -no-filter ]")
 parser.add_argument('-u', dest='UPDATE', required=False, action='store_false',
                     help="Flag to DISABLE updating of data. "
-                         "Ex; -u")
+                         " - Example [ -u ]")
 # Real time trading options
 parser.add_argument('--notify', dest="NOTIFY", required=False, type=int, default=0,
                     help="Sets X as a generation limit, where the model will send a text message with the results "
                          "then exit. This is good for use with cron as a daily job. "
-                         "Ex; --notify 1500")
+                         " - Example [ --notify 1500 ]")
 args = parser.parse_args()
 
 
