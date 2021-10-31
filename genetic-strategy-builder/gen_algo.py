@@ -661,13 +661,13 @@ for generation in range(NUM_GENERATIONS):
         gmail_user = lines[0] if not lines[0].endswith('\n') else lines[0][:-1]
         gmail_password = lines[1] if not lines[1].endswith('\n') else lines[1][:-1]
 
-        phone_number = '2285969839@tmomail.net'
+        recipients = ['2285969839@tmomail.net', 'sellitus@gmail.com', '2283425275@tmomail.net']
 
         email_text = f""" %s - """ % (results_str)
 
         mimemsg = MIMEMultipart()
         mimemsg['From'] = gmail_user
-        mimemsg['To'] = phone_number
+        mimemsg['To'] = ','.join(recipients)
         mimemsg['Subject'] = TICKERS[0] + ' Results'
         mimemsg.attach(MIMEText(email_text, 'plain'))
 
