@@ -28,7 +28,7 @@ from util.TickerData import TickerData
 parser = argparse.ArgumentParser(description='Find That Setup')
 parser.add_argument('--tickers', nargs="+", dest="TICKERS", required=True,
                     help="Stock tickers to find trading setups for. "
-                         " - Example [ --tickers AMD GOOGL INTC ]")
+                         " - Example [ --tickers ADA-USD ] [ --tickers AMD SPY ]")
 parser.add_argument('--period', dest="TRAIN_PERIOD", required=False, type=int, default=200,
                     help="Number of days to train on (252 is 1 year). Less than 1 is no limit. "
                          " - Example [ --period 252 ]")
