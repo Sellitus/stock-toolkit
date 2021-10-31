@@ -9,10 +9,12 @@ GEN_ALGO_EXE=/home/sellitus/PythonProjects/stock-toolkit/genetic-strategy-builde
 30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers ADA-USD --notify 1500
 30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers ETH-USD --notify 1500
 30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers COTI-USD --notify 1500
+30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers ATOM-USD --notify 1500
 
 30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers SPY --notify 1500
 30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers AMD --notify 1500
 30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers NVDA --notify 1500
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers TSLA --notify 1500
 
 
 # PC 2
@@ -23,7 +25,9 @@ GEN_ALGO_EXE=/home/sellitus/PythonProjects/stock-toolkit/genetic-strategy-builde
 30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers DOT1-USD --notify 1500
 30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers LINK-USD --notify 1500
 30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers DOGE-USD --notify 1500
+30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers SHIB-USD --notify 1500
 
 30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers MSFT --notify 1500
 30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers GOOGL --notify 1500
 30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers INTC --notify 1500
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers AAPL --notify 1500

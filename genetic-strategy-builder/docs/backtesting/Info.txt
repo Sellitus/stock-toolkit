@@ -2,9 +2,9 @@
 -Backtesting beginning on 10-4-21
 Paper trading on Tradingview
 
-Stocks to backtest: SPY, AMD, NVDA, MSFT, GOOGL, INTC,
-Crypto to backtest: ADA-USD, COTI-USD, ETH-USD, DOT1-USD, DOGE-USD, LINK-USD
-Added part-time symbols: AAPL, TSLA
+Stocks to backtest: SPY, AMD, NVDA, MSFT, GOOGL, INTC, (after 1 mo) TSLA, AAPL
+Crypto to backtest: ADA-USD, COTI-USD, ETH-USD, DOT1-USD, DOGE-USD, LINK-USD, (after 1 mo) ATOM-USD, SHIB-USD
+
 
 
 Portfolio Log:
