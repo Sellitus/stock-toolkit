@@ -20,11 +20,10 @@ GEN_ALGO_EXE=/home/sellitus/PythonProjects/stock-toolkit/genetic-strategy-builde
 PYTHON_EXE=/home/sellitus/anaconda3/envs/stock-toolkit/bin/python
 GEN_ALGO_EXE=/home/sellitus/PythonProjects/stock-toolkit/genetic-strategy-builder/gen_algo.py
 
-
 30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers DOT1-USD --notify 1500
 30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers LINK-USD --notify 1500
 30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers DOGE-USD --notify 1500
 
-30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers SPY --notify 1500
-30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers AMD --notify 1500
-30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers NVDA --notify 1500
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers MSFT --notify 1500
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers GOOGL --notify 1500
+30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --tickers INTC --notify 1500

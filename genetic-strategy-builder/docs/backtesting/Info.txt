@@ -4,7 +4,7 @@ Paper trading on Tradingview
 
 Stocks to backtest: SPY, AMD, NVDA, MSFT, GOOGL, INTC,
 Crypto to backtest: ADA-USD, COTI-USD, ETH-USD, DOT1-USD, DOGE-USD, LINK-USD
-Added part-time symbols: AAPL
+Added part-time symbols: AAPL, TSLA
 
 
 Portfolio Log:
