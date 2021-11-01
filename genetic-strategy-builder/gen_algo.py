@@ -279,7 +279,7 @@ for generation in range(NUM_GENERATIONS):
     average_sells = [0] * POPULATION
     for ticker in tickers:
         ticker_results = threaded_results[ticker]
-        for j in range(POPULATION):
+        for j in range(len(ticker_results)):
             capital = ticker_results[j].capital
             unadjusted_capital = ticker_results[j].unadjusted_capital
 
