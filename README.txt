@@ -74,13 +74,36 @@ bash Anaconda3-2020.11-Linux-x86_64.sh
 (make sure to say yes to running conda init during install)
 source ~/.bashrc
 
+
+---==== Main Instructions ====---
+
+# Install prereq packages
+sudo apt install -y postfix mailutils
 # Newest version of python is currently busted
 conda create --name stock-toolkit python=3.9
 conda activate stock-toolkit
 conda install pandas matplotlib
 conda install -c anaconda sqlalchemy
 # keras-buoy removed from pip install list
-pip install backtrader requests pandas numpy matplotlib yahoo_fin sklearn beautifulsoup4 nltk lxml requests_html ta get-all-tickers fastquant PyTextNow
+pip install backtrader requests pandas numpy matplotlib yahoo_fin sklearn beautifulsoup4 nltk lxml requests_html ta get-all-tickers fastquant schedule
+
+# Install the pycron file as the current non-root user
+bash install_pycron.sh
+
+---==== END Main Instructions ====---
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Update all pip packages in conda env
 pip list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U
 

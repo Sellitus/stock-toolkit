@@ -669,7 +669,8 @@ for generation in range(NUM_GENERATIONS):
     print('')
 
     if generation + 1 == NOTIFY:
-        f = open('.email_pw')
+        pw_file_path = os.path.dirname(os.path.realpath(__file__)) + '/.email_pw'
+        f = open(pw_file_path)
         lines = f.readlines()
         f.close()
         gmail_user = lines[0] if not lines[0].endswith('\n') else lines[0][:-1]

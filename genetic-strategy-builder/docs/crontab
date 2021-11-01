@@ -1,3 +1,10 @@
+
+# !!! OUTDATED !!!
+
+# NOTE: Cron does not allow Python to easily send emails, so pycron.py was created as an alternative
+
+
+
 # Add the lines below to your crontab file to automatically run each day
 
 
@@ -9,7 +16,7 @@ GEN_ALGO_EXE=/home/sellitus/PythonProjects/stock-toolkit/genetic-strategy-builde
 30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers ADA-USD
 30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers ETH-USD
 30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers COTI-USD
-30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers ATOM-USD
+30 10 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers ATOM1-USD
 
 30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers SPY
 30 13 * * * $PYTHON_EXE $GEN_ALGO_EXE --notify 1500 -production --tickers AMD
