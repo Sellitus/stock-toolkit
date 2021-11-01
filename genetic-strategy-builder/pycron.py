@@ -28,11 +28,12 @@ def run_on_ticker(ticker):
 
 
 def queue_system_run(system_id):
-    crypto_morning_A = '09:30'
-    crypto_morning_B = '10:30'
+    # A is at the more optimal times, B is less optimal and so on
+    crypto_morning_A = '10:30'
+    crypto_morning_B = '09:15'
 
-    stock_candle_close_A = '12:30'
-    stock_candle_close_B = '13:30'
+    stock_candle_close_A = '13:15'
+    stock_candle_close_B = '12:00'
 
     # NOTE: Only add 3 of each symbol for each timeframe, otherwise it will become much slower
     if system_id == 1:
