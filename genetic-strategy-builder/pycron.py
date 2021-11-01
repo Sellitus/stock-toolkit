@@ -22,10 +22,9 @@ def run_on_ticker(ticker):
 def start_system_run(system_id):
     crypto_morning_A = '9:30'
     crypto_morning_B = '10:30'
-    crypto_candle_close_A = '16:30'
 
-    stock_candle_close_A = '13:00'
-    stock_candle_close_B = '14:00'
+    stock_candle_close_A = '12:30'
+    stock_candle_close_B = '13:30'
 
     # NOTE: Only add 3 of each symbol for each timeframe, otherwise it will become much slower
     if system_id == 1:
