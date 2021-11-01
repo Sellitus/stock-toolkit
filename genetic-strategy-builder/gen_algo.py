@@ -226,7 +226,7 @@ for generation in range(NUM_GENERATIONS):
 
     # Updates the current price in the dataframes every 10 generations
     try:
-        if (generation + 1) % 10:
+        if (generation + 1) % 100 == 0:
             for ticker in TICKERS:
                 update_current_price(ticker_data.data, ticker)
     except KeyError as e:
