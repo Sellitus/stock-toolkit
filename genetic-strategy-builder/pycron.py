@@ -23,7 +23,8 @@ GEN_ALGO_EXE = '/home/sellitus/PythonProjects/stock-toolkit/genetic-strategy-bui
 # User settings
 NOTIFY_VAL = 1200
 production_flag = '-production'
-schedule_override = '12:47'
+schedule_override = ''
+# if schedule_override == '' or schedule_override is None else schedule_override
 
 
 def run_on_ticker(ticker):
@@ -34,10 +35,10 @@ def run_on_ticker(ticker):
 
 def queue_system_run(system_id):
     # A is at the more optimal times, B is less optimal and so on
-    crypto_morning_A = '10:30' if schedule_override == '' or schedule_override is None else schedule_override
+    crypto_morning_A = '10:30'
     crypto_morning_B = '09:15'
 
-    stock_candle_close_A = '13:15'
+    stock_candle_close_A = '13:15' if schedule_override == '' or schedule_override is None else schedule_override
     stock_candle_close_B = '12:00'
 
     # NOTE: Only add 3 of each symbol for each timeframe, otherwise it will become much slower
