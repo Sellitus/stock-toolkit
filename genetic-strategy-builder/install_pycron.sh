@@ -1,4 +1,6 @@
 
+PYCRON_USER="sellitus"
+
 # Make sure the script is run as root
 if [[ $(/usr/bin/id -u) -ne 0 ]]; then
     echo "ERROR: Script was not run under the root user. Use sudo"
@@ -17,9 +19,10 @@ echo "
 Description=PyCron
 After=multi-user.target
 [Service]
+User=$PYCRON_USER
 Type=simple
 Restart=always
-ExecStart=/home/sellitus/anaconda3/envs/stock-toolkit/bin/python /home/sellitus/PythonProjects/stock-toolkit/genetic-strategy-builder/pycron.py --id $1
+ExecStart=/home/$PYCRON_USER/anaconda3/envs/stock-toolkit/bin/python /home/$PYCRON_USER/PythonProjects/stock-toolkit/genetic-strategy-builder/pycron.py --id $1
 [Install]
 WantedBy=multi-user.target
 " > /etc/systemd/system/pycron.service
@@ -30,7 +33,7 @@ sudo systemctl restart pycron
 
 EMAIL_FILE=".email_pw"
 if [ ! -f "$EMAIL_FILE" ]; then
-  echo "Email password file $EMAIL_FILE does not exist. Create this file with the email on the first line and pw on the second"
+  echo "WARNING: Email password file $EMAIL_FILE does not exist. Create this file with the email on the first line and password on the second"
 else
   echo "Found email password file $EMAIL_FILE ! Setup should now be complete"
 fi

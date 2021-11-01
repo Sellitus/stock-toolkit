@@ -1,6 +1,7 @@
 import argparse
 import collections
 import copy
+import datetime
 import math
 import matplotlib.pyplot as plt
 import multiprocessing as mp
@@ -137,7 +138,11 @@ if not RNG:
     random.seed(314)
 
 # Grab the current date
-date_time_start = time.strftime("%Y-%m-%d_%H:%M:%S")
+start_timer = time.time()
+# Variables for calculating average
+last_time = start_timer
+time_average = 0
+
 
 # Save the tickers to a list all uppercase
 tickers = [ticker.upper() for ticker in TICKERS]
@@ -486,8 +491,9 @@ for generation in range(NUM_GENERATIONS):
             else:
                 vote_med = 'NEUTRAL'
 
-            overall_best_candidate_str = "Top {} Candidate Capital: ".format(top_vote)
-            for result in overall_best_candidates:
+            # Changed top_num to a static 5 for cleaner output
+            overall_best_candidate_str = "Top {} Candidate Capital: ".format(str(5))
+            for result in overall_best_candidates[:5]:
                 overall_best_candidate_str += '${:,.2f}, '.format(result.capital)
 
             overall_best_candidate_str = overall_best_candidate_str[:-2]
@@ -646,23 +652,36 @@ for generation in range(NUM_GENERATIONS):
     results_str = results_str + '\nTop {} - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, vote_small,
                                                                                   num_vote_buy_small,
                                                                                   num_vote_sell_small)
-    print(results_str)
+    print("Generation: {}".format(generation + 1) + results_str)
     # print('Top {} - avg: {} -  buy: {},  sell: {}'.format(top_vote, vote, num_vote_buy, num_vote_sell))
     # print('{}->{} - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, top_vote_med, vote_med,
     #                                                                           num_vote_buy_med, num_vote_sell_med))
     # print('Top {} - avg: {} -  buy: {},  sell: {}'.format(top_vote_small, vote_small,
     #                                                                       num_vote_buy_small, num_vote_sell_small))
-    print('======================')
-    print('Top 10 Indicator Frequencies: {}'.format(str(sorted_best10_ind
-                                                        ).replace('\'', '').replace('{', '(').replace('}', ')')))
-    print('Top 50 Indicator Frequencies: {}'.format(str(sorted_best50_ind
-                                                        ).replace('\'', '').replace('{', '(').replace('}', ')')))
-    print('======================')
-    print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
-    print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
-    print('-This Generation- Plebs: {}'.format(plebs))
+    # print('======================')
+    # print('Top 10 Indicator Frequencies: {}'.format(str(sorted_best10_ind
+    #                                                     ).replace('\'', '').replace('{', '(').replace('}', ')')))
+    # print('Top 50 Indicator Frequencies: {}'.format(str(sorted_best50_ind
+    #                                                     ).replace('\'', '').replace('{', '(').replace('}', ')')))
+    # print('======================')
+    # print('-This Generation- Top Tier Elite: {}'.format(top_elite_print))
+    # print('-This Generation- Low Tier Elite: {}'.format(low_elite_print))
+    # print('-This Generation- Plebs: {}'.format(plebs))
     print('======================')
     print('Buy+Hold Earnings: - {} - {}'.format(' '.join(tickers), buy_and_hold_str))
+    print('======================')
+    # Calculate current runtime and average generation runtime
+    curr_timer = time.time()
+    total_runtime = curr_timer - start_timer
+    total_runtime_str = datetime.timedelta(seconds=total_runtime)
+    # Calculate average
+    generation_time = curr_timer - last_time
+    time_average += generation_time
+    average_time = time_average / (generation + 1)
+    last_time = curr_timer
+    print('Total Runtime:   {}'.format(total_runtime_str))
+    print('Average runtime:       {:.6f}'.format(average_time))
+    print('======================')
 
     # Print individual results from each ticker for best candidate
 
@@ -680,8 +699,8 @@ for generation in range(NUM_GENERATIONS):
 
         recipients = ['2285969839@tmomail.net', 'sellitus@gmail.com']
 
-        if PRODUCTION_MODE:
-            recipients.append('2283425275@tmomail.net')
+        # if PRODUCTION_MODE:
+        #     recipients.append('2283425275@tmomail.net')
 
         email_text = f""" %s - """ % (results_str)
 

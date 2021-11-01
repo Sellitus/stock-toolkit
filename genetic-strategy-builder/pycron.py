@@ -13,23 +13,28 @@ parser.add_argument('--id', dest="SYSTEM_ID", required=True, type=int,
                          " - Example [ --id 2 ]")
 args = parser.parse_args()
 
+# Argument settings
 SYSTEM_ID = args.SYSTEM_ID
 
-
+# Static path settings
 PYTHON_EXE = '/home/sellitus/anaconda3/envs/stock-toolkit/bin/python'
 GEN_ALGO_EXE = '/home/sellitus/PythonProjects/stock-toolkit/genetic-strategy-builder/gen_algo.py'
 
+# User settings
 NOTIFY_VAL = 1200
+production_flag = '-production'
+schedule_override = '12:47'
 
 
 def run_on_ticker(ticker):
-    cmd_str = '{} {} --notify {} -production --tickers {} & '.format(PYTHON_EXE, GEN_ALGO_EXE, NOTIFY_VAL, ticker)
-    subprocess.run(cmd_str, shell=True)
+    cmd_str = '{} {} --notify {} {} --tickers {}'.format(PYTHON_EXE, GEN_ALGO_EXE, NOTIFY_VAL, production_flag,
+                                                         ticker)
+    subprocess.Popen(cmd_str.split(' '), stdin=None, stdout=None, stderr=None)
 
 
 def queue_system_run(system_id):
     # A is at the more optimal times, B is less optimal and so on
-    crypto_morning_A = '10:30'
+    crypto_morning_A = '10:30' if schedule_override == '' or schedule_override is None else schedule_override
     crypto_morning_B = '09:15'
 
     stock_candle_close_A = '13:15'
