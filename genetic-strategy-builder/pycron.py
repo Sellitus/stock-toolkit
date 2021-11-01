@@ -34,12 +34,12 @@ def run_on_ticker(ticker):
 
 
 def queue_system_run(system_id):
-    # A is at the more optimal times, B is less optimal and so on
-    crypto_morning_A = '10:30'
-    crypto_morning_B = '09:15'
+    # A is at the more optimal time, B is less optimal and so on
+    crypto_morning_A = '09:30'
+    crypto_morning_B = '08:30'
 
-    stock_candle_close_A = '13:15' if schedule_override == '' or schedule_override is None else schedule_override
-    stock_candle_close_B = '12:00'
+    stock_candle_close_A = '13:30'
+    stock_candle_close_B = '12:30' if schedule_override == '' or schedule_override is None else schedule_override
 
     # NOTE: Only add 3 of each symbol for each timeframe, otherwise it will become much slower
     if system_id == 1:
@@ -47,36 +47,44 @@ def queue_system_run(system_id):
         schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'ADA-USD')
         schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'ETH-USD')
         schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'COTI-USD')
+        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'DOT1-USD')
         # Crypto Morning B
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'ATOM1-USD')
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'MATIC-USD')
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'ALGO-USD')
+        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'BTC-USD')
+        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'ICP1-USD')
+        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'MANA-USD')
+        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'AAVE-USD')
         # Stock Close A
         schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'SPY')
         schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'AMD')
         schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'NVDA')
+        schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'SNOW')
         # Stock Close B
         schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'TSLA')
         schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'LULU')
         schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'FVRR')
+        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'SHOP')
 
     if system_id == 2:
         # Crypto Morning A
-        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'DOT1-USD')
         schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'LINK-USD')
-        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'DOGE-USD')
+        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'ATOM1-USD')
+        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'MATIC-USD')
+        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'ALGO-USD')
         # Crypto Morning B
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'SHIB-USD')
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'ICP1-USD')
         schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'HBAR-USD')
+        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'SHIB-USD')
+        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'DOGE-USD')
+        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'SOL1-USD')
         # Stock Close A
         schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'MSFT')
         schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'GOOGL')
         schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'INTC')
+        schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'BAND')
         # Stock Close B
         schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'AAPL')
         schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'ACN')
         schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'UPST')
+        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'EA')
 
 
 while True:
