@@ -27,7 +27,7 @@ def run_on_ticker(ticker):
     subprocess.run(cmd_str, shell=True)
 
 
-def start_system_run(system_id):
+def queue_system_run(system_id):
     crypto_morning_A = '09:30'
     crypto_morning_B = '10:30'
 
@@ -36,35 +36,43 @@ def start_system_run(system_id):
 
     # NOTE: Only add 3 of each symbol for each timeframe, otherwise it will become much slower
     if system_id == 1:
-        # Morning A
+        # Crypto Morning A
         schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'ADA-USD')
         schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'ETH-USD')
         schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'COTI-USD')
-        # Morning B
+        # Crypto Morning B
         schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'ATOM1-USD')
-        # Stock Candle Close A
+        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'MATIC-USD')
+        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'ALGO-USD')
+        # Stock Close A
         schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'SPY')
         schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'AMD')
         schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'NVDA')
-        # Stock Candle Close B
+        # Stock Close B
         schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'TSLA')
+        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'LULU')
+        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'FVRR')
 
     if system_id == 2:
-        # Morning A
+        # Crypto Morning A
         schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'DOT1-USD')
         schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'LINK-USD')
         schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'DOGE-USD')
-        # Morning B
+        # Crypto Morning B
         schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'SHIB-USD')
-        # Stock Candle Close A
+        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'ICP1-USD')
+        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'HBAR-USD')
+        # Stock Close A
         schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'MSFT')
         schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'GOOGL')
         schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'INTC')
-        # Stock Candle Close B
+        # Stock Close B
         schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'AAPL')
+        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'ACN')
+        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'UPST')
 
 
 while True:
-    start_system_run(SYSTEM_ID)
+    queue_system_run(SYSTEM_ID)
     schedule.run_pending()
     time.sleep(60)
