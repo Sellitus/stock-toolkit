@@ -494,70 +494,72 @@ for generation in range(NUM_GENERATIONS):
 
     # Output Section
 
-    plt.clf()
+    # Plot if not in production mode
+    if not PRODUCTION_MODE:
+        plt.clf()
 
-    buy_coords = copy.deepcopy(new_data[tickers[0]])
-    sell_coords = copy.deepcopy(new_data[tickers[0]])
+        buy_coords = copy.deepcopy(new_data[tickers[0]])
+        sell_coords = copy.deepcopy(new_data[tickers[0]])
 
-    for timestamp, row in new_data[tickers[0]].iterrows():
-        if timestamp not in best_candidate.buy_list:
-            buy_coords = buy_coords.drop(index=timestamp)
-        if timestamp not in best_candidate.sell_list:
-            sell_coords = sell_coords.drop(index=timestamp)
+        for timestamp, row in new_data[tickers[0]].iterrows():
+            if timestamp not in best_candidate.buy_list:
+                buy_coords = buy_coords.drop(index=timestamp)
+            if timestamp not in best_candidate.sell_list:
+                sell_coords = sell_coords.drop(index=timestamp)
 
-    # Create a new series with them in order
-    buy_sell_index_combined = buy_coords.index.union(sell_coords.index)
-    buy_sell_close_combined = pd.concat([buy_coords.close, sell_coords.close]).sort_index()
+        # Create a new series with them in order
+        buy_sell_index_combined = buy_coords.index.union(sell_coords.index)
+        buy_sell_close_combined = pd.concat([buy_coords.close, sell_coords.close]).sort_index()
 
-    plt.subplot(211)
-    plt.plot(new_data[tickers[0]]['close'], label="close", color='black', zorder=2)
-    plt.subplot(211)
-    plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b', zorder=1)
-    plt.subplot(211)
-    plt.scatter(buy_coords.index, buy_coords.close, color='lime', zorder=4, edgecolors='black')
-    plt.subplot(211)
-    plt.scatter(sell_coords.index, sell_coords.close, color='r', zorder=3, edgecolors='black')
+        plt.subplot(211)
+        plt.plot(new_data[tickers[0]]['close'], label="close", color='black', zorder=2)
+        plt.subplot(211)
+        plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b', zorder=1)
+        plt.subplot(211)
+        plt.scatter(buy_coords.index, buy_coords.close, color='lime', zorder=4, edgecolors='black')
+        plt.subplot(211)
+        plt.scatter(sell_coords.index, sell_coords.close, color='r', zorder=3, edgecolors='black')
 
-    ax = plt.gca()
-    ax.set_facecolor('ghostwhite')
+        ax = plt.gca()
+        ax.set_facecolor('ghostwhite')
 
-    plt.xlabel("date")
-    plt.ylabel("$ price")
-    plt.title("{}: Overall Best".format(tickers[0]))
+        plt.xlabel("date")
+        plt.ylabel("$ price")
+        plt.title("{}: Overall Best".format(tickers[0]))
 
-    buy_coords = copy.deepcopy(new_data[tickers[0]])
-    sell_coords = copy.deepcopy(new_data[tickers[0]])
+        buy_coords = copy.deepcopy(new_data[tickers[0]])
+        sell_coords = copy.deepcopy(new_data[tickers[0]])
 
-    for timestamp, row in new_data[tickers[0]].iterrows():
-        if timestamp not in candidate_average[0].buy_list:
-            buy_coords = buy_coords.drop(index=timestamp)
-        if timestamp not in candidate_average[0].sell_list:
-            sell_coords = sell_coords.drop(index=timestamp)
+        for timestamp, row in new_data[tickers[0]].iterrows():
+            if timestamp not in candidate_average[0].buy_list:
+                buy_coords = buy_coords.drop(index=timestamp)
+            if timestamp not in candidate_average[0].sell_list:
+                sell_coords = sell_coords.drop(index=timestamp)
 
-    # Create a new series with them in order
-    buy_sell_index_combined = buy_coords.index.union(sell_coords.index)
-    buy_sell_close_combined = pd.concat([buy_coords.close, sell_coords.close]).sort_index()
+        # Create a new series with them in order
+        buy_sell_index_combined = buy_coords.index.union(sell_coords.index)
+        buy_sell_close_combined = pd.concat([buy_coords.close, sell_coords.close]).sort_index()
 
-    plt.subplot(212)
-    plt.plot(new_data[tickers[0]]['close'], label="close", color='black', zorder=2)
-    plt.subplot(212)
-    plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b', zorder=1)
-    plt.subplot(212)
-    plt.scatter(buy_coords.index, buy_coords.close, color='lime', zorder=4, edgecolors='black')
-    plt.subplot(212)
-    plt.scatter(sell_coords.index, sell_coords.close, color='r', zorder=3, edgecolors='black')
+        plt.subplot(212)
+        plt.plot(new_data[tickers[0]]['close'], label="close", color='black', zorder=2)
+        plt.subplot(212)
+        plt.plot(buy_sell_index_combined, buy_sell_close_combined, color='b', zorder=1)
+        plt.subplot(212)
+        plt.scatter(buy_coords.index, buy_coords.close, color='lime', zorder=4, edgecolors='black')
+        plt.subplot(212)
+        plt.scatter(sell_coords.index, sell_coords.close, color='r', zorder=3, edgecolors='black')
 
-    plt.xlabel("date")
-    plt.ylabel("$ price")
-    plt.title("{}: Generation {}'s Best".format(tickers[0], generation + 1))
+        plt.xlabel("date")
+        plt.ylabel("$ price")
+        plt.title("{}: Generation {}'s Best".format(tickers[0], generation + 1))
 
-    ax = plt.gca()
-    ax.set_facecolor('ghostwhite')
+        ax = plt.gca()
+        ax.set_facecolor('ghostwhite')
 
-    plt.tight_layout()
+        plt.tight_layout()
 
-    plt.draw()
-    plt.pause(0.2)
+        plt.draw()
+        plt.pause(0.2)
 
 
     # Calculate top and low tier elite
