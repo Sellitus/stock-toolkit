@@ -25,4 +25,5 @@ WantedBy=multi-user.target
 " > /etc/systemd/system/pycron.service
 
 sudo systemctl enable pycron
-sudo systemctl start pycron
+sleep 1
+sudo systemctl restart pycron
