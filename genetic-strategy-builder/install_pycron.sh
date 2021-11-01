@@ -27,3 +27,10 @@ WantedBy=multi-user.target
 sudo systemctl enable pycron
 sleep 1
 sudo systemctl restart pycron
+
+EMAIL_FILE=".email_pw"
+if [ ! -f "$EMAIL_FILE" ]; then
+  echo "Email password file $EMAIL_FILE does not exist. Create this file with the email on the first line and pw on the second"
+else
+  echo "Found email password file $EMAIL_FILE ! Setup should now be complete"
+fi
