@@ -224,13 +224,14 @@ for generation in range(NUM_GENERATIONS):
 
     print('Adding indicator data and testing every member of the population against each ticker passed...')
 
-    # Updates the current price in the dataframes every 10 generations
-    try:
-        if (generation + 1) % 100 == 0:
-            for ticker in TICKERS:
-                update_current_price(ticker_data.data, ticker)
-    except KeyError as e:
-        print('Unable to update current ticker price. Skipping for this iteration...')
+    if not PRODUCTION_MODE:
+        # Updates the current price in the dataframes every 100 generations
+        try:
+            if (generation + 1) % 100 == 0:
+                for ticker in TICKERS:
+                    update_current_price(ticker_data.data, ticker)
+        except Exception as e:
+            print('Unable to update current ticker price. Skipping for this iteration...')
 
     #ticker_data.clear_ticker_data()
     if TEST_DATA is not None:
