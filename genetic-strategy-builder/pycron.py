@@ -21,10 +21,23 @@ PYTHON_EXE = '/home/sellitus/anaconda3/envs/stock-toolkit/bin/python'
 GEN_ALGO_EXE = '/home/sellitus/PythonProjects/stock-toolkit/genetic-strategy-builder/gen_algo.py'
 
 # User settings
+EMERGENCY_MODE = False
 NOTIFY_VAL = 1200
 production_flag = '-production'
-schedule_override = '09:50'
-# if schedule_override == '' or schedule_override is None else schedule_override
+# Override any of the following to reschedule, save, then restart the pycron service
+override_crypto_morning_A = ''
+override_crypto_morning_B = ''
+override_stock_candle_close_A = ''
+override_stock_candle_close_B = ''
+# Set overrides if present
+crypto_morning_A = '09:30' if override_crypto_morning_A == '' or override_crypto_morning_A is None \
+    else override_crypto_morning_A
+crypto_morning_B = '08:30' if override_crypto_morning_B == '' or override_crypto_morning_B is None \
+    else override_crypto_morning_B
+stock_close_A = '13:30' if override_stock_candle_close_A == '' or override_stock_candle_close_A is None \
+    else override_stock_candle_close_A
+stock_close_B = '12:30' if override_stock_candle_close_B == '' or override_stock_candle_close_B is None \
+    else override_stock_candle_close_B
 
 
 def run_on_ticker(ticker):
@@ -34,57 +47,59 @@ def run_on_ticker(ticker):
 
 
 def queue_system_run(system_id):
-    # A is at the more optimal time, B is less optimal and so on
-    crypto_morning_A = '09:30' if schedule_override == '' or schedule_override is None else schedule_override
-    crypto_morning_B = '08:30'
+    # Class A, the tickers we care about trading the most.
+    most_important_crypto_morning_A = ['ADA-USD', 'ETH-USD', 'COTI-USD', 'DOT1-USD', 'LINK-USD', 'ATOM1-USD',
+                                       'MATIC-USD', 'ALGO-USD']
+    most_important_stock_close_A = ['SPY', 'AMD', 'NVDA', 'SNOW', 'MSFT', 'GOOGL', 'INTC', 'TSLA']
+    # Class B, extra tickers we want to trade but aren't as interesting as class A
+    most_important_crypto_morning_B = ['BTC-USD', 'ICP1-USD', 'MANA-USD', 'AAVE-USD', 'HBAR-USD', 'SHIB-USD',
+                                       'DOGE-USD', 'SOL1-USD']
+    most_important_stock_close_B = ['BAND', 'LULU', 'FVRR', 'SHOP', 'AAPL', 'ACN', 'UPST', 'EA']
 
-    stock_candle_close_A = '13:30'
-    stock_candle_close_B = '12:30'
+    if not EMERGENCY_MODE:
+        # NOTE: Only add 3 of each symbol for each timeframe, otherwise it will become much slower
+        if system_id == 1:
+            # Crypto Morning A
+            for i in range(4):
+                schedule.every().day.at(crypto_morning_A).do(run_on_ticker, most_important_crypto_morning_A[i])
+            # Crypto Morning B
+            for i in range(4):
+                schedule.every().day.at(crypto_morning_B).do(run_on_ticker, most_important_crypto_morning_B[i])
+            # Stock Close A
+            for i in range(4):
+                schedule.every().day.at(stock_close_A).do(run_on_ticker, most_important_stock_close_A[i])
+            # Stock Close B
+            for i in range(4):
+                schedule.every().day.at(stock_close_B).do(run_on_ticker, most_important_stock_close_B[i])
 
-    # NOTE: Only add 3 of each symbol for each timeframe, otherwise it will become much slower
-    if system_id == 1:
+        if system_id == 2:
+            # Crypto Morning A
+            for i in range(4, 8):
+                schedule.every().day.at(crypto_morning_A).do(run_on_ticker, most_important_crypto_morning_A[i])
+            # Crypto Morning B
+            for i in range(4, 8):
+                schedule.every().day.at(crypto_morning_B).do(run_on_ticker, most_important_crypto_morning_B[i])
+            # Stock Close A
+            for i in range(4, 8):
+                schedule.every().day.at(stock_close_A).do(run_on_ticker, most_important_stock_close_A[i])
+            # Stock Close B
+            for i in range(4, 8):
+                schedule.every().day.at(stock_close_B).do(run_on_ticker, most_important_stock_close_B[i])
+    else:
+        # EMERGENCY_MODE runs all the important symbols on one machine, split by time
         # Crypto Morning A
-        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'ADA-USD')
-        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'ETH-USD')
-        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'COTI-USD')
-        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'DOT1-USD')
-        # Crypto Morning B
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'BTC-USD')
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'ICP1-USD')
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'MANA-USD')
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'AAVE-USD')
+        for i in range(4):
+            schedule.every().day.at(crypto_morning_A).do(run_on_ticker, most_important_crypto_morning_A[i])
+        # Crypto Morning A in the crypto morning B timeslot
+        for i in range(4, 8):
+            schedule.every().day.at(crypto_morning_B).do(run_on_ticker, most_important_crypto_morning_A[i])
         # Stock Close A
-        schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'SPY')
-        schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'AMD')
-        schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'NVDA')
-        schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'SNOW')
-        # Stock Close B
-        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'TSLA')
-        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'LULU')
-        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'FVRR')
-        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'SHOP')
+        for i in range(4):
+            schedule.every().day.at(stock_close_A).do(run_on_ticker, most_important_stock_close_A[i])
+        # Stock Close A in the stock close A timeslot
+        for i in range(4, 8):
+            schedule.every().day.at(stock_close_B).do(run_on_ticker, most_important_stock_close_A[i])
 
-    if system_id == 2:
-        # Crypto Morning A
-        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'LINK-USD')
-        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'ATOM1-USD')
-        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'MATIC-USD')
-        schedule.every().day.at(crypto_morning_A).do(run_on_ticker, 'ALGO-USD')
-        # Crypto Morning B
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'HBAR-USD')
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'SHIB-USD')
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'DOGE-USD')
-        schedule.every().day.at(crypto_morning_B).do(run_on_ticker, 'SOL1-USD')
-        # Stock Close A
-        schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'MSFT')
-        schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'GOOGL')
-        schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'INTC')
-        schedule.every().day.at(stock_candle_close_A).do(run_on_ticker, 'BAND')
-        # Stock Close B
-        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'AAPL')
-        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'ACN')
-        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'UPST')
-        schedule.every().day.at(stock_candle_close_B).do(run_on_ticker, 'EA')
 
 
 while True:
