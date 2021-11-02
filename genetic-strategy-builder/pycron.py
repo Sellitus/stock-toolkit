@@ -101,8 +101,9 @@ def queue_system_run(system_id):
             schedule.every().day.at(stock_close_B).do(run_on_ticker, most_important_stock_close_A[i])
 
 
+queue_system_run(SYSTEM_ID)
+
 
 while True:
-    queue_system_run(SYSTEM_ID)
     schedule.run_pending()
     time.sleep(60)
