@@ -48,6 +48,7 @@ yes | $PIP_EXE install backtrader requests pandas numpy matplotlib yahoo_fin skl
 
 echo "
 Execute these commands and you're ready to run stock-toolkit projects:
+
 source ~/.bashrc
 conda activate stock-toolkit"
 
