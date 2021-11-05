@@ -1,108 +1,30 @@
 Setup Guide:
-  A1) Install CUDA in Windows Subsystem for Linux
-  A2) Install Hyper-V VM with GPU Passthrough
-  B) Install NVIDIA CUDA
-  C) Install all necessary packages for running scripts on the Ubuntu machine
-  D) EXTRA: Disable GPU Passthrough
 
 
---- A1 ---
+--- A ---
 
-- Install Windows drivers from here: https://developer.nvidia.com/cuda/wsl/download
-- Install Windows Subsystem for Linux Windows 10 feature
-- Install a flavor of Ubuntu from the Windows Store
-- Launch and setup Ubuntu for WSL
-- Install Windows drivers from here: https://developer.nvidia.com/cuda/wsl/download
-- Install appropriate repo and packages within Ubuntu
+Either install a VM in any hypervisor OR install linux on native hardware (only necessary if running neural-stock with GPU accelerated tensorflow)
 
-sudo apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
-sudo sh -c 'echo "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list'
-sudo apt update
-
-- Check the repo URL in /etc/apt/sources.list.d/cuda.list and get newest version for the following command
-
-sudo apt install -y cuda-toolkit-11-4
-
-
-
-
-
-
-
---- A2 ---
-
-1) Create Ubuntu VM in Hyper-V.
-2) Fully install Ubuntu OS within VM and shut the VM down.
-3) Enable GPU passthrough:
-
-!!! NOTE !!! : Do not do this on a GPU you are using to see the screen, as it will be disabled.
-
--Set the $VM variable to the name of the VM:
-
-$VM='ML CUDA Mate 20.04'
-Set-VM $VM -GuestControlledCacheTypes $true
-
--Open device manager, right click on GPU to be dedicated, properties. Go to the 'Details' tab, and select 'Location paths' from the dropdown box. Copy the PCIROOT location (Example: PCIROOT(0)#PCI(0100)#PCI(0000) ) and set the $Location to this value as shown below.
-
-$Location = 'PCIROOT(0)#PCI(0100)#PCI(0000)'
-
-- Set memory limits, based on the size of the GPU's memory
-Set-VM $VM -LowMemoryMappedIoSpace 512MB 
-Set-VM $VM -HighMemoryMappedIoSpace 6GB
-
-- In device manager, right click the GPU and select 'disable' and wait for it to fully disable.
-
-Dismount-VMHostAssignableDevice -force -LocationPath $Location
-Add-VMAssignableDevice -LocationPath $Location -VMName VMName
 
 
 --- B ---
 
-(Look up updated guide)
-
-
+Only if you are running GPU accelerated tensorflow, look up a guide on how to install the most recent version of CUDA, drivers and other supporting packages to prepare your environment for running tensorflow-gpu
 
 
 
 --- C ---
 
-Install Conda and Required Packages:
-- First install Anaconda (don't use sudo), get the newest install script from here: https://www.anaconda.com/products/individual
+Run the setup_stock-toolkit.sh bash file as a non-root user:
+bash setup_stock-toolkit.sh
 
-curl -O https://repo.anaconda.com/archive/Anaconda3-2020.11-Linux-x86_64.sh
-bash Anaconda3-2020.11-Linux-x86_64.sh
-(make sure to say yes to running conda init during install)
+Activate after installation:
 source ~/.bashrc
-
-
----==== Main Instructions ====---
-
-# Install prereq packages
-sudo apt install -y postfix mailutils
-# Newest version of python is currently busted
-conda create --name stock-toolkit python=3.9
 conda activate stock-toolkit
-conda install pandas matplotlib
-conda install -c anaconda sqlalchemy
-# keras-buoy removed from pip install list
-pip install backtrader requests pandas numpy matplotlib yahoo_fin sklearn beautifulsoup4 nltk lxml requests_html ta get-all-tickers fastquant schedule
-
-# Install the pycron file as the current non-root user
-bash install_pycron.sh
-
----==== END Main Instructions ====---
 
 
 
-
-
-
-
-
-
-
-
-
+##### IF tensorflow is needed (for running neural-stock only), install tensorflow within the conda environment:
 
 # Update all pip packages in conda env
 pip list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U
@@ -117,15 +39,9 @@ pip install tensorflow==2.6 -i http://pypi.douban.com/simple --trusted-host pypi
 tensorboard --logdir="logs"
 
 
---- D ---
 
--Disable GPU Passthrough
 
-(Use the same values used for $VM and $Location as in step A3
 
-Remove-VMAssignableDevice -LocationPath $Location -VMName $VM
-Enable-PnpDevice $Location
-Mount-VMHostAssignableDevice -LocationPath $Location
 
 
 
