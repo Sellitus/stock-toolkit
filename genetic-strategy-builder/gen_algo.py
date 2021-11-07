@@ -258,6 +258,14 @@ for generation in range(NUM_GENERATIONS):
 
     process_pool = mp.Pool(mp.cpu_count() * MULTITHREAD_PROCESS_MULTIPLIER)
 
+    # For testing purposes
+    for ticker in tickers:
+        for j in range(len(population)):
+            tester.test_strategy(threaded_results, ticker, new_data[ticker], population[j],
+                                 j, curr_train_period, COMMISSION, CAPITAL,)
+
+
+
     for ticker in tickers:
         for j in range(len(population)):
             process_pool.apply_async(tester.test_strategy, (threaded_results, ticker, new_data[ticker], population[j],

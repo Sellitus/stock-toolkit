@@ -46,6 +46,14 @@ def run_on_ticker(ticker):
     subprocess.Popen(cmd_str.split(' '), stdin=None, stdout=None, stderr=None)
 
 
+def queue_weekdays(time, ticker):
+    schedule.every().monday.at(time).do(run_on_ticker, ticker)
+    schedule.every().tuesday.at(time).do(run_on_ticker, ticker)
+    schedule.every().wednesday.at(time).do(run_on_ticker, ticker)
+    schedule.every().thursday.at(time).do(run_on_ticker, ticker)
+    schedule.every().friday.at(time).do(run_on_ticker, ticker)
+
+
 def queue_system_run(system_id):
     # Class A, the tickers we care about trading the most.
     most_important_crypto_morning_A = ['ADA-USD', 'ETH-USD', 'COTI-USD', 'DOT1-USD', 'LINK-USD', 'ATOM1-USD',
@@ -67,10 +75,10 @@ def queue_system_run(system_id):
                 schedule.every().day.at(crypto_morning_B).do(run_on_ticker, most_important_crypto_morning_B[i])
             # Stock Close A
             for i in range(4):
-                schedule.every().day.at(stock_close_A).do(run_on_ticker, most_important_stock_close_A[i])
+                queue_weekdays(stock_close_A, most_important_stock_close_A[i])
             # Stock Close B
             for i in range(4):
-                schedule.every().day.at(stock_close_B).do(run_on_ticker, most_important_stock_close_B[i])
+                queue_weekdays(stock_close_B, most_important_stock_close_B[i])
 
         if system_id == 2:
             # Crypto Morning A
@@ -81,10 +89,10 @@ def queue_system_run(system_id):
                 schedule.every().day.at(crypto_morning_B).do(run_on_ticker, most_important_crypto_morning_B[i])
             # Stock Close A
             for i in range(4, 8):
-                schedule.every().day.at(stock_close_A).do(run_on_ticker, most_important_stock_close_A[i])
+                queue_weekdays(stock_close_A, most_important_stock_close_A[i])
             # Stock Close B
             for i in range(4, 8):
-                schedule.every().day.at(stock_close_B).do(run_on_ticker, most_important_stock_close_B[i])
+                queue_weekdays(stock_close_B, most_important_stock_close_B[i])
     else:
         # EMERGENCY_MODE runs all the important symbols on one machine, split by time
         # Crypto Morning A
@@ -95,10 +103,10 @@ def queue_system_run(system_id):
             schedule.every().day.at(crypto_morning_B).do(run_on_ticker, most_important_crypto_morning_A[i])
         # Stock Close A
         for i in range(4):
-            schedule.every().day.at(stock_close_A).do(run_on_ticker, most_important_stock_close_A[i])
-        # Stock Close A in the stock close A timeslot
+            queue_weekdays(stock_close_A, most_important_stock_close_A[i])
+        # Stock Close A in the stock close B timeslot
         for i in range(4, 8):
-            schedule.every().day.at(stock_close_B).do(run_on_ticker, most_important_stock_close_A[i])
+            queue_weekdays(stock_close_B, most_important_stock_close_A[i])
 
 
 queue_system_run(SYSTEM_ID)
