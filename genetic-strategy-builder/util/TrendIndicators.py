@@ -234,7 +234,7 @@ class TrendIndicators:
                                             low=df['low'],
                                             window=self.strategy_settings['window'],
                                             fillna=self.strategy_settings['fillna'])
-            import pdb; pdb.set_trace()
+
             df[f"trend_vortex_ind_pos"] = self.strategy.vortex_indicator_pos()
             df[f"trend_vortex_ind_neg"] = self.strategy.vortex_indicator_neg()
             df[f"trend_vortex_ind_diff"] = self.strategy.vortex_indicator_neg()

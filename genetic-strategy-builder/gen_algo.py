@@ -258,13 +258,12 @@ for generation in range(NUM_GENERATIONS):
 
     process_pool = mp.Pool(mp.cpu_count() * MULTITHREAD_PROCESS_MULTIPLIER)
 
-    # For testing purposes
-    for ticker in tickers:
-        for j in range(len(population)):
-            tester.test_strategy(threaded_results, ticker, new_data[ticker], population[j],
-                                 j, curr_train_period, COMMISSION, CAPITAL,)
-
-
+    # # !!!! START For Testing Purposes !!!!
+    # for ticker in tickers:
+    #     for j in range(len(population)):
+    #         tester.test_strategy(threaded_results, ticker, new_data[ticker], population[j],
+    #                              j, curr_train_period, COMMISSION, CAPITAL,)
+    # # !!!! END Testing Section !!!!
 
     for ticker in tickers:
         for j in range(len(population)):

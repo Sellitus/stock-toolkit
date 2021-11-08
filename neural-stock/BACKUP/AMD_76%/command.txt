@@ -1,1 +1,0 @@
-python main.py --n-steps 50 --test-size 0.20 --units 64 --batch-size 512 --epochs 10000 --n-hidden-layers 1 --dropout 0.3 --model-name main --lookup-step 1 --ticker AMD --resume-model

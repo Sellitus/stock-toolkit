@@ -22,6 +22,15 @@ Activate after installation:
 source ~/.bashrc
 conda activate stock-toolkit
 
+# Install TA lib Linux library:
+https://github.com/mrjbq7/ta-lib#dependencies
+
+conda create --name stock-toolkit python
+conda activate stock-toolkit
+conda install pandas matplotlib
+conda install -c anaconda sqlalchemy
+pip install backtrader requests pandas numpy matplotlib yahoo_fin sklearn beautifulsoup4 nltk lxml requests_html ta get-all-tickers fastquant ta-lib
+
 
 
 ##### IF tensorflow is needed (for running neural-stock only), install tensorflow within the conda environment:

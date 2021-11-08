@@ -57,11 +57,11 @@ def queue_weekdays(time, ticker):
 def queue_system_run(system_id):
     # Class A, the tickers we care about trading the most.
     most_important_crypto_morning_A = ['ADA-USD', 'ETH-USD', 'COTI-USD', 'DOT1-USD', 'LINK-USD', 'ATOM1-USD',
-                                       'MATIC-USD', 'ALGO-USD']
+                                       'SHIB-USD', 'SOL1-USD']
     most_important_stock_close_A = ['SPY', 'AMD', 'NVDA', 'SNOW', 'MSFT', 'GOOGL', 'INTC', 'TSLA']
     # Class B, extra tickers we want to trade but aren't as interesting as class A
-    most_important_crypto_morning_B = ['BTC-USD', 'ICP1-USD', 'MANA-USD', 'AAVE-USD', 'HBAR-USD', 'SHIB-USD',
-                                       'DOGE-USD', 'SOL1-USD']
+    most_important_crypto_morning_B = ['ALGO-USD', 'ICP1-USD', 'MANA-USD', 'AAVE-USD', 'HBAR-USD', 'LUNA1-USD',
+                                       'DOGE-USD', 'MATIC-USD']
     most_important_stock_close_B = ['BAND', 'LULU', 'FVRR', 'SHOP', 'AAPL', 'ACN', 'UPST', 'EA']
 
     if not EMERGENCY_MODE:
